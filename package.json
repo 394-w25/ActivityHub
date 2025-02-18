@@ -11,10 +11,10 @@
     "coverage": "vitest run --coverage",
     "format": "prettier . --write",
     "check": "prettier . --check",
-    "prepare": "husky",
-    "lint-staged": {
-      "**/*": "prettier --write --ignore-unknown"
-    }
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
     "react": "^18.3.0",
