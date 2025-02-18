@@ -1,0 +1,7 @@
+# Ignore artifacts
+dist
+build
+coverage
+package-lock.json
+package.json
+README.md
