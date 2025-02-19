@@ -1,5 +1,5 @@
-import { useDbData } from "../../utilities/firebase.js";
-import { getActivities } from "../../utilities/activity.js";
+import { useDbData } from "../../hooks/firebase.js";
+import { getActivities } from "../../utils/activity.js";
 import Activity from "./Activity.jsx";
 
 const ActivitiesFeed = ({}) => {
