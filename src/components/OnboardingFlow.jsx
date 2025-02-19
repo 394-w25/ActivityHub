@@ -25,7 +25,7 @@ const activities = [
   { id: "shopping", name: "Shopping", image: shoppingImage },
 ];
 
-const OnboardingFlow = () => {
+const OnboardingFlow = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState([]);
 
@@ -107,9 +107,7 @@ const OnboardingFlow = () => {
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <div className="max-w-4xl mx-auto">
             <button
-              onClick={() =>
-                console.log("Selected activities:", selectedActivities)
-              }
+              onClick={onComplete}
               className="w-full py-4 px-6 bg-orange-500 text-white rounded-lg text-lg font-semibold hover:bg-orange-600 transition-colors"
             >
               Continue
