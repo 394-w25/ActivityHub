@@ -1,4 +1,4 @@
-import OnboardingFlow from "./OnboardingFlow";
+import OnboardingFlow from "@components/OnboardingFlow";
 
 const App = () => {
   return (
