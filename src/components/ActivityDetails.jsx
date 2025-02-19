@@ -1,15 +1,4 @@
 import React from "react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 
 const ActivityDetails = ({ activity }) => {
   return (
@@ -17,65 +6,69 @@ const ActivityDetails = ({ activity }) => {
       <div className="mb-4 text-lg font-semibold">Activity Details</div>
 
       <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg">
-        <Card className="p-4 space-y-4">
-          {/* title time and location in header */}
-          <CardHeader className="p-0">
-            <CardTitle className="text-2xl font-bold">
-              Yoga in the Park
-            </CardTitle>
-            <CardDescription className="mt-1">
-              Saturday, 10:00 AM <br />
-              Central Park, NYC
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="p-0 space-y-4">
-            {/* creator and join activity */}
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Created by Sarah Thompson</p>
-              <Button variant="default" size="sm">
-                Join Activity
-              </Button>
-            </div>
-
-            <Separator />
-
-            {/* description */}
-            <p className="text-sm text-gray-600">
-              Join us for a relaxing yoga session in Central Park. All levels
-              are welcome. Bring your mat and water bottle.
+        <div className="p-4 space-y-4">
+          {/* Header: Title, Time & Location */}
+          <div className="p-0">
+            <h2 className="text-2xl font-bold">
+              {activity.title || "Yoga in the Park"}
+            </h2>
+            <p className="mt-1">
+              {activity.dateTime || "Saturday, 10:00 AM"} <br />
+              {activity.location || "Central Park, NYC"}
             </p>
+          </div>
 
-            {/* group info */}
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold">Group Details</h3>
-              <p className="text-sm text-gray-600">Group Size: 20 people</p>
-              <p className="text-sm text-gray-600">
-                Interests: Health, Wellness, Community
-              </p>
+          {/* Creator info and Join button */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">Created by Sarah Thompson</p>
+            <button className="py-1 px-3 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300 transition-colors">
+              Join Activity
+            </button>
+          </div>
+
+          <hr className="border-gray-300" />
+
+          {/* Description */}
+          <p className="text-sm text-gray-600">
+            Join us for a relaxing yoga session in Central Park. All levels are
+            welcome. Bring your mat and water bottle.
+          </p>
+
+          {/* Group Details */}
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold">Group Details</h3>
+            <p className="text-sm text-gray-600">Group Size: 20 people</p>
+            <p className="text-sm text-gray-600">
+              Interests: Health, Wellness, Community
+            </p>
+          </div>
+
+          <hr className="border-gray-300" />
+
+          {/* Safety & Trust */}
+          <div className="space-y-2">
+            <h3 className="text-base font-semibold">Safety &amp; Trust</h3>
+            <div className="flex items-center gap-2">
+              <span className="inline-block border border-gray-500 text-xs px-2 py-1 rounded">
+                Phone Verified
+              </span>
+              <span className="inline-block border border-gray-500 text-xs px-2 py-1 rounded">
+                Email Verified
+              </span>
             </div>
-
-            <Separator />
-
-            {/* safety section */}
-            <div className="space-y-2">
-              <h3 className="text-base font-semibold">Safety &amp; Trust</h3>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">Phone Verified</Badge>
-                <Badge variant="outline">Email Verified</Badge>
-              </div>
-              <div className="text-sm text-gray-600 mt-2">
-                <p>Reviews:</p>
-                <p>“A wonderful experience, highly recommend!” — Emily R.</p>
-              </div>
+            <div className="text-sm text-gray-600 mt-2">
+              <p>Reviews:</p>
+              <p>“A wonderful experience, highly recommend!” — Emily R.</p>
             </div>
-          </CardContent>
+          </div>
 
-          {/* can be removed, chat with creator button */}
-          <CardFooter className="p-0 pt-2">
-            <Button className="w-full">Chat with Creator</Button>
-          </CardFooter>
-        </Card>
+          {/* Footer: Chat with Creator button */}
+          <div className="pt-2">
+            <button className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+              Chat with Creator
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

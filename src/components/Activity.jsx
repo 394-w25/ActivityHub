@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ActivityDetails from "./ActivityDetails"; // adjust the import path as needed
+import ActivityDetails from "./ActivityDetails";
 
 const Activity = ({ activity }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -10,27 +9,29 @@ const Activity = ({ activity }) => {
 
   return (
     <>
-      {/* The Activity Card */}
-      <Card
+      {/* Activity Card */}
+      <div
         onClick={openDetails}
-        className="p-4 shadow-md border border-gray-200 relative cursor-pointer"
+        className="p-4 shadow-md border border-gray-200 relative cursor-pointer rounded-lg bg-white"
       >
         {/* Activity Time in the top-right corner */}
         <div className="absolute top-2 right-4 text-sm text-gray-500">
           {new Date(activity.timestamp).toLocaleTimeString()}
         </div>
-        <CardHeader>
-          <CardTitle className="text-xl font-bold text-gray-800">
-            {activity.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+
+        {/* Activity Title */}
+        <div className="mb-2">
+          <h3 className="text-xl font-bold text-gray-800">{activity.title}</h3>
+        </div>
+
+        {/* Activity Details */}
+        <div>
           <p className="text-sm text-gray-500 font-semibold">
             {activity.location}
           </p>
           <p className="text-sm text-gray-600 mt-2">{activity.description}</p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Full-page overlay for ActivityDetails */}
       {detailsOpen && (
