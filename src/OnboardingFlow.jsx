@@ -1,23 +1,38 @@
 import React, { useState } from "react";
-import testImage from "../assets/testing.png";
 import welcomeImage from "../assets/welcome.jpg";
 
+// Import specific images for each activity
+import concertImage from "../assets/concert.jpg";
+import museumImage from "../assets/museum.jpg";
+import gymImage from "../assets/gym.jpg";
+import cookingImage from "../assets/cooking.jpg";
+import gardenImage from "../assets/garden.jpg";
+import bbqImage from "../assets/bbq.jpg";
+import diningImage from "../assets/dining.jpg";
+import outdoorImage from "../assets/outdoor.jpg";
+import shoppingImage from "../assets/shopping.jpg";
+
+// Include the corresponding image in each activity object
 const activities = [
-  { id: "concert", name: "Going to concert" },
-  { id: "museum", name: "Museum" },
-  { id: "gym", name: "Gym buddy" },
-  { id: "cooking", name: "Cooking ideas" },
-  { id: "garden", name: "Visiting Botanic Garden" },
-  { id: "bbq", name: "BBQ Grilling" },
-  { id: "food", name: "Trying new food" },
-  { id: "running", name: "Outdoor Run/Walks" },
-  { id: "grocery", name: "Grocery Shopping" },
+  { id: "concert", name: "Concert", image: concertImage },
+  { id: "museum", name: "Museum", image: museumImage },
+  { id: "gym", name: "Gym", image: gymImage },
+  { id: "cooking", name: "Cooking", image: cookingImage },
+  { id: "garden", name: "Garden", image: gardenImage },
+  { id: "bbq", name: "BBQ", image: bbqImage },
+  { id: "dining", name: "Dining", image: diningImage },
+  { id: "outdoor", name: "Outdoor", image: outdoorImage },
+  { id: "shopping", name: "Shopping", image: shoppingImage },
 ];
 
 const OnboardingFlow = () => {
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState([]);
 
+  /**
+   * Toggles an activity's ID in or out of the selectedActivities array.
+   * If the activity is already selected, remove it; otherwise, add it.
+   */
   const handleActivityToggle = (activityId) => {
     setSelectedActivities((prev) =>
       prev.includes(activityId)
@@ -60,31 +75,33 @@ const OnboardingFlow = () => {
         <h2 className="text-2xl font-bold mb-8 text-center">
           Choose activities you would like to do with others
         </h2>
-
         <div className="grid grid-cols-3 gap-6 mb-20">
-          {activities.map((activity) => (
-            <div key={activity.id} className="flex flex-col items-center">
-              <div
-                className={`w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 mb-2 ${
-                  selectedActivities.includes(activity.id)
-                    ? "border-orange-500"
-                    : "border-gray-200"
-                }`}
-                onClick={() => handleActivityToggle(activity.id)}
-              >
-                <img
-                  src={testImage}
-                  alt={activity.name}
-                  width="100"
-                  height="100"
-                  className="w-full h-full object-cover"
-                />
+          {activities.map((activity) => {
+            const isSelected = selectedActivities.includes(activity.id);
+
+            return (
+              <div key={activity.id} className="flex flex-col items-center">
+                {/* Toggle highlight via conditional classes */}
+                <div
+                  className={`w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 mb-2 transition-colors ${
+                    isSelected ? "border-orange-500" : "border-gray-200"
+                  }`}
+                  onClick={() => handleActivityToggle(activity.id)}
+                >
+                  <img
+                    src={activity.image}
+                    alt={activity.name}
+                    width="250"
+                    height="150"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="px-4 py-2 bg-gray-100 rounded-lg text-center w-full">
+                  <span className="text-sm font-medium">{activity.name}</span>
+                </div>
               </div>
-              <div className="px-4 py-2 bg-gray-100 rounded-lg text-center w-full">
-                <span className="text-sm font-medium">{activity.name}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
