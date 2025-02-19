@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import welcomeImage from "../assets/welcome.jpg";
+import welcomeImage from "@assets/welcome.jpg";
 
 // Import specific images for each activity
-import concertImage from "../assets/concert.jpg";
-import museumImage from "../assets/museum.jpg";
-import gymImage from "../assets/gym.jpg";
-import cookingImage from "../assets/cooking.jpg";
-import gardenImage from "../assets/garden.jpg";
-import bbqImage from "../assets/bbq.jpg";
-import diningImage from "../assets/dining.jpg";
-import outdoorImage from "../assets/outdoor.jpg";
-import shoppingImage from "../assets/shopping.jpg";
+import concertImage from "@assets/concert.jpg";
+import museumImage from "@assets/museum.jpg";
+import gymImage from "@assets/gym.jpg";
+import cookingImage from "@assets/cooking.jpg";
+import gardenImage from "@assets/garden.jpg";
+import bbqImage from "@assets/bbq.jpg";
+import diningImage from "@assets/dining.jpg";
+import outdoorImage from "@assets/outdoor.jpg";
+import shoppingImage from "@assets/shopping.jpg";
 
 // Include the corresponding image in each activity object
 const activities = [
