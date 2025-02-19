@@ -17,8 +17,10 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
+    "@tailwindcss/cli": "^4.0.7",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "tailwindcss": "^4.0.7"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
