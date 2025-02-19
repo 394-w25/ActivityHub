@@ -1,0 +1,35 @@
+/*
+ * Activity
+ * - UUID: String
+ * - Creation Timestamp: String
+ * - Edited Timestamp: String
+ * - Event Timestamp: String
+ * - Location: String
+ * - Description: String
+ * - Group Size: Number
+ * - Poster UID: String
+ * - Interested UIDs: String[]
+ */
+
+import { useDbData, useDbUpdate, useDbRemove } from "@hooks/firebase";
+
+export const getActivities = (
+  allData,
+  { userFilter = (user) => true, activityFilter = (activity) => true },
+) => {
+  Object.entires(allData.users)
+    .filter(([userID]) => userFilter(userID))
+    .flatMap(([userID, userData]) => {
+      Object.entries(userData.activities || {}).filter(
+        ([activityID, activityData]) => activityFilter(activityData),
+      );
+    });
+};
+
+export const removeActivity = (userID, activityID) =>
+  useDbRemove(`users/${userID}/activities/${activiyID}`);
+
+export const updateActivity = (userID, activityData) => {
+  const [updateActivity] = useDbUpdate(`users/${userID}/activities`);
+  updateActivity(activityData);
+};
