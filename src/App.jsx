@@ -1,5 +1,4 @@
 import OnboardingFlow from "./OnboardingFlow";
-import "./App.css";
 
 const App = () => {
   return (

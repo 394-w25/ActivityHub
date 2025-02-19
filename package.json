@@ -19,8 +19,10 @@
   "dependencies": {
     "firebase": "^11.3.1",
     "firebase-tools": "^13.31.1",
+    "@tailwindcss/cli": "^4.0.7",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "tailwindcss": "^4.0.7"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
