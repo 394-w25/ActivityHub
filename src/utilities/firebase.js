@@ -13,15 +13,14 @@ import {
 import { getDatabase, ref, update, onValue, remove } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAOHWWkUowBHFyJGNQBY_KKuUepDVjJcIM",
-  authDomain: "dormdash-c26fe.firebaseapp.com",
-  databaseURL: "https://dormdash-c26fe-default-rtdb.firebaseio.com",
-  projectId: "dormdash-c26fe",
-  storageBucket: "dormdash-c26fe.firebasestorage.app",
-  messagingSenderId: "846732477359",
-  appId: "1:846732477359:web:aa0c06dde69aff25c5a55a",
+  apiKey: process.env.API_KEY,
+  authDomain: "activityhubapp.firebaseapp.com",
+  databaseURL: "https://activityhubapp-default-rtdb.firebaseio.com",
+  projectId: "activityhubapp",
+  storageBucket: "activityhubapp.firebasestorage.app",
+  messagingSenderId: "622399618264",
+  appId: "1:622399618264:web:de0f9378588991c1b96bad",
 };
 
 // Initialize Firebase
