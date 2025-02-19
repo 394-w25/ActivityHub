@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import OnboardingFlow from "./components/OnboardingFlow"; // adjust path if needed
 import Activity from "./components/Activity"; // adjust path if needed
+import HomeScreen from "@components/HomeScreen";
 
 // Dummy data for testing multiple activities
 const dummyActivities = [
@@ -40,6 +41,7 @@ const dummyActivities = [
 
 const App = () => {
   const [showOnboarding, setShowOnboarding] = useState(true);
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
 
   return (
     <div className="App">
@@ -51,7 +53,11 @@ const App = () => {
           Toggle Test View
         </button>
         {showOnboarding ? (
-          <OnboardingFlow />
+          hasCompletedOnboarding ? (
+            <HomeScreen />
+          ) : (
+            <OnboardingFlow onComplete={() => setHasCompletedOnboarding(true)} />
+          )
         ) : (
           <div className="max-w-md mx-auto h-screen overflow-y-auto space-y-4 p-4 bg-gray-100 rounded-lg shadow-lg">
             {dummyActivities.map((activity) => (
