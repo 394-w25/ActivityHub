@@ -2,6 +2,43 @@ import React, { useState } from "react";
 import OnboardingFlow from "./components/OnboardingFlow"; // adjust path if needed
 import Activity from "./components/Activity"; // adjust path if needed
 import HomeScreen from "@components/HomeScreen";
+import Activity from "@components/Activity"; // adjust path if needed
+
+// Dummy data for testing multiple activities
+const dummyActivities = [
+  {
+    id: "yoga",
+    timestamp: Date.now(),
+    title: "Yoga in the Park",
+    location: "Central Park, NYC",
+    description:
+      "Join us for a relaxing yoga session in Central Park. All levels are welcome. Bring your mat and water bottle.",
+  },
+  {
+    id: "hiking",
+    timestamp: Date.now() + 3600000,
+    title: "Morning Hike",
+    location: "Blue Ridge Mountains",
+    description:
+      "Explore scenic trails and enjoy breathtaking views on this beginner-friendly morning hike.",
+  },
+  {
+    id: "coding",
+    timestamp: Date.now() + 7200000,
+    title: "Hackathon Meetup",
+    location: "Tech Hub Downtown",
+    description:
+      "Meet fellow developers and collaborate on exciting projects at our weekend hackathon.",
+  },
+  {
+    id: "cooking",
+    timestamp: Date.now() + 10800000,
+    title: "Italian Cooking Class",
+    location: "Community Kitchen",
+    description:
+      "Learn to make homemade pasta and classic Italian dishes in this hands-on cooking class.",
+  },
+];
 
 // Dummy data for testing multiple activities
 const dummyActivities = [
@@ -56,7 +93,9 @@ const App = () => {
           hasCompletedOnboarding ? (
             <HomeScreen />
           ) : (
-            <OnboardingFlow onComplete={() => setHasCompletedOnboarding(true)} />
+            <OnboardingFlow
+              onComplete={() => setHasCompletedOnboarding(true)}
+            />
           )
         ) : (
           <div className="max-w-md mx-auto h-screen overflow-y-auto space-y-4 p-4 bg-gray-100 rounded-lg shadow-lg">
