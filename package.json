@@ -21,7 +21,8 @@
     "firebase": "^11.3.1",
     "firebase-tools": "^13.31.1",
     "react": "^18.3.0",
-    "react-dom": "^18.3.0"
+    "react-dom": "^18.3.0",
+    "react-router-dom": "^7.2.0"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",
