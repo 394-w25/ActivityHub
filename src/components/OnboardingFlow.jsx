@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { signInWithGoogle } from "@hooks/firebase.js";
 import welcomeImage from "@assets/welcome.jpg";
 import googleIcon from "@assets/google.png";
+import { useNavigate } from "react-router-dom";
 
 // Import specific images for each activity
 import concertImage from "@assets/concert.jpg";
@@ -29,6 +30,11 @@ const activities = [
 const OnboardingFlow = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState([]);
+  const navigate = useNavigate();
+
+  const handleContinue = () => {
+    navigate("/home");
+  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -113,7 +119,7 @@ const OnboardingFlow = ({ onComplete }) => {
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t">
           <div className="max-w-4xl mx-auto">
             <button
-              onClick={onComplete}
+              onClick={handleContinue}
               className="w-full py-4 px-6 bg-orange-500 text-white rounded-lg text-lg font-semibold hover:bg-orange-600 transition-colors"
             >
               Continue

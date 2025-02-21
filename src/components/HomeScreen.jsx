@@ -1,11 +1,33 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
+import ActivitiesFeed from "@/components/ActivitiesFeed.jsx";
 
 const HomeScreen = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white pb-10">
+      <div className="bg-gray-100 py-3 shadow-md flex justify-between px-6">
+        <h1 className="text-xl font-bold">ActivityHub</h1>
+        <div className="flex gap-4">
+          <button
+            onClick={() => navigate("/user_profile")}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => navigate("/create_activity")}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            Create Activity
+          </button>
+        </div>
+      </div>
+
       <header className="bg-white shadow">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold">Welcome to ActivityHub!</h1>
@@ -46,7 +68,7 @@ const HomeScreen = () => {
             ))}
           </div>
         </section>
-
+        {/*}
         <section>
           <div className="flex justify-between gap-4">
             <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-[500px]">
@@ -72,6 +94,12 @@ const HomeScreen = () => {
                 <h3 className="text-md font-semibold">Cooking Class</h3>
               </div>
             </div>
+          </div>
+        </section>
+        */}
+        <section>
+          <div>
+            <ActivitiesFeed />
           </div>
         </section>
       </main>
