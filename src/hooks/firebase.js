@@ -47,6 +47,7 @@ export const signInWithGoogle = async () => {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
+        activities: {},
       });
     }
   } catch (error) {
