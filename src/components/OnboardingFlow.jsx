@@ -56,10 +56,10 @@ const OnboardingFlow = ({ onComplete }) => {
   const renderWelcomeScreen = () => (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-white">
       <div className="w-full max-w-md space-y-8">
-        <div className="relative w-80 h-80 mx-auto mb-4 mt-4">
+        <div className="relative w-60 h-60 mx-auto mb-8 mt-8">
           <img
             src={welcomeImage}
-            alt="City map illustration"
+            alt="Logo"
             width="600"
             height="600"
             className="w-full h-full object-contain"
