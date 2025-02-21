@@ -9,31 +9,24 @@ const Activity = ({ activity }) => {
 
   return (
     <>
-      {/* Activity Card */}
       <div
         onClick={openDetails}
-        className="p-4 shadow-md border border-gray-200 relative cursor-pointer rounded-lg bg-white"
+        className="bg-gray-100 rounded-lg shadow p-4 w-full cursor-pointer"
       >
-        {/* Activity Time in the top-right corner */}
-        <div className="absolute top-2 right-4 text-sm text-gray-500">
-          {new Date(activity.timestamp).toLocaleTimeString()}
-        </div>
-
-        {/* Activity Title */}
-        <div className="mb-2">
-          <h3 className="text-xl font-bold text-gray-800">{activity.title}</h3>
-        </div>
-
-        {/* Activity Details */}
-        <div>
-          <p className="text-sm text-gray-500 font-semibold">
-            {activity.location}
-          </p>
-          <p className="text-sm text-gray-600 mt-2">{activity.description}</p>
+        <div className="mt-3">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-500">
+              {new Date(activity.eventTimestamp).toLocaleTimeString()}
+            </p>
+            <p className="text-sm text-gray-500">
+              {activity.duration || "1 hour"}
+            </p>
+          </div>
+          <h3 className="text-md font-semibold mt-1">{activity.title}</h3>
+          <p className="text-sm text-gray-500 mt-1">{activity.location}</p>
         </div>
       </div>
 
-      {/* Full-page overlay for ActivityDetails */}
       {detailsOpen && (
         <div className="fixed inset-0 z-50 bg-white overflow-auto">
           <ActivityDetails activity={activity} onClose={closeDetails} />

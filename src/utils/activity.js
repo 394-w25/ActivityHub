@@ -17,13 +17,14 @@ export const getActivities = (
   allData,
   { userFilter = (user) => true, activityFilter = (activity) => true },
 ) => {
-  Object.entires(allData.users)
+  const result = Object.entries(allData.users)
     .filter(([userID]) => userFilter(userID))
-    .flatMap(([userID, userData]) => {
+    .flatMap(([userID, userData]) =>
       Object.entries(userData.activities || {}).filter(
         ([activityID, activityData]) => activityFilter(activityData),
-      );
-    });
+      ),
+    );
+  return result;
 };
 
 export const removeActivity = (userID, activityID) =>

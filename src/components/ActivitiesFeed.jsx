@@ -11,10 +11,7 @@ const ActivitiesFeed = ({}) => {
 
   const allActivities = getActivities(data, {});
 
-  // this is where, in the future, we will put the filtering of activities.
-  // some baseline filtering is required regardless of user input, such as
-  // activities that have already passed. it may be good to remove those from
-  // the database as well?
+  // may not be needed because the filter is already handled in getActivities (thanks Darin)
   const filteredActivities = allActivities.filter((request) => {
     return true;
   });
@@ -24,20 +21,18 @@ const ActivitiesFeed = ({}) => {
   // discounting posts that are older than a certain time frame, as well as
   // taking posts out that are after the timeframe on the post
   const sortedActivities = [...filteredActivities].sort((a, b) => {
-    return a["timestamp"] - b["timestamp"];
+    return a["eventTimestamp"] - b["eventTimestamp"];
   });
 
   return (
-    <div className="flex flex-col flex-1">
-      <h1 className="font-lato text-start text-2xl font-bold py-4">Home</h1>
-
-      {/* Filtered Posts */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <section>
+      <h2 className="text-xl font-bold mb-4">Nearby Activities</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredActivities.map((activity, idx) => (
           <Activity key={idx} activity={activity} />
         ))}
-      </section>
-    </div>
+      </div>
+    </section>
   );
 };
 

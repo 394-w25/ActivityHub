@@ -1,71 +1,64 @@
 import React from "react";
+import { X } from "lucide-react"; // Using lucide-react for the X icon
 
-const ActivityDetails = ({ activity }) => {
+const ActivityDetails = ({ activity, onClose }) => {
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="mb-4 text-lg font-semibold">Activity Details</div>
+      <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
+        {/* Exit button */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <X size={24} className="text-gray-600" />
+        </button>
 
-      <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg">
-        <div className="p-4 space-y-4">
-          {/* Header: Title, Time & Location */}
-          <div className="p-0">
-            <h2 className="text-2xl font-bold">
-              {activity.title || "Yoga in the Park"}
-            </h2>
-            <p className="mt-1">
-              {activity.dateTime || "Saturday, 10:00 AM"} <br />
-              {activity.location || "Central Park, NYC"}
+        <div className="p-6 space-y-4">
+          {/* Title */}
+          <div>
+            <h2 className="text-2xl font-bold">{activity.title || "N/A"}</h2>
+          </div>
+
+          {/* Timestamps and Group Size */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <span>Created:</span>
+              <span>
+                {new Date(activity.creationTimestamp).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <span>Event Time:</span>
+              <span>{new Date(activity.eventTimestamp).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm text-gray-600">
+              <span>Group Size:</span>
+              <span>{activity.groupSize || "N/A"}</span>
+            </div>
+          </div>
+
+          <hr className="border-gray-200" />
+
+          {/* Location */}
+          <div>
+            <h3 className="font-semibold mb-1">Location</h3>
+            <p className="text-sm text-gray-600">
+              {activity.location || "N/A"}
             </p>
           </div>
-
-          {/* Creator info and Join button */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-500">Created by Sarah Thompson</p>
-            <button className="py-1 px-3 bg-gray-200 text-gray-800 rounded text-sm hover:bg-gray-300 transition-colors">
-              Join Activity
-            </button>
-          </div>
-
-          <hr className="border-gray-300" />
 
           {/* Description */}
-          <p className="text-sm text-gray-600">
-            Join us for a relaxing yoga session in Central Park. All levels are
-            welcome. Bring your mat and water bottle.
-          </p>
-
-          {/* Group Details */}
-          <div className="space-y-1">
-            <h3 className="text-base font-semibold">Group Details</h3>
-            <p className="text-sm text-gray-600">Group Size: 20 people</p>
+          <div>
+            <h3 className="font-semibold mb-1">Description</h3>
             <p className="text-sm text-gray-600">
-              Interests: Health, Wellness, Community
+              {activity.description || "No description provided."}
             </p>
           </div>
 
-          <hr className="border-gray-300" />
-
-          {/* Safety & Trust */}
-          <div className="space-y-2">
-            <h3 className="text-base font-semibold">Safety &amp; Trust</h3>
-            <div className="flex items-center gap-2">
-              <span className="inline-block border border-gray-500 text-xs px-2 py-1 rounded">
-                Phone Verified
-              </span>
-              <span className="inline-block border border-gray-500 text-xs px-2 py-1 rounded">
-                Email Verified
-              </span>
-            </div>
-            <div className="text-sm text-gray-600 mt-2">
-              <p>Reviews:</p>
-              <p>“A wonderful experience, highly recommend!” — Emily R.</p>
-            </div>
-          </div>
-
-          {/* Footer: Chat with Creator button */}
-          <div className="pt-2">
-            <button className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-              Chat with Creator
+          {/* Join Activity button */}
+          <div className="pt-4">
+            <button className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+              Join Activity
             </button>
           </div>
         </div>
