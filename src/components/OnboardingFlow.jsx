@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import { signInWithGoogle } from "@hooks/firebase.js";
 import welcomeImage from "@assets/welcome.jpg";
+import googleIcon from "@assets/google.png";
 
 // Import specific images for each activity
 import concertImage from "@assets/concert.jpg";
@@ -12,7 +14,6 @@ import diningImage from "@assets/dining.jpg";
 import outdoorImage from "@assets/outdoor.jpg";
 import shoppingImage from "@assets/shopping.jpg";
 
-// Include the corresponding image in each activity object
 const activities = [
   { id: "concert", name: "Concert", image: concertImage },
   { id: "museum", name: "Museum", image: museumImage },
@@ -29,10 +30,15 @@ const OnboardingFlow = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [selectedActivities, setSelectedActivities] = useState([]);
 
-  /**
-   * Toggles an activity's ID in or out of the selectedActivities array.
-   * If the activity is already selected, remove it; otherwise, add it.
-   */
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      setStep(2);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+    }
+  };
+
   const handleActivityToggle = (activityId) => {
     setSelectedActivities((prev) =>
       prev.includes(activityId)
@@ -60,10 +66,11 @@ const OnboardingFlow = ({ onComplete }) => {
           Join nearby activities
         </p>
         <button
-          onClick={() => setStep(2)}
-          className="w-full py-4 px-6 bg-orange-500 text-white rounded-lg text-lg font-semibold hover:bg-orange-600 transition-colors"
+          onClick={handleGoogleSignIn}
+          className="w-full py-4 px-6 bg-orange-500 text-white rounded-lg shadow-md transition flex items-center justify-center hover:bg-orange-600"
         >
-          Get started
+          <img src={googleIcon} alt="Google icon" className="w-5 h-5 mr-2" />
+          Continue with Google
         </button>
       </div>
     </div>
@@ -81,7 +88,6 @@ const OnboardingFlow = ({ onComplete }) => {
 
             return (
               <div key={activity.id} className="flex flex-col items-center">
-                {/* Toggle highlight via conditional classes */}
                 <div
                   className={`w-full aspect-square rounded-xl overflow-hidden cursor-pointer border-2 mb-2 transition-colors ${
                     isSelected ? "border-orange-500" : "border-gray-200"
