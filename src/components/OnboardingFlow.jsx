@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { signInWithGoogle } from "@hooks/firebase.js";
-import welcomeImage from "@assets/welcome.jpg";
+import welcomeImage from "@assets/logo.png";
 import googleIcon from "@assets/google.png";
 import { useNavigate } from "react-router-dom";
 
