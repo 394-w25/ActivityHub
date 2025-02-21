@@ -68,7 +68,7 @@ const HomeScreen = () => {
             ))}
           </div>
         </section>
-
+        {/*}
         <section>
           <div className="flex justify-between gap-4">
             <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-[500px]">
@@ -96,6 +96,7 @@ const HomeScreen = () => {
             </div>
           </div>
         </section>
+        */}
         <section>
           <div>
             <ActivitiesFeed />

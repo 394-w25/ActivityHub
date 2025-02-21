@@ -1,9 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import ActivityForm from "../components/ActivityForm";
 
 const CreateActivityPage = () => {
+  const navigate = useNavigate();
+
   const handleSuccess = () => {
     console.log("Activity posted successfully");
+    navigate("/home"); // Redirect to home on success
   };
 
   return (

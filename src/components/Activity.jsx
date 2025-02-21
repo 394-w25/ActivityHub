@@ -1,11 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ActivityDetails from "./ActivityDetails";
 
 const Activity = ({ activity }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  const openDetails = () => setDetailsOpen(true);
-  const closeDetails = () => setDetailsOpen(false);
+  useEffect(() => {
+    console.log("Activity prop received:", activity);
+  }, [activity]);
+
+  const openDetails = () => {
+    console.log("Opening details for activity:", activity);
+    setDetailsOpen(true);
+  };
+
+  const closeDetails = () => {
+    console.log("Closing details for activity:", activity);
+    setDetailsOpen(false);
+  };
 
   return (
     <>
@@ -13,18 +24,10 @@ const Activity = ({ activity }) => {
         onClick={openDetails}
         className="bg-gray-100 rounded-lg shadow p-4 w-full cursor-pointer"
       >
-        <div className="mt-3">
-          <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-500">
-              {new Date(activity.eventTimestamp).toLocaleTimeString()}
-            </p>
-            <p className="text-sm text-gray-500">
-              {activity.duration || "1 hour"}
-            </p>
-          </div>
-          <h3 className="text-md font-semibold mt-1">{activity.title}</h3>
-          <p className="text-sm text-gray-500 mt-1">{activity.location}</p>
+        <div className="flex justify-between items-center">
+          <p className="text-sm text-gray-500">{activity.eventTimestamp}</p>
         </div>
+        <h3 className="text-md font-semibold mt-1">{activity.title}</h3>
       </div>
 
       {detailsOpen && (
