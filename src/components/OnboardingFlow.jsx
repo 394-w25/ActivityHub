@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { signInWithGoogle } from "@hooks/firebase.js";
+import { signInWithGoogle, useDbUpdate } from "@hooks/firebase.js";
+import { useNavigate } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+
+// Images
 import welcomeImage from "@assets/logo.png";
 import googleIcon from "@assets/google.png";
-import { useNavigate } from "react-router-dom";
-
-// Import specific images for each activity
 import concertImage from "@assets/concert.jpg";
 import museumImage from "@assets/museum.jpg";
 import gymImage from "@assets/gym.jpg";
@@ -15,6 +16,7 @@ import diningImage from "@assets/dining.jpg";
 import outdoorImage from "@assets/outdoor.jpg";
 import shoppingImage from "@assets/shopping.jpg";
 
+// List of activities with image
 const activities = [
   { id: "concert", name: "Concert", image: concertImage },
   { id: "museum", name: "Museum", image: museumImage },
@@ -27,15 +29,30 @@ const activities = [
   { id: "shopping", name: "Shopping", image: shoppingImage },
 ];
 
-const OnboardingFlow = ({ onComplete }) => {
+const OnboardingFlow = () => {
+  // Step 1 = Google Sign-In, Step 2 = Personal Info, Step 3 = Activities
   const [step, setStep] = useState(1);
+
+  // Personal info states
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [location, setLocation] = useState("");
+
+  // Error message for personal info step
+  const [formError, setFormError] = useState("");
+
+  // Activities
   const [selectedActivities, setSelectedActivities] = useState([]);
+
+  // Hook to update Realtime Database at /users
+  const [updateData, updateResult] = useDbUpdate("/users");
+
   const navigate = useNavigate();
+  const auth = getAuth(); // to get the current signed-in user
 
-  const handleContinue = () => {
-    navigate("/home");
-  };
-
+  // ------------------ STEP 1: Google Sign-In ------------------
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
@@ -45,6 +62,42 @@ const OnboardingFlow = ({ onComplete }) => {
     }
   };
 
+  // ------------------ STEP 2: Personal Info -------------------
+  const handleAgeChange = (e) => {
+    const val = e.target.value;
+
+    if (val === "") {
+      setAge(val);
+      return;
+    }
+
+    const intVal = parseInt(val, 10);
+    setAge(intVal);
+  };
+
+  const handlePersonalInfoSubmit = () => {
+    setFormError("");
+
+    // Validate fields
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !gender ||
+      !age ||
+      parseInt(age, 10) < 1 ||
+      !location.trim()
+    ) {
+      setFormError(
+        "All fields are required, and age must be a positive integer.",
+      );
+      return;
+    }
+
+    // If all fields are valid, proceed to Step 3
+    setStep(3);
+  };
+
+  // ------------------ STEP 3: Activity Selection --------------
   const handleActivityToggle = (activityId) => {
     setSelectedActivities((prev) =>
       prev.includes(activityId)
@@ -53,6 +106,33 @@ const OnboardingFlow = ({ onComplete }) => {
     );
   };
 
+  // ------------------ FINAL: Store Info & Navigate ------------
+  const handleContinue = () => {
+    const user = auth.currentUser;
+    if (!user) {
+      console.error("No user is signed in, cannot store data.");
+      return;
+    }
+
+    // Merge everything into the Realtime Database
+    updateData({
+      [user.uid]: {
+        firstName,
+        lastName,
+        gender,
+        age: parseInt(age, 10),
+        location,
+        selectedActivities,
+      },
+    });
+
+    // Navigate to home
+    navigate("/home");
+  };
+
+  // ------------------ Renders ------------------
+
+  // STEP 1: Welcome + Google Sign-In
   const renderWelcomeScreen = () => (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-white">
       <div className="w-full max-w-md space-y-8">
@@ -82,6 +162,105 @@ const OnboardingFlow = ({ onComplete }) => {
     </div>
   );
 
+  // STEP 2: Personal Info Form
+  const renderPersonalInfoScreen = () => (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
+      <div className="w-full max-w-md space-y-4">
+        <h2 className="text-2xl font-bold text-center mb-8">
+          Tell us about you
+        </h2>
+
+        {/* Error (if any) */}
+        {formError && <p className="text-red-500 text-center">{formError}</p>}
+
+        {/* First Name */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            First Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+            placeholder="e.g., John"
+          />
+        </div>
+
+        {/* Last Name */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Last Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+            placeholder="e.g., Doe"
+          />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Gender <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+          >
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="nonbinary">Non-binary</option>
+            <option value="other">Other</option>
+            <option value="preferNotToSay">Prefer not to say</option>
+          </select>
+        </div>
+
+        {/* Age */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Age <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="number"
+            min="1"
+            value={age}
+            onChange={handleAgeChange}
+            className="w-full border px-3 py-2 rounded-md"
+            placeholder="e.g., 25"
+          />
+        </div>
+
+        {/* Location */}
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            Location <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+            placeholder="e.g., New York"
+          />
+        </div>
+
+        {/* Next button */}
+        <button
+          onClick={handlePersonalInfoSubmit}
+          className="w-full mt-4 py-3 px-6 bg-orange-500 text-white rounded-md text-lg font-semibold hover:bg-orange-600 transition-colors"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+
+  // STEP 3: Activity Selection
   const renderActivitySelection = () => (
     <div className="min-h-screen bg-white px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -91,7 +270,6 @@ const OnboardingFlow = ({ onComplete }) => {
         <div className="grid grid-cols-3 gap-6 mb-20">
           {activities.map((activity) => {
             const isSelected = selectedActivities.includes(activity.id);
-
             return (
               <div key={activity.id} className="flex flex-col items-center">
                 <div
@@ -130,9 +308,12 @@ const OnboardingFlow = ({ onComplete }) => {
     </div>
   );
 
+  // ------------------ Return ------------------
   return (
     <div className="bg-white">
-      {step === 1 ? renderWelcomeScreen() : renderActivitySelection()}
+      {step === 1 && renderWelcomeScreen()}
+      {step === 2 && renderPersonalInfoScreen()}
+      {step === 3 && renderActivitySelection()}
     </div>
   );
 };
