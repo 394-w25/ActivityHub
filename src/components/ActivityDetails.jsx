@@ -55,6 +55,14 @@ const ActivityDetails = ({ activity, onClose }) => {
             </p>
           </div>
 
+          {activity.imageUrl && (
+            <img
+              src={activity.imageUrl}
+              alt="Activity"
+              className="w-full h-48 object-cover rounded-lg"
+            />
+          )}
+
           {/* Join Activity button */}
           <div className="pt-4">
             <button className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
