@@ -10,28 +10,59 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 import { useAuthState, useDbUpdate } from "../hooks/firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const ActivityForm = ({ onSuccess }) => {
-  const [imagePreview, setImagePreview] = useState(null);
-
   const [user] = useAuthState();
   const [updateData] = useDbUpdate(
     user ? `users/${user.uid}/activities` : null,
   );
 
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
 
+    if (!user) {
+      console.error("User is not signed in.");
+      return;
+    }
+
+    const formData = new FormData(e.target);
     const title = formData.get("title");
     const description = formData.get("description");
     const location = formData.get("location");
     const groupSize = formData.get("groupSize");
     const eventTimestamp = formData.get("eventTimestamp");
 
-    if (!user) {
-      console.error("User is not signed in.");
-      return;
+    let imageUrl = null;
+
+    // Upload Image to Firebase Storage
+    if (image) {
+      setUploading(true);
+      try {
+        const storage = getStorage();
+        const imageRef = ref(
+          storage,
+          `activities/${user.uid}/${Date.now()}_${image.name}`,
+        );
+        await uploadBytes(imageRef, image);
+        imageUrl = await getDownloadURL(imageRef);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      } finally {
+        setUploading(false);
+      }
     }
 
     updateData({
@@ -43,6 +74,7 @@ const ActivityForm = ({ onSuccess }) => {
         eventTimestamp,
         creationTimestamp: Date.now(),
         posterUid: user.uid,
+        imageUrl,
       },
     });
 
@@ -55,6 +87,28 @@ const ActivityForm = ({ onSuccess }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Image Upload */}
+      <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-100">
+        {imagePreview ? (
+          <img
+            src={imagePreview}
+            alt="Preview"
+            className="w-full h-48 object-cover rounded-lg"
+          />
+        ) : (
+          <label className="cursor-pointer flex flex-col items-center">
+            <span className="text-gray-500 text-sm">Upload Image</span>
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+          </label>
+        )}
+      </div>
+
       {/* Title */}
       <div>
         <Label htmlFor="title">Title</Label>
