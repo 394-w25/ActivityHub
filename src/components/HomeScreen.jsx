@@ -4,6 +4,7 @@ import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
 import ActivitiesFeed from "@/components/ActivitiesFeed.jsx";
+import { Bell } from "lucide-react";
 
 const HomeScreen = () => {
   const navigate = useNavigate();
@@ -24,6 +25,14 @@ const HomeScreen = () => {
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Create Activity
+          </button>
+
+          {/* Notification Icon Button */}
+          <button
+            onClick={() => navigate("/notification")}
+            className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            <Bell size={24} />
           </button>
         </div>
       </div>
