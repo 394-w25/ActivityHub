@@ -2,7 +2,6 @@ import React from "react";
 import { X } from "lucide-react"; // Using lucide-react for the X icon
 
 const ActivityDetails = ({ activity, onClose }) => {
-  console.log("Activity Data:", activity);
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
       <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
