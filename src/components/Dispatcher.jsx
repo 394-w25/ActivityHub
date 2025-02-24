@@ -3,6 +3,7 @@ import OnboardingFlow from "./OnboardingFlow";
 import HomePage from "@/pages/HomePage.jsx";
 import CreateActivityPage from "@/pages/CreateActivityPage";
 import UserProfile from "./UserProfile";
+import NotificationPage from "./NotificationPage";
 
 const Dispatcher = () => {
   return (
@@ -12,6 +13,7 @@ const Dispatcher = () => {
         <Route path="/" element={<OnboardingFlow />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/user_profile" element={<UserProfile />} />
+        <Route path="/notification" element={<NotificationPage />} />
       </Routes>
     </BrowserRouter>
   );

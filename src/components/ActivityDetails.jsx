@@ -1,7 +1,20 @@
 import React from "react";
 import { X } from "lucide-react"; // Using lucide-react for the X icon
+import { handleUserInterested } from "@/utils/notification";
+import { useAuthState } from "@/hooks/firebase";
 
 const ActivityDetails = ({ activity, onClose }) => {
+  const [user] = useAuthState();
+
+  const handleJoinActivity = async () => {
+    try {
+      console.log("Joining activity:", activity);
+      await handleUserInterested(activity, user);
+    } catch (error) {
+      console.error("Error joining activity:", error);
+    }
+  };
+
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
       <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
@@ -65,7 +78,10 @@ const ActivityDetails = ({ activity, onClose }) => {
 
           {/* Join Activity button */}
           <div className="pt-4">
-            <button className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors">
+            <button
+              onClick={handleJoinActivity}
+              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
               Join Activity
             </button>
           </div>
