@@ -19,6 +19,8 @@ import {
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 
+import { getFirestore } from "firebase/firestore";
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA5F93mf9yEHv1hVZqSn4qFyXlPYMf6hGI",
@@ -33,6 +35,7 @@ const firebaseConfig = {
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 const database = getDatabase(firebase);
+export const db = getFirestore(firebase);
 
 // Sign in with Google
 export const signInWithGoogle = async () => {
