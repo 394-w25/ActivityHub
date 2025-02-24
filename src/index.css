@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&display=swap");
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -13,4 +15,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+}
+
+.font-crimson {
+  font-family: "Crimson Text", serif;
 }
