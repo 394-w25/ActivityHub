@@ -46,7 +46,7 @@ const ActivityForm = ({ onSuccess }) => {
     const title = formData.get("title");
     const description = formData.get("description");
     const location = activityLocation.label;
-    const coords = [activityLocation.x, activityLocation.y];
+    const coords = activityLocation.coords;
     const groupSize = formData.get("groupSize");
     const eventTimestamp = formData.get("eventTimestamp");
 

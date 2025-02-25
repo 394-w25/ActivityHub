@@ -13,7 +13,10 @@ const MapSearchField = ({ setActivityLocation }) => {
   map.on("geosearch/showlocation", (e) => {
     setActivityLocation({
       label: e.location.label,
-      coords: [e.location.x, e.location.y],
+      coords: {
+        x: e.location.x,
+        y: e.location.y,
+      },
     });
   });
   useEffect(() => {
