@@ -9,67 +9,58 @@ const ActivitiesFeed = ({ filters }) => {
   if (data === undefined) return <h1>Loading data...</h1>;
   if (!data) return <h1>No data found</h1>;
 
-  const { groupSize, location, startTime, endTime } = filters;
+  // Get all activities without any native filtering.
+  const allActivities = getActivities(data, {});
 
-  // Pass the filters as functions to getActivities.
-  // This uses the native filtering functionality of getActivities.
-  const filteredActivities = getActivities(data, {
-    userFilter: (userID) => true, // No user-level filtering for now
-    activityFilter: (activity) => {
-      // Filter by maxPeople if defined
-      if (groupSize && activity.groupSize > groupSize) return false;
+  const { startTimeFrom, startTimeTo, maxDuration, maxGroupSize, maxDistance } =
+    filters;
 
-      // Filter by timeframe if both startTime and endTime are provided
-      if (startTime && endTime) {
-        if (
-          activity.eventTimestamp < startTime ||
-          activity.eventTimestamp > endTime
-        ) {
-          return false;
-        }
+  // Filter activities using a similar approach to the Posts component.
+  const filteredActivities = allActivities.filter(([activityId, activity]) => {
+    // Filter by start time window if both 'startTimeFrom' and 'startTimeTo' are provided.
+    if (startTimeFrom && activity.eventTimestamp < Number(startTimeFrom)) {
+      return false;
+    }
+
+    if (startTimeTo && activity.eventTimestamp > Number(startTimeTo)) {
+      return false;
+    }
+
+    if (activity.duration) {
+      if (maxDuration && Number(activity.duration) > Number(maxDuration)) {
+        return false;
       }
+    }
 
-      // Location filtering placeholder (to be implemented as needed)
-      if (location) {
-        // TODO: implement proper location filtering logic here.
+    // Filter by maximum group size.
+    if (maxGroupSize && Number(activity.groupSize) > Number(maxGroupSize)) {
+      return false;
+    }
+
+    if (activity.distance) {
+      if (maxDistance && Number(activity.distance) > Number(maxDistance)) {
+        return false;
       }
+    }
 
-      return true;
-    },
+    return true;
   });
 
-  // Sort the activities by eventTimestamp (ascending)
-  const sortedActivities = filteredActivities.sort((a, b) => {
-    return a[1].eventTimestamp - b[1].eventTimestamp;
-  });
+  // Sort the filtered activities by eventTimestamp (ascending order).
+  const sortedActivities = [...filteredActivities].sort(
+    (a, b) => a[1].eventTimestamp - b[1].eventTimestamp,
+  );
 
   return (
     <section>
       <h2 className="text-xl font-bold mb-4">Nearby Activities</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sortedActivities.map((activity, idx) => (
-          <Activity key={idx} activity={activity[1]} />
+        {sortedActivities.map(([id, activity], idx) => (
+          <Activity key={id || idx} activity={activity} />
         ))}
       </div>
     </section>
   );
 };
-
-/* ActivitiesFeed.propTypes = {
-  filters: PropTypes.shape({
-    maxPeople: PropTypes.number,
-    location: PropTypes.string,
-    startTime: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-      PropTypes.instanceOf(Date),
-    ]),
-    endTime: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-      PropTypes.instanceOf(Date),
-    ]),
-  }).isRequired,
-}; */
 
 export default ActivitiesFeed;

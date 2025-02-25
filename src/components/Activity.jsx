@@ -18,6 +18,37 @@ const Activity = ({ activity }) => {
     setDetailsOpen(false);
   };
 
+  function formatAnyTimestamp(timestamp) {
+    let date;
+
+    // Check what format the timestamp is in
+    if (typeof timestamp === "number" || /^\d+$/.test(timestamp)) {
+      // It's in milliseconds (numeric)
+      date = new Date(Number(timestamp));
+    } else if (typeof timestamp === "string" && timestamp.includes("T")) {
+      // It's in ISO format like "2025-02-28T18:00"
+      date = new Date(timestamp);
+    } else {
+      // Invalid format
+      return "Invalid date format";
+    }
+
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid date";
+    }
+
+    // Format the date
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  }
+
   return (
     <>
       <div
@@ -25,7 +56,9 @@ const Activity = ({ activity }) => {
         className="bg-gray-100 rounded-lg shadow p-4 w-full cursor-pointer"
       >
         <div className="flex justify-between items-center">
-          <p className="text-sm text-gray-500">{activity.eventTimestamp}</p>
+          <p className="text-sm tessxt-gray-500">
+            {formatAnyTimestamp(activity.eventTimestamp)}
+          </p>
         </div>
         <h3 className="text-md font-semibold mt-1">{activity.title}</h3>
       </div>

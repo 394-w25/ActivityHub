@@ -14,6 +14,8 @@ const HomeScreen = () => {
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters);
+    console.log("New filters set as: ");
+    console.log(newFilters);
     setIsModalOpen(false);
   };
 
@@ -70,23 +72,10 @@ const HomeScreen = () => {
           </div>
         </section>
         <section>
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-bold">Filter by</h2>
-          </div>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {["Yoga", "Running", "Cycling", "Dance Class"].map((filter) => (
-              <button
-                key={filter}
-                className="px-6 py-2 bg-gray-200 border border-gray-400 text-gray-900 font-semibold rounded-lg shadow-md hover:bg-gray-300 hover:border-gray-500 hover:text-black transition-all duration-200"
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
           <div className="text-center mt-4">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
             >
               Filters
             </button>
