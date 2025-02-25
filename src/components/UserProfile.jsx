@@ -1,4 +1,5 @@
 import React from "react";
+import { useAuthState, useDbData } from "@/hooks/firebase";
 import { User, Settings } from "lucide-react"; // Icon library for the top bar icons
 
 // shadcn/ui components (you need to install them with `npx shadcn add avatar card switch label`)
@@ -9,34 +10,38 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 export default function ActivityConnectPage() {
+  const [user] = useAuthState();
+  const [userData] = useDbData(user ? `users/${user.uid}` : null);
+
   return (
-    // Outer container that takes full height of the screen
     <div className="min-h-screen bg-gray-50 p-6 overflow-y-auto">
-      {/* Inner container: fills width, removes margins for desktop */}
       <div className="w-full bg-white shadow-md rounded-md p-4">
-        {/* === Top Bar === */}
         <div className="flex items-center justify-between mb-4">
-          {/* Left: App icon + Name */}
           <div className="flex items-center space-x-2">
-            <User className="h-5 w-5" /> {/* User icon */}
+            <User className="h-5 w-5" />
             <span className="font-semibold text-lg">ActivityHub</span>
           </div>
-          <Settings className="h-5 w-5" /> {/* Settings Icon */}
+          <Settings className="h-5 w-5" />
         </div>
 
         {/* === Profile Section === */}
         <div className="flex flex-col items-center text-center">
-          {/* Avatar Component (shadcn/ui) */}
           <Avatar className="h-25 w-25">
-            <AvatarImage src="../../assets/bbq.jpg" alt="Alex Johnson" />
-            <AvatarFallback>AJ</AvatarFallback>{" "}
-            {/* Fallback if no image loads */}
+            <AvatarImage
+              src={user?.photoURL || "../../assets/bbq.jpg"}
+              alt={user?.firstName + user?.lastName}
+            />
+            <AvatarFallback>
+              {user?.firstName?.charAt(0) || "U"}
+            </AvatarFallback>{" "}
           </Avatar>
 
           {/* Profile Name & Tagline */}
-          <h1 className="mt-2 text-xl font-bold">Alex Johnson</h1>
+          <h1 className="mt-2 text-xl font-bold">
+            {user?.firstName || "Guest"}
+          </h1>
           <p className="text-sm text-gray-500">
-            Adventure Seeker | Nature Lover
+            {user?.age || "Welcome to ActivityHub!"}
           </p>
 
           {/* Edit Profile Button */}
@@ -53,19 +58,19 @@ export default function ActivityConnectPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            {/* No bullet points, just indentation */}
             <div className="space-y-2 text-sm">
-              <p className="pl-4">Hiking at Rocky Mountain – July 2023</p>
-              <p className="pl-4">Kayaking Adventure – June 2023</p>
-              <p className="pl-4">Nature Photography Workshop – May 2023</p>
+              {userData?.activities ? (
+                Object.values(userData.activities).map((activity, index) => (
+                  <p key={index} className="pl-4">
+                    {activity}
+                  </p>
+                ))
+              ) : (
+                <p className="pl-4 text-gray-500">No activities yet</p>
+              )}
             </div>
           </CardContent>
         </Card>
-        {/* Tailwind breakdown:
-            - border-0 → Removes default border
-            - shadow-none → Removes shadow for flat design
-            - pl-4 → Indentation for activity items
-        */}
 
         {/* === Safety & Trust Card === */}
         <Card className="mt-4 bg-gray-300 text-stone-900 border-0 shadow-none">
