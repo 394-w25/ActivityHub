@@ -5,6 +5,9 @@
  * - Edited Timestamp: String
  * - Event Timestamp: String
  * - Location: String
+ * - Coords: Object
+ *   - x: Number
+ *   - y: Number
  * - Description: String
  * - Group Size: Number
  * - Poster UID: String
