@@ -47,7 +47,7 @@ const HomeScreen = () => {
 
       <main className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
         <section>
-          <h2 className="text-xl font-bold mb-4">Nearby activities</h2>
+          <h2 className="text-xl font-bold mb-4">Activities map</h2>
           <ActivitiesMap />
         </section>
         <section>
