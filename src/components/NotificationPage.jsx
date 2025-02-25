@@ -44,7 +44,6 @@ export default function NotificationsPage() {
         <h1 className="text-2xl font-bold ml-2">Notifications</h1>
       </div>
       <div className="space-y-4">
-        {/* {notifications.map((notification) => ( */}
         {userNotifications.map((notification) => (
           <NotificationCard key={notification.id} notification={notification} />
         ))}

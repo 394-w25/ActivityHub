@@ -25,6 +25,7 @@ const ActivityDetails = ({ activity, onClose }) => {
         senderName: user.displayName,
         senderPhotoURL: user.photoURL,
         eventTitle: activity.title,
+        location: activity.location,
         createdAt: Date.now(),
       };
       await updateData(notificationData);

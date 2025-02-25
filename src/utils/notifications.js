@@ -2,6 +2,7 @@
  * notification
  * - recipientId:: String
  * - senderId: String
+ * - senderName: String
  * - senderPhotoURL: String
  * - eventTitle: String
  * - Location: String
