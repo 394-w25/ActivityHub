@@ -2,38 +2,74 @@ import { useDbData } from "../hooks/firebase.js";
 import { getActivities } from "../utils/activity.js";
 import Activity from "./Activity.jsx";
 
-const ActivitiesFeed = ({}) => {
+const ActivitiesFeed = ({ filters }) => {
   const [data, error] = useDbData("/");
 
   if (error) return <h1>Error loading data: {error.toString()}</h1>;
   if (data === undefined) return <h1>Loading data...</h1>;
   if (!data) return <h1>No data found</h1>;
 
-  const allActivities = getActivities(data, {});
+  const { groupSize, location, startTime, endTime } = filters;
 
-  // may not be needed because the filter is already handled in getActivities (thanks Darin)
-  const filteredActivities = allActivities.filter((request) => {
-    return true;
+  // Pass the filters as functions to getActivities.
+  // This uses the native filtering functionality of getActivities.
+  const filteredActivities = getActivities(data, {
+    userFilter: (userID) => true, // No user-level filtering for now
+    activityFilter: (activity) => {
+      // Filter by maxPeople if defined
+      if (groupSize && activity.groupSize > groupSize) return false;
+
+      // Filter by timeframe if both startTime and endTime are provided
+      if (startTime && endTime) {
+        if (
+          activity.eventTimestamp < startTime ||
+          activity.eventTimestamp > endTime
+        ) {
+          return false;
+        }
+      }
+
+      // Location filtering placeholder (to be implemented as needed)
+      if (location) {
+        // TODO: implement proper location filtering logic here.
+      }
+
+      return true;
+    },
   });
 
-  // sort the posts for display
-  // in the future we will likely sort these based on distance, as well as
-  // discounting posts that are older than a certain time frame, as well as
-  // taking posts out that are after the timeframe on the post
-  const sortedActivities = [...filteredActivities].sort((a, b) => {
-    return a["eventTimestamp"] - b["eventTimestamp"];
+  // Sort the activities by eventTimestamp (ascending)
+  const sortedActivities = filteredActivities.sort((a, b) => {
+    return a[1].eventTimestamp - b[1].eventTimestamp;
   });
 
   return (
     <section>
       <h2 className="text-xl font-bold mb-4">Nearby Activities</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredActivities.map((activity, idx) => (
+        {sortedActivities.map((activity, idx) => (
           <Activity key={idx} activity={activity[1]} />
         ))}
       </div>
     </section>
   );
 };
+
+/* ActivitiesFeed.propTypes = {
+  filters: PropTypes.shape({
+    maxPeople: PropTypes.number,
+    location: PropTypes.string,
+    startTime: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.instanceOf(Date),
+    ]),
+    endTime: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.instanceOf(Date),
+    ]),
+  }).isRequired,
+}; */
 
 export default ActivitiesFeed;
