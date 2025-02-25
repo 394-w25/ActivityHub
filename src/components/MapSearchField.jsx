@@ -14,8 +14,8 @@ const MapSearchField = ({ setActivityLocation }) => {
     setActivityLocation({
       label: e.location.label,
       coords: {
-        x: e.location.x,
-        y: e.location.y,
+        latitude: e.location.y,
+        longitude: e.location.x,
       },
     });
   });
