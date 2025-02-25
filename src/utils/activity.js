@@ -23,8 +23,8 @@ export const getActivities = (
   const result = Object.entries(allData.users)
     .filter(([userID]) => userFilter(userID))
     .flatMap(([userID, userData]) =>
-      Object.entries(userData.activities || {}).filter(
-        ([activityID, activityData]) => activityFilter(activityData),
+      Object.values(userData.activities || {}).filter((activityData) =>
+        activityFilter(activityData),
       ),
     );
   return result;
