@@ -1,15 +1,33 @@
 import React from "react";
 import { X } from "lucide-react"; // Using lucide-react for the X icon
-import { handleUserInterested } from "@/utils/notification";
 import { useAuthState } from "@/hooks/firebase";
+import { useDbUpdate } from "@/hooks/firebase";
+import { v4 as uuidv4 } from "uuid";
 
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
+  const [updateData] = useDbUpdate(`notifications/${uuidv4()}`);
 
   const handleJoinActivity = async () => {
+    if (!user) return;
+
+    if (user.uid === activity.posterUid) {
+      alert("You can’t join your own activity!");
+      return;
+    }
+
     try {
       console.log("Joining activity:", activity);
-      await handleUserInterested(activity, user);
+
+      const notificationData = {
+        recipientId: activity.posterUid,
+        senderId: user.uid,
+        senderName: user.displayName,
+        senderPhotoURL: user.photoURL,
+        eventTitle: activity.title,
+        createdAt: Date.now(),
+      };
+      await updateData(notificationData);
     } catch (error) {
       console.error("Error joining activity:", error);
     }
