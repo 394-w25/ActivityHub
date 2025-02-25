@@ -17,12 +17,15 @@ const ActivitiesFeed = ({ filters }) => {
 
   // Filter activities using a similar approach to the Posts component.
   const filteredActivities = allActivities.filter(([activityId, activity]) => {
-    // Filter by start time window if both 'startTimeFrom' and 'startTimeTo' are provided.
-    if (startTimeFrom && activity.eventTimestamp < Number(startTimeFrom)) {
+    // Extract just the time portion from the event timestamp
+    const eventTime = activity.eventTimestamp.split("T")[1];
+
+    // Compare just the time portions
+    if (startTimeFrom && eventTime < startTimeFrom) {
       return false;
     }
 
-    if (startTimeTo && activity.eventTimestamp > Number(startTimeTo)) {
+    if (startTimeTo && eventTime > startTimeTo) {
       return false;
     }
 
