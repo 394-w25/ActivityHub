@@ -6,15 +6,15 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 export function NotificationCard({ notification }) {
   const { senderName, senderPhotoURL, eventTitle, createdAt } = notification;
 
   // 4. Convert to relative time (e.g. "just now", "20 min ago")
   let timeAgo = "Just now";
-  if (createdAt instanceof Date) {
-    timeAgo = formatDistanceToNow(createdAt, { addSuffix: true });
-  }
+  const date = new Date(createdAt);
+  timeAgo = formatDistanceToNow(date, { addSuffix: true });
 
   return (
     <Card className="border rounded-lg">

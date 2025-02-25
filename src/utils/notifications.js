@@ -13,7 +13,6 @@ import { useDbUpdate, useDbRemove } from "@hooks/firebase";
 
 export function getNotificationsForUser(allData, currentUserId) {
   if (!allData) return [];
-  console.log("running");
   return Object.entries(allData)
     .filter(([_, notifData]) => notifData.recipientId === currentUserId)
     .map(([notifId, notifData]) => ({
