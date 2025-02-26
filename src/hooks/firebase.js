@@ -91,6 +91,10 @@ export const useDbData = (path) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!path) {
+      console.error("Error: Path is null or undefined");
+      return;
+    }
     const dbRef = ref(database, path);
     const unsubscribe = onValue(
       dbRef,
