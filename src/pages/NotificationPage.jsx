@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 
 import { useAuthState } from "@/hooks/firebase";
-import { NotificationCard } from "./NotificationCard";
+import { NotificationCard } from "../components/NotificationCard";
 
 // Mock notifications for UI preview
 const mockNotifications = [
