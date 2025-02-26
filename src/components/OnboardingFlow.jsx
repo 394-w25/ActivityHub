@@ -133,7 +133,7 @@ const OnboardingFlow = () => {
 
       navigate("/home");
     } catch (error) {
-      console.error("Error udpating user data:", error);
+      console.error("Error updating user data:", error);
     }
   };
 
