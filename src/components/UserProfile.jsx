@@ -8,10 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import Activity from "@components/Activity";
 
 export default function ActivityConnectPage() {
   const [user] = useAuthState();
-  const [userData] = useDbData(user ? `users/${user.uid}` : null);
+  const [userData, error] = useDbData(user ? `users/${user.uid}` : null);
+
+  if (error) return <h1>Error loading data: {error.toString()}</h1>;
+  if (userData === undefined) return <h1>Loading data...</h1>;
+  if (!userData) return <h1>No data found</h1>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 overflow-y-auto">
@@ -29,19 +34,19 @@ export default function ActivityConnectPage() {
           <Avatar className="h-25 w-25">
             <AvatarImage
               src={user?.photoURL || "../../assets/bbq.jpg"}
-              alt={user?.firstName + user?.lastName}
+              alt={userData?.firstName + userData?.lastName}
             />
             <AvatarFallback>
-              {user?.firstName?.charAt(0) || "U"}
+              {userData?.firstName?.charAt(0) || "U"}
             </AvatarFallback>{" "}
           </Avatar>
 
           {/* Profile Name & Tagline */}
           <h1 className="mt-2 text-xl font-bold">
-            {user?.firstName || "Guest"}
+            {userData?.firstName || "Guest"}
           </h1>
           <p className="text-sm text-gray-500">
-            {user?.age || "Welcome to ActivityHub!"}
+            {userData?.age || "Welcome to ActivityHub!"}
           </p>
 
           {/* Edit Profile Button */}
@@ -62,7 +67,7 @@ export default function ActivityConnectPage() {
               {userData?.activities ? (
                 Object.values(userData.activities).map((activity, index) => (
                   <p key={index} className="pl-4">
-                    {activity}
+                    <Activity activity={activity} />
                   </p>
                 ))
               ) : (
