@@ -73,16 +73,18 @@ export const firebaseSignOut = () => {
 // Custom Hook: Track authentication state
 export const useAuthState = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setLoading(false);
     });
 
     return unsubscribe; // Cleanup on unmount
   }, []);
 
-  return [user];
+  return [user, loading];
 };
 
 // Custom Hook: Read data from the database
@@ -91,6 +93,8 @@ export const useDbData = (path) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!path) return;
+
     const dbRef = ref(database, path);
     const unsubscribe = onValue(
       dbRef,
@@ -120,7 +124,6 @@ export const useDbUpdate = (path) => {
       }
 
       if (!value || Object.keys(value).length === 0) {
-        console.log(value);
         console.error("Error: Cannot update with an empty or invalid object");
         return;
       }
@@ -146,7 +149,6 @@ export const useDbUpdate = (path) => {
 export const useDbRemove = (path) => {
   const [result, setResult] = useState();
   const removeData = useCallback(() => {
-    console.log(path);
     remove(ref(database, path))
       .then(() =>
         setResult({

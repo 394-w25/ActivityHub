@@ -10,8 +10,25 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 export default function ActivityConnectPage() {
-  const [user] = useAuthState();
+  const [user, loading] = useAuthState();
   const [userData] = useDbData(user ? `users/${user.uid}` : null);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Loading...</p> {/* ✅ Display while checking auth */}
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <p className="text-red-500">You are not logged in.</p>
+        <Button onClick={() => signInWithGoogle()}>Sign in with Google</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 overflow-y-auto">
@@ -28,20 +45,21 @@ export default function ActivityConnectPage() {
         <div className="flex flex-col items-center text-center">
           <Avatar className="h-25 w-25">
             <AvatarImage
-              src={user?.photoURL || "../../assets/bbq.jpg"}
-              alt={user?.firstName + user?.lastName}
+              src={userData?.photoURL || "../../assets/bbq.jpg"}
+              alt={`${userData?.firstName} ${userData?.lastName}`}
             />
             <AvatarFallback>
-              {user?.firstName?.charAt(0) || "U"}
+              {userData?.firstName?.charAt(0) || "U"}
             </AvatarFallback>{" "}
           </Avatar>
 
           {/* Profile Name & Tagline */}
           <h1 className="mt-2 text-xl font-bold">
-            {user?.firstName || "Guest"}
+            {userData?.firstName || "Guest"}
           </h1>
+          <p className="text-sm text-gray-500">{userData?.age || ""}</p>
           <p className="text-sm text-gray-500">
-            {user?.age || "Welcome to ActivityHub!"}
+            {userData?.bio === "" ? "Welcome to ActivityHub!" : userData?.bio}
           </p>
 
           {/* Edit Profile Button */}
