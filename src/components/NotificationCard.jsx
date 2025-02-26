@@ -1,3 +1,4 @@
+import { handleAcceptInterest } from "@/utils/notification";
 import {
   Card,
   CardHeader,
@@ -6,30 +7,51 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 export function NotificationCard({ notification }) {
-  const { senderName, senderPhotoURL, eventTitle, createdAt } = notification;
+  const {
+    senderId,
+    senderName,
+    senderPhotoURL,
+    eventTitle,
+    createdAt,
+    recipientId,
+    type,
+    message,
+  } = notification;
 
-  // 4. Convert to relative time (e.g. "just now", "20 min ago")
+  // convert Firestore timestamp to a Date object if needed?
   let timeAgo = "Just now";
-  if (createdAt instanceof Date) {
-    timeAgo = formatDistanceToNow(createdAt, { addSuffix: true });
+  if (createdAt?.seconds) {
+    timeAgo = formatDistanceToNow(new Date(createdAt.seconds * 1000), {
+      addSuffix: true,
+    });
   }
+
+  // for testing: the `message` field from Firestore or create a fallback message
+  const displayMessage =
+    message ||
+    (type === "ACCEPTED"
+      ? `Your interest in ${eventTitle} has been accepted!`
+      : `${senderName} is interested in ${eventTitle}`);
 
   return (
     <Card className="border rounded-lg">
       <CardHeader className="px-4 pt-3 pb-1">
-        {/* Top section: Avatar + Title on the left, Time on the right */}
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3">
-            <Avatar className="h-15 w-15">
-              <AvatarImage src={senderPhotoURL} alt={senderName} />
+            <Avatar className="h-16 w-16">
+              <AvatarImage
+                src={senderPhotoURL}
+                alt={`${senderName}'s profile picture`}
+              />
               <AvatarFallback>
                 {senderName?.[0]?.toUpperCase() ?? "U"}
               </AvatarFallback>
             </Avatar>
             <p className="text-sm font-medium leading-tight px-2 pt-5">
-              {senderName} is interested in {eventTitle}
+              {displayMessage}
             </p>
           </div>
           <p className="text-xs text-gray-500 whitespace-nowrap pt-5">
@@ -38,14 +60,20 @@ export function NotificationCard({ notification }) {
         </div>
       </CardHeader>
 
-      {/* Middle content: add empty space or any additional text if you want */}
       <CardContent className="px-4 py-2"></CardContent>
 
-      {/* Bottom: Buttons */}
-      <CardFooter className="flex space-x-2 px-23 py-2">
-        <Button variant="outline">View Profile</Button>
-        <Button variant="default">Accept</Button>
-      </CardFooter>
+      {/* Show "Accept" button only for "INTERESTED" notifications */}
+      {type === "INTERESTED" && (
+        <CardFooter className="flex space-x-2 px-6 py-2">
+          <Button variant="outline">View Profile</Button>
+          <Button
+            variant="default"
+            onClick={() => handleAcceptInterest(notification)}
+          >
+            Accept
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 }
