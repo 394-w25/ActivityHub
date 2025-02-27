@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
-{
-  /* import ActivitiesMap from "@components/ActivitiesMap.jsx"; */
-}
+import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import { Bell } from "lucide-react";
 
@@ -48,10 +46,10 @@ const HomeScreen = () => {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
-        {/* <section>
+        <section>
           <h2 className="text-xl font-bold mb-4">Activities map</h2>
           <ActivitiesMap />
-        </section> */}
+        </section>
         <section>
           <h2 className="text-xl font-bold mb-4">Activity of the day</h2>
           <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-xl mx-auto text-center">

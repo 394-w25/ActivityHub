@@ -12,6 +12,7 @@ import {
 import {
   getDatabase,
   ref,
+  get,
   set,
   update,
   onValue,
@@ -35,7 +36,8 @@ const firebaseConfig = {
 const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 const database = getDatabase(firebase);
-export const db = getFirestore(firebase);
+const db = getFirestore(firebase);
+export { firebase, auth, database, db };
 
 // Sign in with Google
 export const signInWithGoogle = async () => {
@@ -46,11 +48,16 @@ export const signInWithGoogle = async () => {
     if (user) {
       // Create or update user in the database
       const userRef = ref(database, `users/${user.uid}`);
+
+      const snapshot = await get(userRef);
+      const existingData = snapshot.val();
+
       update(userRef, {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        activities: {},
+        displayName: existingData?.displayName || user.displayName,
+        email: existingData?.email || user.email,
+        photoURL: existingData?.photoURL || user.photoURL,
+        bio: existingData?.bio || "",
+        activities: existingData?.activities || {},
       });
     }
   } catch (error) {
@@ -84,6 +91,10 @@ export const useDbData = (path) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!path) {
+      console.error("Error: Path is null or undefined");
+      return;
+    }
     const dbRef = ref(database, path);
     const unsubscribe = onValue(
       dbRef,
@@ -106,18 +117,29 @@ export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
 
   const updateData = useCallback(
-    (value) => {
-      update(ref(database, path), value)
-        .then(() =>
-          setResult({
-            timestamp: Date.now(),
-            message: "Update successful",
-            error: null,
-          }),
-        )
-        .catch((error) =>
-          setResult({ timestamp: Date.now(), message: "Update failed", error }),
-        );
+    async (path, value) => {
+      if (!path) {
+        console.error("Error: Path is null or undefined");
+        return;
+      }
+
+      if (!value || Object.keys(value).length === 0) {
+        console.log(value);
+        console.error("Error: Cannot update with an empty or invalid object");
+        return;
+      }
+
+      try {
+        await update(ref(database, path), value);
+        setResult({
+          timestamp: Date.now(),
+          message: "Update successful",
+          error: null,
+        });
+      } catch (error) {
+        setResult({ timestamp: Date.now(), message: "Update failed", error });
+        console.error("Firebase update error:", error);
+      }
     },
     [path],
   );

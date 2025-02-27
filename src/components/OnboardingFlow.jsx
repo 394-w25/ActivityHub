@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { signInWithGoogle, useDbUpdate } from "@hooks/firebase.js";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
+import { ref, get, update } from "firebase/database";
+import { database } from "@/hooks/firebase";
 
 // Images
 import welcomeImage from "@assets/logo.png";
@@ -56,6 +58,13 @@ const OnboardingFlow = () => {
   const handleGoogleSignIn = async () => {
     try {
       await signInWithGoogle();
+      const user = auth.currentUser;
+
+      if (!user) {
+        console.error("Google sign-in failed, no user found.");
+        return;
+      }
+
       setStep(2);
     } catch (error) {
       console.error("Error signing in with Google:", error);
@@ -66,13 +75,9 @@ const OnboardingFlow = () => {
   const handleAgeChange = (e) => {
     const val = e.target.value;
 
-    if (val === "") {
+    if (val === "" || parseInt(val, 10) >= 1) {
       setAge(val);
-      return;
     }
-
-    const intVal = parseInt(val, 10);
-    setAge(intVal);
   };
 
   const handlePersonalInfoSubmit = () => {
@@ -107,27 +112,29 @@ const OnboardingFlow = () => {
   };
 
   // ------------------ FINAL: Store Info & Navigate ------------
-  const handleContinue = () => {
+  const handleContinue = async () => {
     const user = auth.currentUser;
     if (!user) {
       console.error("No user is signed in, cannot store data.");
       return;
     }
 
-    // Merge everything into the Realtime Database
-    updateData({
-      [user.uid]: {
+    try {
+      const updatedData = {
         firstName,
         lastName,
         gender,
         age: parseInt(age, 10),
         location,
         selectedActivities,
-      },
-    });
+      };
 
-    // Navigate to home
-    navigate("/home");
+      await updateData(`/users/${user.uid}`, updatedData);
+
+      navigate("/home");
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
   };
 
   // ------------------ Renders ------------------
