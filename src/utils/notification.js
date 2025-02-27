@@ -8,6 +8,8 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
  * @param {string} senderName - name of the sender.
  * @param {string} senderPhotoURL - profile picture of the sender.
  * @param {string} eventTitle - title of the related event.
+ * @param {string} eventTimestamp - timestamp of the event.
+ * @param {string} location - event location.
  * @param {string} type - type of notification (e.g., "INTERESTED", "ACCEPTED").
  * @param {string} message - custom message for the notification.
  */
@@ -18,6 +20,7 @@ async function sendNotification({
   senderPhotoURL,
   eventTitle,
   eventTimestamp,
+  location,
   type,
   message,
 }) {
@@ -34,6 +37,7 @@ async function sendNotification({
       senderPhotoURL,
       eventTitle,
       eventTimestamp,
+      location,
       createdAt: serverTimestamp(),
       read: false,
       type,
@@ -54,6 +58,7 @@ export async function handleUserInterested(activity, currentUser) {
     senderId: currentUser.uid,
     eventTitle: activity.title,
     eventTimestamp: activity.eventTimestamp,
+    location: activity.location,
   });
 
   await sendNotification({
@@ -63,6 +68,7 @@ export async function handleUserInterested(activity, currentUser) {
     senderPhotoURL: currentUser.photoURL,
     eventTitle: activity.title,
     eventTimestamp: activity.eventTimestamp,
+    location: activity.location,
     type: "INTERESTED",
     message: `${currentUser.displayName} is interested in ${activity.title}.`,
   });
@@ -77,6 +83,7 @@ export async function handleAcceptInterest(notification) {
     senderId: notification.recipientId,
     eventTitle: notification.eventTitle,
     eventTimestamp: notification.eventTimestamp,
+    location: notification.location,
   });
 
   let eventTimestampStr = notification.eventTimestamp;
@@ -90,6 +97,12 @@ export async function handleAcceptInterest(notification) {
   }
 
   // Create Google Calendar invite URL
+  const eventTitle = encodeURIComponent(notification.eventTitle);
+  const eventLocation = encodeURIComponent(notification.location || ""); // Default empty if location is missing
+  const eventDetails = encodeURIComponent(
+    `You have been accepted for this event!`,
+  );
+
   const startTime = new Date(eventTimestampStr)
     .toISOString()
     .replace(/-|:|\.\d\d\d/g, "");
@@ -97,7 +110,7 @@ export async function handleAcceptInterest(notification) {
     .toISOString()
     .replace(/-|:|\.\d\d\d/g, "");
 
-  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(notification.eventTitle)}&dates=${startTime}/${endTime}&details=You have been accepted for this event!`;
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startTime}/${endTime}&details=${eventDetails}&location=${eventLocation}`;
 
   await sendNotification({
     recipientId: notification.senderId,
@@ -106,6 +119,7 @@ export async function handleAcceptInterest(notification) {
     senderPhotoURL: "",
     eventTitle: notification.eventTitle,
     eventTimestamp: notification.eventTimestamp,
+    location: notification.location,
     type: "ACCEPTED",
     message: `Your interest in ${notification.eventTitle} has been accepted! <br><br>
           <strong><a href="${calendarUrl}" target="_blank" style="color: #007bff; text-decoration: none;">
