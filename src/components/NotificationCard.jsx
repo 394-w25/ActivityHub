@@ -50,9 +50,10 @@ export function NotificationCard({ notification }) {
                 {senderName?.[0]?.toUpperCase() ?? "U"}
               </AvatarFallback>
             </Avatar>
-            <p className="text-sm font-medium leading-tight px-2 pt-5">
-              {displayMessage}
-            </p>
+            <p
+              className="text-sm font-medium leading-tight px-2 pt-5"
+              dangerouslySetInnerHTML={{ __html: displayMessage }}
+            ></p>
           </div>
           <p className="text-xs text-gray-500 whitespace-nowrap pt-5">
             {timeAgo}

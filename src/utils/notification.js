@@ -17,6 +17,7 @@ async function sendNotification({
   senderName,
   senderPhotoURL,
   eventTitle,
+  eventTimestamp,
   type,
   message,
 }) {
@@ -32,6 +33,7 @@ async function sendNotification({
       senderName,
       senderPhotoURL,
       eventTitle,
+      eventTimestamp,
       createdAt: serverTimestamp(),
       read: false,
       type,
@@ -51,6 +53,7 @@ export async function handleUserInterested(activity, currentUser) {
     recipientId: activity.posterUid,
     senderId: currentUser.uid,
     eventTitle: activity.title,
+    eventTimestamp: activity.eventTimestamp,
   });
 
   await sendNotification({
@@ -59,6 +62,7 @@ export async function handleUserInterested(activity, currentUser) {
     senderName: currentUser.displayName,
     senderPhotoURL: currentUser.photoURL,
     eventTitle: activity.title,
+    eventTimestamp: activity.eventTimestamp,
     type: "INTERESTED",
     message: `${currentUser.displayName} is interested in ${activity.title}.`,
   });
@@ -72,7 +76,28 @@ export async function handleAcceptInterest(notification) {
     recipientId: notification.senderId,
     senderId: notification.recipientId,
     eventTitle: notification.eventTitle,
+    eventTimestamp: notification.eventTimestamp,
   });
+
+  let eventTimestampStr = notification.eventTimestamp;
+
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(eventTimestampStr)) {
+    eventTimestampStr += ":00";
+  }
+
+  if (!eventTimestampStr.endsWith("Z") && !eventTimestampStr.includes("+")) {
+    eventTimestampStr += "Z";
+  }
+
+  // Create Google Calendar invite URL
+  const startTime = new Date(eventTimestampStr)
+    .toISOString()
+    .replace(/-|:|\.\d\d\d/g, "");
+  const endTime = new Date(Date.parse(eventTimestampStr) + 3600000)
+    .toISOString()
+    .replace(/-|:|\.\d\d\d/g, "");
+
+  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(notification.eventTitle)}&dates=${startTime}/${endTime}&details=You have been accepted for this event!`;
 
   await sendNotification({
     recipientId: notification.senderId,
@@ -80,7 +105,10 @@ export async function handleAcceptInterest(notification) {
     senderName: "Event Organizer",
     senderPhotoURL: "",
     eventTitle: notification.eventTitle,
+    eventTimestamp: notification.eventTimestamp,
     type: "ACCEPTED",
-    message: `Your interest in ${notification.eventTitle} has been accepted!`,
+    message: `Your interest in ${notification.eventTitle} has been accepted! <br><br>
+          <strong><a href="${calendarUrl}" target="_blank" style="color: #007bff; text-decoration: none;">
+          Add to Google Calendar</a></strong>`,
   });
 }
