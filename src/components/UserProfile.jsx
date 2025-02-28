@@ -1,14 +1,11 @@
 import React from "react";
 import { useAuthState, useDbData } from "@/hooks/firebase";
-import { User, Settings } from "lucide-react"; // Icon library for the top bar icons
-
-// shadcn/ui components (you need to install them with `npx shadcn add avatar card switch label`)
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import Activity from "@components/Activity";
+import { Switch } from "@/components/ui/switch";
 
 export default function ActivityConnectPage() {
   const [user] = useAuthState();
@@ -18,74 +15,52 @@ export default function ActivityConnectPage() {
   if (userData === undefined) return <h1>Loading data...</h1>;
   if (!userData) return <h1>No data found</h1>;
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-6 overflow-y-auto">
-      <div className="w-full bg-white shadow-md rounded-md p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <User className="h-5 w-5" />
-            <span className="font-semibold text-lg">ActivityHub</span>
-          </div>
-          <Settings className="h-5 w-5" />
-        </div>
+  // For demonstration, we’ll use placeholders if the userData fields are empty.
+  const displayName = userData?.firstName || "Jake";
+  const displayBio =
+    userData?.bio ||
+    `No bio available. This is a placeholder bio. You can edit your profile to add a personal touch!`;
 
-        {/* === Profile Section === */}
-        <div className="flex flex-col items-center text-center">
-          <Avatar className="h-25 w-25">
-            <AvatarImage
-              src={user?.photoURL || "../../assets/bbq.jpg"}
-              alt={userData?.firstName + userData?.lastName}
-            />
+  return (
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+      <Card className="w-full max-w-sm rounded-lg shadow-md p-6">
+        <div className="flex flex-col items-center">
+          <Avatar className="w-24 h-24">
+            <AvatarImage src={user?.photoURL} alt={displayName} />
             <AvatarFallback>
-              {userData?.firstName?.charAt(0) || "U"}
-            </AvatarFallback>{" "}
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
 
-          {/* Profile Name & Tagline */}
-          <h1 className="mt-2 text-xl font-bold">
-            {userData?.firstName || "Guest"}
-          </h1>
-          <p className="text-sm text-gray-500">
-            {userData?.age || "Welcome to ActivityHub!"}
-          </p>
-
-          {/* Edit Profile Button */}
-          <Button className="mt-5 w-full h-12 bg-orange-600 hover:bg-orange-700 text-white">
-            Edit Profile
-          </Button>
+          <h2 className="text-2xl font-bold mt-4">{displayName}</h2>
         </div>
 
-        {/* === Past Activities Card === */}
-        <Card className="mt-6 bg-orange-100 text-stone-900 border-0 shadow-none">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">
-              Past Activities
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-2 text-sm">
-              {userData?.activities ? (
-                Object.values(userData.activities).map((activity, index) => (
-                  <p key={index} className="pl-4">
-                    <Activity activity={activity} />
-                  </p>
-                ))
-              ) : (
-                <p className="pl-4 text-gray-500">No activities yet</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <Tabs defaultValue="about" className="mt-6">
+          <TabsList className="grid grid-cols-3 w-full">
+            <TabsTrigger value="about">ABOUT</TabsTrigger>
+            <TabsTrigger value="event">EVENT</TabsTrigger>
+            <TabsTrigger value="trust">TRUST BADGE</TabsTrigger>
+          </TabsList>
 
-        {/* === Safety & Trust Card === */}
-        <Card className="mt-4 bg-gray-300 text-stone-900 border-0 shadow-none">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-semibold">
-              Safety & Trust
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-4">
-            {/* Toggle for Phone Verification */}
+          <TabsContent value="about" className="mt-4">
+            <p className="text-gray-700 text-sm whitespace-pre-line">
+              {displayBio}
+            </p>
+          </TabsContent>
+
+          <TabsContent value="event" className="mt-4">
+            {userData?.activities ? (
+              Object.values(userData.activities).map((activity, index) => (
+                <div key={index} className="text-sm text-gray-700 mb-2">
+                  • {activity.title || "Untitled Activity"}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No events/activities yet.</p>
+            )}
+          </TabsContent>
+
+          <TabsContent value="trust" className="mt-4">
             <div className="flex items-center justify-between">
               <Label>Phone Verification</Label>
               <Switch
@@ -96,9 +71,7 @@ export default function ActivityConnectPage() {
                 "
               />
             </div>
-
-            {/* Toggle for Email Verification */}
-            <div className="flex items-center justify-between">
+            <div className="mt-4 flex items-center justify-between">
               <Label>Email Verification</Label>
               <Switch
                 defaultChecked
@@ -107,11 +80,32 @@ export default function ActivityConnectPage() {
                   data-[state=checked]:bg-orange-600
                 "
               />{" "}
-              {/* data-[state=checked]:bg-orange-600 → Makes switch orange when toggled ON */}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex flex-wrap gap-2 mt-10">
+          {["Hike", "Food", "Concert", "Music", "Art", "Movie", "Others"].map(
+            (tag) => (
+              <span
+                key={tag}
+                className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-xs font-semibold"
+              >
+                {tag}
+              </span>
+            ),
+          )}
+        </div>
+
+        <div className="flex justify-around mt-10">
+          <Button className="bg-orange-400 text-white hover:bg-orange-500">
+            Chat
+          </Button>
+          <Button className="bg-orange-400 text-white hover:bg-orange-500">
+            Accept
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 }
