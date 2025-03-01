@@ -8,8 +8,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export function NotificationCard({ notification }) {
+  const navigate = useNavigate();
   const {
     senderId,
     senderName,
@@ -35,6 +37,16 @@ export function NotificationCard({ notification }) {
     (type === "ACCEPTED"
       ? `Your interest in ${eventTitle} has been accepted!`
       : `${senderName} is interested in ${eventTitle}`);
+
+  // to navigate to profile
+  const handleViewProfile = () => {
+    if (!senderId) {
+      console.error("Sender ID is missing, cannot view profile.");
+      return;
+    }
+    console.log(`Navigating to profile of user: ${senderId}`);
+    navigate(`/profile/${senderId}`);
+  };
 
   return (
     <Card className="border rounded-lg">
@@ -66,7 +78,9 @@ export function NotificationCard({ notification }) {
       {/* Show "Accept" button only for "INTERESTED" notifications */}
       {type === "INTERESTED" && (
         <CardFooter className="flex space-x-2 px-6 py-2">
-          <Button variant="outline">View Profile</Button>
+          <Button variant="outline" onClick={handleViewProfile}>
+            View Profile
+          </Button>
           <Button
             variant="default"
             onClick={() => handleAcceptInterest(notification)}
