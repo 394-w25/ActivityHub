@@ -1,10 +1,4 @@
 import { handleAcceptInterest } from "@/utils/notification";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
@@ -18,12 +12,11 @@ export function NotificationCard({ notification }) {
     senderPhotoURL,
     eventTitle,
     createdAt,
-    recipientId,
     type,
     message,
   } = notification;
 
-  // convert Firestore timestamp to a Date object if needed?
+  // Convert Firestore timestamp to readable format
   let timeAgo = "Just now";
   if (createdAt?.seconds) {
     timeAgo = formatDistanceToNow(new Date(createdAt.seconds * 1000), {
@@ -31,64 +24,56 @@ export function NotificationCard({ notification }) {
     });
   }
 
-  // for testing: the `message` field from Firestore or create a fallback message
-  const displayMessage =
-    message ||
-    (type === "ACCEPTED"
-      ? `Your interest in ${eventTitle} has been accepted!`
-      : `${senderName} is interested in ${eventTitle}`);
+  // Construct notification message without repeating the sender's name
+  const displayMessage = message?.includes(senderName)
+    ? message
+    : `${senderName} ${message}`;
 
-  // to navigate to profile
+  // Navigate to user profile
   const handleViewProfile = () => {
     if (!senderId) {
       console.error("Sender ID is missing, cannot view profile.");
       return;
     }
-    console.log(`Navigating to profile of user: ${senderId}`);
     navigate(`/profile/${senderId}`);
   };
 
   return (
-    <Card className="border rounded-lg">
-      <CardHeader className="px-4 pt-3 pb-1">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <Avatar className="h-16 w-16">
-              <AvatarImage
-                src={senderPhotoURL}
-                alt={`${senderName}'s profile picture`}
-              />
-              <AvatarFallback>
-                {senderName?.[0]?.toUpperCase() ?? "U"}
-              </AvatarFallback>
-            </Avatar>
-            <p
-              className="text-sm font-medium leading-tight px-2 pt-5"
-              dangerouslySetInnerHTML={{ __html: displayMessage }}
-            ></p>
-          </div>
-          <p className="text-xs text-gray-500 whitespace-nowrap pt-5">
-            {timeAgo}
-          </p>
+    <div className="bg-white px-4 py-3 mb-3 max-w-md w-full">
+      {/* Top Section: Avatar, Message, Timestamp */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          {/* Avatar */}
+          <Avatar className="h-12 w-12 flex-shrink-0">
+            <AvatarImage src={senderPhotoURL} alt={`${senderName}'s profile`} />
+            <AvatarFallback>{senderName?.charAt(0) || "U"}</AvatarFallback>
+          </Avatar>
+
+          {/* Message Content */}
+          <p className="text-sm text-gray-900">{displayMessage}</p>
         </div>
-      </CardHeader>
 
-      <CardContent className="px-4 py-2"></CardContent>
+        {/* Right-aligned Timestamp */}
+        <p className="text-xs text-gray-400 whitespace-nowrap">{timeAgo}</p>
+      </div>
 
-      {/* Show "Accept" button only for "INTERESTED" notifications */}
+      {/* Action Buttons - Now Aligned with the Message */}
       {type === "INTERESTED" && (
-        <CardFooter className="flex space-x-2 px-6 py-2">
-          <Button variant="outline" onClick={handleViewProfile}>
+        <div className="flex space-x-2 mt-2 ml-16">
+          <Button
+            className="px-4 py-1 text-gray-700 bg-transparent border border-gray-300 shadow-none hover:bg-gray-100"
+            onClick={handleViewProfile}
+          >
             View Profile
           </Button>
           <Button
-            variant="default"
+            className="px-4 py-1 bg-[#ED904A] text-white hover:bg-[#E07A5F] border-none shadow-none"
             onClick={() => handleAcceptInterest(notification)}
           >
             Accept
           </Button>
-        </CardFooter>
+        </div>
       )}
-    </Card>
+    </div>
   );
 }

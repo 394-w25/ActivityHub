@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { db } from "@/hooks/firebase";
-
 import {
   collection,
   query,
@@ -8,18 +7,18 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
-
 import { useAuthState } from "@/hooks/firebase";
 import { NotificationCard } from "./NotificationCard";
+import { useNavigate } from "react-router-dom";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [currentUser] = useAuthState();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!currentUser) return;
 
-    // Only fetch notifications where recipientId is the current user
     const q = query(
       collection(db, "notifications"),
       where("recipientId", "==", currentUser.uid),
@@ -38,11 +37,20 @@ export default function NotificationsPage() {
   }, [currentUser]);
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-6">
-      <h1 className="text-2xl font-bold mb-4">Notifications</h1>
-      <div className="space-y-4">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-6">
+      {/* Header with Back Button */}
+      <div className="w-full max-w-md flex items-center justify-between mb-4">
+        <button onClick={() => navigate(-1)} className="text-black text-xl">
+          ←
+        </button>
+        <h1 className="text-xl font-bold">Notification</h1>
+        <div className="w-6"></div> {/* Placeholder for spacing */}
+      </div>
+
+      {/* Notifications List */}
+      <div className="w-full max-w-md space-y-4">
         {notifications.length === 0 ? (
-          <p>No notifications yet.</p>
+          <p className="text-center text-gray-500">No notifications yet.</p>
         ) : (
           notifications.map((notification) => (
             <NotificationCard
