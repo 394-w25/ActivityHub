@@ -16,7 +16,6 @@ const ActivitiesMap = () => {
   if (!data) return <h1>No data found</h1>;
 
   const allActivities = getActivities(data, {});
-  console.error(allActivities);
   return (
     <div>
       <MapContainer center={userCoords} zoom={17} className="h-128">
