@@ -2,6 +2,37 @@ import { db } from "@/hooks/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 /**
+ * Generates a Google Calendar link and a downloadable .ics file.
+ * @param {string} eventTitle - Title of the event.
+ * @param {string} eventTimestamp - Start date/time in ISO format.
+ * @param {string} eventLocation - Event location.
+ * @returns {Object} Google and ICS calendar links.
+ */
+function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
+  if (!eventTimestamp.endsWith("Z") && !eventTimestamp.includes("+")) {
+    eventTimestamp += "Z"; // Ensure UTC format
+  }
+
+  const startTime = new Date(eventTimestamp)
+    .toISOString()
+    .replace(/-|:|\.\d\d\d/g, "");
+  const endTime = new Date(Date.parse(eventTimestamp) + 3600000) // Default duration: 1 hour
+    .toISOString()
+    .replace(/-|:|\.\d\d\d/g, "");
+
+  const encodedTitle = encodeURIComponent(eventTitle);
+  const encodedLocation = encodeURIComponent(eventLocation);
+  const eventDetails = encodeURIComponent(
+    "You have been accepted for this event!",
+  );
+
+  return {
+    google: `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodedTitle}&dates=${startTime}/${endTime}&details=${eventDetails}&location=${encodedLocation}`,
+    ics: `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ASUMMARY:${encodedTitle}%0ADESCRIPTION:${eventDetails}%0ALOCATION:${encodedLocation}%0ADTSTART:${startTime}%0ADTEND:${endTime}%0AEND:VEVENT%0AEND:VCALENDAR`,
+  };
+}
+
+/**
  * Sends a notification to Firestore.
  * @param {string} recipientId -  user who will receive the notification.
  * @param {string} senderId -  user who triggered the notification.
@@ -86,31 +117,11 @@ export async function handleAcceptInterest(notification) {
     location: notification.location,
   });
 
-  let eventTimestampStr = notification.eventTimestamp;
-
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(eventTimestampStr)) {
-    eventTimestampStr += ":00";
-  }
-
-  if (!eventTimestampStr.endsWith("Z") && !eventTimestampStr.includes("+")) {
-    eventTimestampStr += "Z";
-  }
-
-  // Create Google Calendar invite URL
-  const eventTitle = encodeURIComponent(notification.eventTitle);
-  const eventLocation = encodeURIComponent(notification.location || ""); // Default empty if location is missing
-  const eventDetails = encodeURIComponent(
-    `You have been accepted for this event!`,
+  const { google, ics } = generateCalendarLinks(
+    notification.eventTitle,
+    notification.eventTimestamp,
+    notification.location,
   );
-
-  const startTime = new Date(eventTimestampStr)
-    .toISOString()
-    .replace(/-|:|\.\d\d\d/g, "");
-  const endTime = new Date(Date.parse(eventTimestampStr) + 3600000)
-    .toISOString()
-    .replace(/-|:|\.\d\d\d/g, "");
-
-  const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startTime}/${endTime}&details=${eventDetails}&location=${eventLocation}`;
 
   await sendNotification({
     recipientId: notification.senderId,
@@ -121,8 +132,17 @@ export async function handleAcceptInterest(notification) {
     eventTimestamp: notification.eventTimestamp,
     location: notification.location,
     type: "ACCEPTED",
-    message: `Your interest in ${notification.eventTitle} has been accepted! <br><br>
-          <strong><a href="${calendarUrl}" target="_blank" style="color: #007bff; text-decoration: none;">
-          Add to Google Calendar</a></strong>`,
+    message: `Your interest in ${notification.eventTitle} has been accepted! <br>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+              <a href="${google}" target="_blank"
+                 style="color: #007bff; text-decoration: none; font-size: 13px; font-weight: 500;">
+                Add to Google Calendar
+              </a>
+              <span style="color: #888; font-size: 13px;">|</span>
+              <a href="${ics}" download="event.ics"
+                 style="color: #007bff; text-decoration: none; font-size: 13px; font-weight: 500;">
+                Download Calendar Event
+              </a>
+            </div>`,
   });
 }
