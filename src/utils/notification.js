@@ -1,13 +1,7 @@
+import { getDatabase, ref, push, set } from "firebase/database";
 import { db } from "@/hooks/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
-/**
- * Generates a Google Calendar link and a downloadable .ics file.
- * @param {string} eventTitle - Title of the event.
- * @param {string} eventTimestamp - Start date/time in ISO format.
- * @param {string} eventLocation - Event location.
- * @returns {Object} Google and ICS calendar links.
- */
 function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
   if (!eventTimestamp.endsWith("Z") && !eventTimestamp.includes("+")) {
     eventTimestamp += "Z"; // Ensure UTC format
@@ -32,18 +26,6 @@ function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
   };
 }
 
-/**
- * Sends a notification to Firestore.
- * @param {string} recipientId -  user who will receive the notification.
- * @param {string} senderId -  user who triggered the notification.
- * @param {string} senderName - name of the sender.
- * @param {string} senderPhotoURL - profile picture of the sender.
- * @param {string} eventTitle - title of the related event.
- * @param {string} eventTimestamp - timestamp of the event.
- * @param {string} location - event location.
- * @param {string} type - type of notification (e.g., "INTERESTED", "ACCEPTED").
- * @param {string} message - custom message for the notification.
- */
 async function sendNotification({
   recipientId,
   senderId,
@@ -91,6 +73,18 @@ export async function handleUserInterested(activity, currentUser) {
     eventTimestamp: activity.eventTimestamp,
     location: activity.location,
   });
+  const db = getDatabase();
+  const interestedRef = ref(
+    db,
+    `users/${activity.posterUid}/activities/${activity.id}/interested/${currentUser.uid}`,
+  );
+
+  await set(interestedRef, {
+    userId: currentUser.uid,
+    timestamp: Date.now(),
+  });
+
+  console.log("User added to interested list under the host's activity.");
 
   await sendNotification({
     recipientId: activity.posterUid,
@@ -121,6 +115,27 @@ export async function handleAcceptInterest(notification) {
     notification.eventTitle,
     notification.eventTimestamp,
     notification.location,
+  );
+
+  const db = getDatabase();
+  const interestedRef = ref(
+    db,
+    `users/${notification.recipientId}/activities/${notification.eventId}/interested/${notification.senderId}`,
+  );
+  const approvedRef = ref(
+    db,
+    `users/${notification.recipientId}/activities/${notification.eventId}/approved/${notification.senderId}`,
+  );
+
+  // Move user to approved and remove from interested
+  await set(approvedRef, {
+    userId: notification.senderId,
+    timestamp: Date.now(),
+  });
+
+  await set(interestedRef, null); // Delete from interested
+  console.log(
+    "User moved from interested to approved under the host's activity.",
   );
 
   await sendNotification({
