@@ -16,7 +16,6 @@ export function NotificationCard({ notification }) {
     message,
   } = notification;
 
-  // Convert Firestore timestamp to readable format
   let timeAgo = "Just now";
   if (createdAt?.seconds) {
     timeAgo = formatDistanceToNow(new Date(createdAt.seconds * 1000), {
@@ -24,12 +23,8 @@ export function NotificationCard({ notification }) {
     });
   }
 
-  // Construct notification message without repeating the sender's name
-  const displayMessage = message?.includes(senderName)
-    ? message
-    : `${senderName} ${message}`;
+  const displayMessage = message.replace(/^(Event Organizer|.*?):\s*/, "");
 
-  // Navigate to user profile
   const handleViewProfile = () => {
     if (!senderId) {
       console.error("Sender ID is missing, cannot view profile.");
@@ -40,35 +35,39 @@ export function NotificationCard({ notification }) {
 
   return (
     <div className="bg-white px-4 py-3 mb-3 max-w-md w-full">
-      {/* Top Section: Avatar, Message, Timestamp */}
+      {/* Avatar, Message, Timestamp */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          {/* Avatar */}
           <Avatar className="h-12 w-12 flex-shrink-0">
             <AvatarImage src={senderPhotoURL} alt={`${senderName}'s profile`} />
             <AvatarFallback>{senderName?.charAt(0) || "U"}</AvatarFallback>
           </Avatar>
 
-          {/* Message Content */}
-          <p className="text-sm text-gray-900">{displayMessage}</p>
+          {/* Message Content - Render HTML */}
+          <p
+            className="text-sm text-gray-900"
+            dangerouslySetInnerHTML={{ __html: displayMessage }}
+          ></p>
         </div>
 
-        {/* Right-aligned Timestamp */}
+        {/* Timestamp on Right */}
         <p className="text-xs text-gray-400 whitespace-nowrap">{timeAgo}</p>
       </div>
 
-      {/* Action Buttons - Now Aligned with the Message */}
+      {/* Buttons */}
       {type === "INTERESTED" && (
         <div className="flex space-x-2 mt-2 ml-16">
           <Button
-            className="px-4 py-1 text-gray-700 bg-transparent border border-gray-300 shadow-none hover:bg-gray-100"
+            className="px-4 py-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 shadow-none"
             onClick={handleViewProfile}
+            style={{ fontFamily: "Georgia, serif" }}
           >
             View Profile
           </Button>
           <Button
-            className="px-4 py-1 bg-[#ED904A] text-white hover:bg-[#E07A5F] border-none shadow-none"
+            className="px-4 py-1 bg-[#f07b3c] text-white hover:bg-[#ed6115] border-none shadow-none"
             onClick={() => handleAcceptInterest(notification)}
+            style={{ fontFamily: "Georgia, serif" }}
           >
             Accept
           </Button>

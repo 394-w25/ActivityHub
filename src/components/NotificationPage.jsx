@@ -37,17 +37,19 @@ export default function NotificationsPage() {
   }, [currentUser]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center px-4 py-6">
-      {/* Header with Back Button */}
-      <div className="w-full max-w-md flex items-center justify-between mb-4">
-        <button onClick={() => navigate(-1)} className="text-black text-xl">
+    <div className="min-h-screen bg-white flex flex-col items-center px-4 py-6">
+      <div className="w-full max-w-md flex items-center mb-6">
+        <button onClick={() => navigate(-1)} className="text-black text-2xl">
           ←
         </button>
-        <h1 className="text-xl font-bold">Notification</h1>
-        <div className="w-6"></div> {/* Placeholder for spacing */}
+        <h1
+          className="flex-grow text-center text-2xl text-black tracking-wide"
+          style={{ fontFamily: "Georgia, serif" }}
+        >
+          Notification
+        </h1>
       </div>
 
-      {/* Notifications List */}
       <div className="w-full max-w-md space-y-4">
         {notifications.length === 0 ? (
           <p className="text-center text-gray-500">No notifications yet.</p>
