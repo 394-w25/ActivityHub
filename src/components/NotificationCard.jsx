@@ -1,51 +1,78 @@
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { handleAcceptInterest } from "@/utils/notification";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 export function NotificationCard({ notification }) {
-  const { senderName, senderPhotoURL, eventTitle, createdAt } = notification;
+  const navigate = useNavigate();
+  const {
+    senderId,
+    senderName,
+    senderPhotoURL,
+    eventTitle,
+    createdAt,
+    type,
+    message,
+  } = notification;
 
-  // 4. Convert to relative time (e.g. "just now", "20 min ago")
   let timeAgo = "Just now";
-  if (createdAt instanceof Date) {
-    timeAgo = formatDistanceToNow(createdAt, { addSuffix: true });
+  if (createdAt?.seconds) {
+    timeAgo = formatDistanceToNow(new Date(createdAt.seconds * 1000), {
+      addSuffix: true,
+    });
   }
 
+  const displayMessage = message.replace(/^(Event Organizer|.*?):\s*/, "");
+
+  const handleViewProfile = () => {
+    if (!senderId) {
+      console.error("Sender ID is missing, cannot view profile.");
+      return;
+    }
+    navigate(`/profile/${senderId}`);
+  };
+
   return (
-    <Card className="border rounded-lg">
-      <CardHeader className="px-4 pt-3 pb-1">
-        {/* Top section: Avatar + Title on the left, Time on the right */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <Avatar className="h-15 w-15">
-              <AvatarImage src={senderPhotoURL} alt={senderName} />
-              <AvatarFallback>
-                {senderName?.[0]?.toUpperCase() ?? "U"}
-              </AvatarFallback>
-            </Avatar>
-            <p className="text-sm font-medium leading-tight px-2 pt-5">
-              {senderName} is interested in {eventTitle}
-            </p>
-          </div>
-          <p className="text-xs text-gray-500 whitespace-nowrap pt-5">
-            {timeAgo}
-          </p>
+    <div className="bg-white px-4 py-3 mb-3 max-w-md w-full">
+      {/* Avatar, Message, Timestamp */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-12 w-12 flex-shrink-0">
+            <AvatarImage src={senderPhotoURL} alt={`${senderName}'s profile`} />
+            <AvatarFallback>{senderName?.charAt(0) || "U"}</AvatarFallback>
+          </Avatar>
+
+          {/* Message Content - Render HTML */}
+          <p
+            className="text-sm text-gray-900"
+            dangerouslySetInnerHTML={{ __html: displayMessage }}
+          ></p>
         </div>
-      </CardHeader>
 
-      {/* Middle content: add empty space or any additional text if you want */}
-      <CardContent className="px-4 py-2"></CardContent>
+        {/* Timestamp on Right */}
+        <p className="text-xs text-gray-400 whitespace-nowrap">{timeAgo}</p>
+      </div>
 
-      {/* Bottom: Buttons */}
-      <CardFooter className="flex space-x-2 px-23 py-2">
-        <Button variant="outline">View Profile</Button>
-        <Button variant="default">Accept</Button>
-      </CardFooter>
-    </Card>
+      {/* Buttons */}
+      {type === "INTERESTED" && (
+        <div className="flex space-x-2 mt-2 ml-16">
+          <Button
+            className="px-4 py-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 shadow-none"
+            onClick={handleViewProfile}
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            View Profile
+          </Button>
+          <Button
+            className="px-4 py-1 bg-[#f07b3c] text-white hover:bg-[#ed6115] border-none shadow-none"
+            onClick={() => handleAcceptInterest(notification)}
+            style={{ fontFamily: "Georgia, serif" }}
+          >
+            Accept
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
