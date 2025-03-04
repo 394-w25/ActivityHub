@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "@/hooks/firebase";
+import gymImage from "@assets/gym.jpg";
+import museumImage from "@assets/museum.jpg";
+import cookingImage from "@assets/cooking.jpg";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import FilterPage from "@components/FilterPage.jsx";
@@ -12,6 +16,9 @@ const HomeScreen = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const [user] = useAuthState();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen relative">
@@ -31,7 +38,7 @@ const HomeScreen = () => {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate("/user_profile")}
+            onClick={() => navigate(`/user_profile/${user.uid}`)}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Profile

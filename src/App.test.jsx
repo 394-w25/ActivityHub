@@ -1,9 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import App from "./App";
+import { screen } from "@testing-library/react";
 
-describe("placeholder suite", () => {
-  test("placeholder test", () => {
-    expect(true);
+describe("Onboarding", () => {
+  test("It has the Google sign-in button", () => {
+    expect(screen.findByText("Continue with Google"));
   });
 });
