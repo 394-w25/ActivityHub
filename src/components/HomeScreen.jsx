@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
@@ -8,6 +9,7 @@ import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import { Bell } from "lucide-react";
 
 const HomeScreen = () => {
+  const [user] = useAuthState();
   const navigate = useNavigate();
 
   return (
@@ -16,7 +18,7 @@ const HomeScreen = () => {
         <h1 className="text-xl font-bold">ActivityHub</h1>
         <div className="flex gap-4">
           <button
-            onClick={() => navigate("/user_profile")}
+            onClick={() => navigate(`/user_profile/${user.uid}`)}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Profile
