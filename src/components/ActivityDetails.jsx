@@ -1,11 +1,9 @@
 import React from "react";
-import { X } from "lucide-react"; // Using lucide-react for the X icon
-import { handleUserInterested } from "@/utils/notification";
-import { useAuthState } from "@/hooks/firebase";
-
+import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
+import { handleUserInterested } from "@utils/notification";
+import { useAuthState } from "@hooks/firebase";
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
-
   const handleJoinActivity = async () => {
     try {
       console.log("Joining activity:", activity);
@@ -14,10 +12,9 @@ const ActivityDetails = ({ activity, onClose }) => {
       console.error("Error joining activity:", error);
     }
   };
-
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="max-w-sm mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
+      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
@@ -25,44 +22,66 @@ const ActivityDetails = ({ activity, onClose }) => {
         >
           <X size={24} className="text-gray-600" />
         </button>
-
+        {/* Image */}
+        <div>
+          <img src={activity.imageUrl} className="w-full" />
+        </div>
         <div className="p-6 space-y-4">
           {/* Title */}
           <div>
-            <h2 className="text-2xl font-bold">{activity.title || "N/A"}</h2>
+            <h2 className="text-2xl font-bold text-center">
+              {activity.title || "N/A"}
+            </h2>
           </div>
-
-          {/* Timestamps and Group Size */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>Created:</span>
-              <span>
-                {new Date(activity.creationTimestamp).toLocaleString()}
-              </span>
-            </div>
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>Event Time:</span>
-              <span>{new Date(activity.eventTimestamp).toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between items-center text-sm text-gray-600">
-              <span>Group Size:</span>
-              <span>{activity.groupSize || "N/A"}</span>
+          {/* Timestamps */}
+          <div className="flex items-center gap-x-4 text-gray-600">
+            <Calendar
+              size={48}
+              className="shrink-0 bg-orange-200 rounded-lg p-2"
+            />
+            <div>
+              <p className="font-semibold text-md">
+                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
+                  month: "short",
+                  day: "2-digit",
+                  year: "numeric",
+                })}
+              </p>
+              <p className="text-xs">
+                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
+                  weekday: "long",
+                  hour: "numeric",
+                  minute: "numeric",
+                })}
+              </p>
             </div>
           </div>
-
-          <hr className="border-gray-200" />
-
           {/* Location */}
-          <div>
-            <h3 className="font-semibold mb-1">Location</h3>
-            <p className="text-sm text-gray-600">
-              {activity.location || "N/A"}
-            </p>
+          <div className="flex items-center gap-x-4 text-gray-600">
+            <MapPin
+              size={48}
+              className="shrink-0 bg-orange-200 rounded-lg p-2"
+            />
+            <div>
+              <p className="font-semibold text-md">
+                {activity.location.split(",")[0] || "N/A"}
+              </p>
+              <p className="text-xs">
+                {activity.location.split(",").slice(1, -4).join(",") || "N/A"}
+              </p>
+            </div>
           </div>
-
-          {/* Description */}
+          {/* Group Size */}
+          <div className="flex items-center gap-x-4 text-gray-600">
+            <User size={48} className="shrink-0 bg-orange-200 rounded-lg p-2" />
+            <div>
+              <p className="font-semibold text-md">Slots Available</p>
+              <p className="text-sm">{activity.groupSize || "N/A"}</p>
+            </div>
+          </div>
+          {/* About Event */}
           <div>
-            <h3 className="font-semibold mb-1">Description</h3>
+            <h3 className="font-semibold mb-1">About Event</h3>
             <p className="text-sm text-gray-600">
               {activity.description || "No description provided."}
             </p>
