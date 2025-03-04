@@ -1,6 +1,46 @@
 {
   "rules": {
     ".read": "auth != null",
-    ".write": "auth != null"
+    "users": {
+      "$user_id": {
+        ".write": "(auth != null) && ($user_id === auth.uid)",
+        "age": { ".validate": "newData.isNumber() && newData.val() > -1" },
+        "bio": { ".validate": "newData.isString()" },
+        "displayName": { ".validate": "newData.isString()" },
+        "email": {
+          ".validate": "newData.isString() && newData.val().matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}$/i)"
+        },
+        "firstName": { ".validate": "newData.isString()" },
+        "gender": { ".validate": "newData.isString()" },
+        "lastName": { ".validate": "newData.isString()" },
+        "location": { ".validate": "newData.isString()" },
+        "photoURL": {
+          ".validate": "newData.isString() && newData.val().matches(/^(ht|f)tp(s?):\\/\\/[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*((0-9)*)*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\+&=%\\$#_]*)?$/)"
+        },
+        "activities": {
+          "$activity_id": {
+            "coords": {
+              "latitude": { ".validate": "newData.isNumber()" },
+              "longitude": { ".validate": "newData.isNumber()" }
+            },
+            "creationTimestamp": { ".validate": "newData.isNumber()" },
+            "description": {
+              ".validate": "newData.isString() && newData.val().length < 1001"
+            },
+            "eventTimestamp": { ".validate": "newData.isString()" },
+            "groupSize": {
+              ".validate": "newData.isNumber() && newData.val() > 0"
+            },
+            "location": { ".validate": "newData.isString()" },
+            "posterUid": {
+              ".validate": "newData.isString() && newData.val() === auth.uid"
+            },
+            "title": {
+              ".validate": "newData.isString() && newData.val().length < 200"
+            }
+          }
+        }
+      }
+    }
   }
 }
