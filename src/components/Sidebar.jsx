@@ -5,14 +5,6 @@ import { X } from "lucide-react";
 const Sidebar = ({ isOpen, onClose, user }) => {
   return (
     <>
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-40"
-          onClick={onClose}
-        ></div>
-      )}
-
       {/* Sidebar */}
       <div
         className={`fixed left-0 top-0 h-full w-72 bg-white shadow-lg z-50 transform transition-transform duration-300 ${

@@ -68,17 +68,6 @@ const ActivitiesFeed = ({
     // Placeholder for distance filtering (to be implemented)
     const okayDistance = true;
 
-    console.log(
-      matchesLooking,
-      okayStartTime,
-      okayEndTime,
-      okayDate,
-      okayGroupSize,
-      okayDistance,
-    );
-
-    console.log("Date: " + request.eventTimestamp);
-
     return (
       matchesLooking &&
       okayStartTime &&
