@@ -2,20 +2,22 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, user }) => {
   return (
     <>
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black bg-opacity-20 backdrop-blur-sm z-40"
           onClick={onClose}
         ></div>
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed left-0 top-0 h-full w-72 bg-white shadow-lg z-50 transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed left-0 top-0 h-full w-72 bg-white shadow-lg z-50 transform transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="p-5 flex justify-between items-center border-b">
           <h2 className="text-2xl font-semibold">Menu</h2>
@@ -26,7 +28,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
         <nav className="flex flex-col p-6 space-y-6">
           <Link
-            to="/user_profile"
+            to={user ? `/user_profile/${user.uid}` : "/login"}
             className="text-lg font-medium text-gray-700 hover:text-orange-500"
           >
             Profile

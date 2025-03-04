@@ -51,8 +51,13 @@ const ActivitiesFeed = ({
         : false
       : true;
 
+    const okayDate = true;
     // Compare dates (assuming startDate and endDate are in "YYYY-MM-DD" format)
-    const okayDate = eventDate >= startDate && eventDate <= endDate;
+    if (endDate != "") {
+      const okayDate = eventDate >= startDate && eventDate <= endDate;
+    } else {
+      const okayDate = eventDate >= startDate;
+    }
 
     // Check max group size; if groupSize isn’t provided, assume it's valid.
     const okayGroupSize =
@@ -71,6 +76,9 @@ const ActivitiesFeed = ({
       okayGroupSize,
       okayDistance,
     );
+
+    console.log("Date: " + request.eventTimestamp);
+
     return (
       matchesLooking &&
       okayStartTime &&
