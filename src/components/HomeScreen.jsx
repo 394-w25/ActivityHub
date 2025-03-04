@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthState } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
@@ -7,10 +7,20 @@ import cookingImage from "@assets/cooking.jpg";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import { Bell } from "lucide-react";
+import FiltersModal from "@/components/FiltersModal.jsx";
 
 const HomeScreen = () => {
   const [user] = useAuthState();
   const navigate = useNavigate();
+  const [filters, setFilters] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleApplyFilters = (newFilters) => {
+    setFilters(newFilters);
+    console.log("New filters set as: ");
+    console.log(newFilters);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-white pb-10">
@@ -39,7 +49,6 @@ const HomeScreen = () => {
           </button>
         </div>
       </div>
-
       <header className="bg-white shadow">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold">Welcome to ActivityHub!</h1>
@@ -70,55 +79,28 @@ const HomeScreen = () => {
           </div>
         </section>
         <section>
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-bold">Filter by</h2>
-          </div>
-          <div className="flex justify-center gap-4 flex-wrap">
-            {["Yoga", "Running", "Cycling", "Dance Class"].map((filter) => (
-              <button
-                key={filter}
-                className="px-6 py-2 bg-gray-200 border border-gray-400 text-gray-900 font-semibold rounded-lg shadow-md hover:bg-gray-300 hover:border-gray-500 hover:text-black transition-all duration-200"
-              >
-                {filter}
-              </button>
-            ))}
+          <div className="text-center mt-4">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              Filters
+            </button>
           </div>
         </section>
-        {/*}
-        <section>
-          <div className="flex justify-between gap-4">
-            <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-[500px]">
-              <img
-                src={museumImage}
-                alt="Art Workshop"
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <div className="mt-3 text-center">
-                <p className="text-sm text-gray-500">1 hour</p>
-                <h3 className="text-md font-semibold">Art Workshop</h3>
-              </div>
-            </div>
-
-            <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-[500px]">
-              <img
-                src={cookingImage}
-                alt="Cooking Class"
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              <div className="mt-3 text-center">
-                <p className="text-sm text-gray-500">2 hours</p>
-                <h3 className="text-md font-semibold">Cooking Class</h3>
-              </div>
-            </div>
-          </div>
-        </section>
-        */}
         <section>
           <div>
-            <ActivitiesFeed />
+            <ActivitiesFeed filters={filters} />
           </div>
         </section>
       </main>
+
+      {isModalOpen && (
+        <FiltersModal
+          onClose={() => setIsModalOpen(false)}
+          onApply={handleApplyFilters}
+        />
+      )}
     </div>
   );
 };
