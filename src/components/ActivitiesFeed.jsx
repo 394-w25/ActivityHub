@@ -16,7 +16,7 @@ const ActivitiesFeed = ({ filters }) => {
     filters;
 
   // Filter activities using a similar approach to the Posts component.
-  const filteredActivities = allActivities.filter(([activityId, activity]) => {
+  const filteredActivities = allActivities.filter((activity) => {
     // Extract just the time portion from the event timestamp
     const eventTime = activity.eventTimestamp.split("T")[1];
 
@@ -51,7 +51,7 @@ const ActivitiesFeed = ({ filters }) => {
 
   // Sort the filtered activities by eventTimestamp (ascending order).
   const sortedActivities = [...filteredActivities].sort(
-    (a, b) => a[1].eventTimestamp - b[1].eventTimestamp,
+    (a, b) => a.eventTimestamp - b.eventTimestamp,
   );
 
   return (
