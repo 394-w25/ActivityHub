@@ -1,13 +1,16 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthState } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
-import ActivitiesFeed from "@/components/ActivitiesFeed.jsx";
+import ActivitiesMap from "@components/ActivitiesMap.jsx";
+import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import { Bell } from "lucide-react";
 import FiltersModal from "@/components/FiltersModal.jsx";
 
 const HomeScreen = () => {
+  const [user] = useAuthState();
   const navigate = useNavigate();
   const [filters, setFilters] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,7 +28,7 @@ const HomeScreen = () => {
         <h1 className="text-xl font-bold">ActivityHub</h1>
         <div className="flex gap-4">
           <button
-            onClick={() => navigate("/user_profile")}
+            onClick={() => navigate(`/user_profile/${user.uid}`)}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Profile
@@ -54,6 +57,10 @@ const HomeScreen = () => {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 mt-6 space-y-6">
+        <section>
+          <h2 className="text-xl font-bold mb-4">Activities map</h2>
+          <ActivitiesMap />
+        </section>
         <section>
           <h2 className="text-xl font-bold mb-4">Activity of the day</h2>
           <div className="bg-gray-100 rounded-lg shadow p-4 w-full max-w-xl mx-auto text-center">

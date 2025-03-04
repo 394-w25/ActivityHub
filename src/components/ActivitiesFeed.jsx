@@ -58,8 +58,8 @@ const ActivitiesFeed = ({ filters }) => {
     <section>
       <h2 className="text-xl font-bold mb-4">Nearby Activities</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sortedActivities.map(([id, activity], idx) => (
-          <Activity key={id || idx} activity={activity} />
+        {sortedActivities.map((activity, idx) => (
+          <Activity key={idx} activity={activity} />
         ))}
       </div>
     </section>
