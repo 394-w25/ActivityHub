@@ -6,10 +6,16 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useParams } from "react-router-dom";
 
-export default function ActivityConnectPage() {
+export default function UserProfile() {
   const [user] = useAuthState();
-  const [userData, error] = useDbData(user ? `users/${user.uid}` : null);
+
+  const { id: profileUserId } = useParams();
+  console.log("profileUserId", profileUserId);
+  const [userData, error] = useDbData(
+    profileUserId ? `users/${profileUserId}` : null,
+  );
 
   if (error) return <h1>Error loading data: {error.toString()}</h1>;
   if (userData === undefined) return <h1>Loading data...</h1>;
@@ -97,14 +103,17 @@ export default function ActivityConnectPage() {
           )}
         </div>
 
-        <div className="flex justify-around mt-10">
-          <Button className="bg-orange-400 text-white hover:bg-orange-500">
-            Chat
-          </Button>
-          <Button className="bg-orange-400 text-white hover:bg-orange-500">
-            Accept
-          </Button>
-        </div>
+        {/* only showing buttons when viewing other user's profile */}
+        {user?.uid !== profileUserId && (
+          <div className="flex justify-around mt-10">
+            <Button className="bg-orange-400 text-white hover:bg-orange-500">
+              Chat
+            </Button>
+            <Button className="bg-orange-400 text-white hover:bg-orange-500">
+              Accept
+            </Button>
+          </div>
+        )}
       </Card>
     </div>
   );

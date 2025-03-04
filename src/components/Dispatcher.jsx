@@ -12,7 +12,7 @@ const Dispatcher = () => {
         <Route path="/create_activity" element={<CreateActivityPage />} />
         <Route path="/" element={<OnboardingFlow />} />
         <Route path="/home" element={<HomePage />} />
-        <Route path="/user_profile" element={<UserProfile />} />
+        <Route path="/user_profile/:id" element={<UserProfile />} />
         <Route path="/notification" element={<NotificationPage />} />
       </Routes>
     </BrowserRouter>
