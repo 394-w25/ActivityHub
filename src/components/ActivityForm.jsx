@@ -13,6 +13,7 @@ import { MapContainer, TileLayer } from "react-leaflet";
 import MapSearchField from "@components/MapSearchField";
 import { useAuthState, useDbUpdate } from "../hooks/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import uuid4 from "uuid4";
 
 const ActivityForm = ({ onSuccess }) => {
   const [user] = useAuthState();
@@ -89,7 +90,7 @@ const ActivityForm = ({ onSuccess }) => {
         const storage = getStorage();
         const imageRef = ref(
           storage,
-          `activities/${user.uid}/${Date.now()}_${image.name}`,
+          `activities/${user.uid}/${uuid4()}_${image.name}`,
         );
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
@@ -101,7 +102,7 @@ const ActivityForm = ({ onSuccess }) => {
     }
 
     updateData({
-      [Date.now()]: {
+      [uuid4()]: {
         title,
         description,
         location,
