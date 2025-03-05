@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { signInWithGoogle, useDbUpdate } from "@hooks/firebase.js";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
+import { ref, get } from "firebase/database";
 import { database } from "@/hooks/firebase";
 
-// Images/icons for the welcome page only:
+// Images/icons for the welcome page
 import welcomeImage from "@assets/logo.png";
 import googleIcon from "@assets/google.png";
 
-// New icons for location & notifications
+// Icons for location & notifications
 import locationIcon from "@assets/location_icon.png";
 import notificationIcon from "@assets/notification_icon.png";
 
@@ -59,17 +60,35 @@ const OnboardingFlow = () => {
 
   const navigate = useNavigate();
   const auth = getAuth();
+  // Hook to update the DB (e.g., /users/<uid>)
   const [updateData] = useDbUpdate("/users");
 
   // --------------- STEP 1: Google Sign-In --------------------
   const handleGoogleSignIn = async () => {
     try {
+      // 1) Sign in with Google (your firebase.js function).
       await signInWithGoogle();
+
+      // 2) Check the current user from Firebase Auth:
       const user = auth.currentUser;
       if (!user) {
         console.error("Google sign-in failed. No user found.");
         return;
       }
+
+      // 3) See if they've previously completed onboarding in the DB:
+      const userRef = ref(database, `users/${user.uid}`);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.onboardingComplete) {
+          // Already finished onboarding => go straight to /home
+          navigate("/home");
+          return;
+        }
+      }
+
+      // 4) If not found or no onboardingComplete => proceed with the flow
       setStep(2);
     } catch (error) {
       console.error("Error signing in with Google:", error);
@@ -90,7 +109,7 @@ const OnboardingFlow = () => {
 
   // --------------- STEP 3: Location Permission ---------------
   const handleEnableLocation = () => {
-    // Example: request real geolocation if desired
+    // e.g. request real geolocation if desired
     setLocationPermission(true);
     setStep(4);
   };
@@ -144,7 +163,6 @@ const OnboardingFlow = () => {
 
   const renderInterestSelection = () => (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
-      {/* A card-like container for top section */}
       <div className="w-full max-w-xl bg-white">
         <div className="flex justify-between items-center mb-6">
           {/* Back arrow */}
@@ -254,8 +272,8 @@ const OnboardingFlow = () => {
       console.error("No user is signed in, cannot store data.");
       return;
     }
+
     try {
-      // Example data shape matching your schema:
       const updatedData = {
         name,
         gender,
@@ -266,6 +284,7 @@ const OnboardingFlow = () => {
           location: locationPermission,
           notifications: notificationPermission,
         },
+        onboardingComplete: true,
       };
 
       // Write to /users/<user.uid> in your Realtime DB
@@ -276,7 +295,7 @@ const OnboardingFlow = () => {
     }
   };
 
-  // --------------- Renders by Step ---------------------------
+  // ------------------ Render by Step -------------------------
   const renderWelcomeScreen = () => (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-white">
       <div className="w-full max-w-md space-y-8">
