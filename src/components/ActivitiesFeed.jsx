@@ -21,51 +21,47 @@ const ActivitiesFeed = ({
 
   const allActivities = getActivities(data, {});
 
-  // may not be needed because the filter is already handled in getActivities (thanks Darin)
+  const isValidTimestamp = (timestamp) => {
+    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(timestamp);
+  };
+
   const filteredActivities = allActivities.filter((request) => {
-    // Ensure eventTimestamp exists
-    if (!request.eventTimestamp) return false;
+    let okayDate = true;
+    let okayStartTime = true;
+    let okayEndTime = true;
 
-    // Extract date and time from eventTimestamp (format: "YYYY-MM-DDTHH:mm")
-    const [eventDate, eventTime] = request.eventTimestamp.split("T");
+    if (request.eventTimestamp && isValidTimestamp(request.eventTimestamp)) {
+      const [eventDate, eventTime] = request.eventTimestamp.split("T");
 
-    // If there's an endEventTimestamp, extract its time part; otherwise, default to null.
-    let eventEndTime = null;
-    if (request.endEventTimestamp) {
-      const parts = request.endEventTimestamp.split("T");
-      eventEndTime = parts[1] || null;
+      let eventEndTime = null;
+      if (
+        request.endEventTimestamp &&
+        isValidTimestamp(request.endEventTimestamp)
+      ) {
+        eventEndTime = request.endEventTimestamp.split("T")[1];
+      }
+
+      okayStartTime = eventTime >= startTime;
+      okayEndTime = eventEndTime ? eventEndTime <= endTime : true;
+
+      okayDate = eventDate >= startDate;
+      if (endDate) {
+        okayDate = eventDate >= startDate && eventDate <= endDate;
+      }
     }
 
-    // Handle "lookingFor" filter:
-    // If the filter value is provided, the activity must match; if not provided, pass it.
+    // Handle "lookingFor" filter
     const matchesLooking = request.lookingFor
       ? request.lookingFor === lookingFor
       : true;
 
-    // Compare times. If the activity doesn't have an endEventTimestamp, we only check the start time.
-    // String comparisons in "HH:mm" format work correctly.
-    const okayStartTime = eventTime >= startTime;
-    const okayEndTime = request.endEventTimestamp
-      ? eventEndTime
-        ? eventEndTime <= endTime
-        : false
-      : true;
-
-    const okayDate = true;
-    // Compare dates (assuming startDate and endDate are in "YYYY-MM-DD" format)
-    if (endDate != "") {
-      const okayDate = eventDate >= startDate && eventDate <= endDate;
-    } else {
-      const okayDate = eventDate >= startDate;
-    }
-
-    // Check max group size; if groupSize isn’t provided, assume it's valid.
+    // Group size check
     const okayGroupSize =
       typeof request.groupSize === "number"
         ? request.groupSize <= maxGroupSize
         : true;
 
-    // Placeholder for distance filtering (to be implemented)
+    // Placeholder for distance filtering
     const okayDistance = true;
 
     return (
