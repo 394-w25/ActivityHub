@@ -3,7 +3,6 @@ import OnboardingFlow from "./OnboardingFlow";
 import HomePage from "@/pages/HomePage.jsx";
 import CreateActivityPage from "@/pages/CreateActivityPage";
 import UserProfile from "./UserProfile";
-import ProfilePage from "./ProfilePage";
 import NotificationPage from "./NotificationPage";
 
 const Dispatcher = () => {

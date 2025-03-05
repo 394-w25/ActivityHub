@@ -30,7 +30,7 @@ export function NotificationCard({ notification }) {
       console.error("Sender ID is missing, cannot view profile.");
       return;
     }
-    navigate(`/profile/${senderId}`);
+    navigate(`/user_profile/${senderId}`);
   };
 
   return (

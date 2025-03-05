@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { db } from "@/hooks/firebase";
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore";
 import { useAuthState } from "@/hooks/firebase";
+import { getDatabase, ref, onValue } from "firebase/database";
 import { NotificationCard } from "./NotificationCard";
 import { useNavigate } from "react-router-dom";
 
@@ -15,26 +8,28 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [currentUser] = useAuthState();
   const navigate = useNavigate();
+  const db = getDatabase();
 
   useEffect(() => {
     if (!currentUser) return;
 
-    const q = query(
-      collection(db, "notifications"),
-      where("recipientId", "==", currentUser.uid),
-      orderBy("createdAt", "desc"),
-    );
+    const notificationsRef = ref(db, "notifications");
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedNotifications = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setNotifications(fetchedNotifications);
+    onValue(notificationsRef, (snapshot) => {
+      const allNotifications = snapshot.val();
+
+      if (!allNotifications) {
+        setNotifications([]);
+        return;
+      }
+
+      const userNotifications = Object.values(allNotifications).filter(
+        (notif) => notif.recipientId === currentUser.uid,
+      );
+
+      setNotifications(userNotifications.reverse());
     });
-
-    return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, db]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-4 py-6">

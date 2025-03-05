@@ -41,6 +41,12 @@
           }
         }
       }
+    },
+    "notifications": {
+      "$notificationId": {
+        ".read": "auth != null && auth.uid === data.child('recipientId').val()",
+        ".write": "auth != null"
+      }
     }
   }
 }

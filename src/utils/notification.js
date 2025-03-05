@@ -43,7 +43,11 @@ async function sendNotification({
   }
 
   try {
-    await addDoc(collection(db, "notifications"), {
+    const db = getDatabase();
+    const notificationsRef = ref(db, "notifications"); // Root-level notifications
+    const newNotificationRef = push(notificationsRef); // Generate a unique ID
+
+    await set(newNotificationRef, {
       recipientId,
       senderId,
       senderName,
@@ -51,19 +55,20 @@ async function sendNotification({
       eventTitle,
       eventTimestamp,
       location,
-      createdAt: serverTimestamp(),
+      createdAt: Date.now(),
       read: false,
       type,
       message,
     });
 
-    console.log(`Notification sent: ${type} to ${recipientId}`);
+    console.log(`Notification stored for ${recipientId}: ${type}`);
   } catch (error) {
-    console.error("Error sending notification:", error);
+    console.error("Error storing notification:", error);
   }
 }
 
 export async function handleUserInterested(activity, currentUser) {
+  console.log("handleUserInterested called here");
   if (!activity || !currentUser) return;
 
   console.log("User expressed interest:", {

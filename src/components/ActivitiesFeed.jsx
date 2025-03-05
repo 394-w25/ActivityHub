@@ -18,7 +18,9 @@ const ActivitiesFeed = ({ filters }) => {
   // Filter activities using a similar approach to the Posts component.
   const filteredActivities = allActivities.filter((activity) => {
     // Extract just the time portion from the event timestamp
-    const eventTime = activity.eventTimestamp.split("T")[1];
+    const eventTime = activity.eventTimestamp
+      ? activity.eventTimestamp.split("T")[1]
+      : "Unknown Time";
 
     // Compare just the time portions
     if (startTimeFrom && eventTime < startTimeFrom) {
