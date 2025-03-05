@@ -9,17 +9,20 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { MapContainer, TileLayer } from "react-leaflet";
+import MapSearchField from "@components/MapSearchField";
 import { useAuthState, useDbUpdate } from "../hooks/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import uuid4 from "uuid4";
 
 const ActivityForm = ({ onSuccess }) => {
   const [user] = useAuthState();
   const [updateData] = useDbUpdate(
     user ? `users/${user.uid}/activities` : null,
   );
-
   const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
+  const [activityLocation, setActivityLocation] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -43,7 +46,8 @@ const ActivityForm = ({ onSuccess }) => {
     const formData = new FormData(e.target);
     const title = formData.get("title");
     const description = formData.get("description");
-    const location = formData.get("location");
+    const location = activityLocation.label;
+    const coords = activityLocation.coords;
     const groupSize = formData.get("groupSize");
     const eventTimestamp = formData.get("eventTimestamp");
 
@@ -53,6 +57,10 @@ const ActivityForm = ({ onSuccess }) => {
       validationErrors.title = "Title is required.";
     } else if (title.length > 50) {
       validationErrors.title = "Title must be less than 50 characters.";
+    }
+
+    if (Object.keys(activityLocation).length === 0) {
+      validationErrors.location = "Location is required.";
     }
 
     const parsedGroupSize = parseInt(groupSize, 10);
@@ -82,7 +90,7 @@ const ActivityForm = ({ onSuccess }) => {
         const storage = getStorage();
         const imageRef = ref(
           storage,
-          `activities/${user.uid}/${Date.now()}_${image.name}`,
+          `activities/${user.uid}/${uuid4()}_${image.name}`,
         );
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
@@ -94,10 +102,11 @@ const ActivityForm = ({ onSuccess }) => {
     }
 
     updateData({
-      [Date.now()]: {
+      [uuid4()]: {
         title,
         description,
         location,
+        coords,
         groupSize: parseInt(groupSize, 10),
         eventTimestamp,
         creationTimestamp: Date.now(),
@@ -163,13 +172,20 @@ const ActivityForm = ({ onSuccess }) => {
 
       {/* Location */}
       <div>
-        <Input
-          id="location"
-          name="location"
-          type="text"
-          placeholder="Location"
-          required
-        />
+        <MapContainer
+          center={location?.coords || [42.056, -87.6755]}
+          zoom={17}
+          className="h-128"
+        >
+          <MapSearchField setActivityLocation={setActivityLocation} />
+          <TileLayer
+            attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+            url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}.png"
+          />
+        </MapContainer>
+        {errors.location && (
+          <p className="text-red-500 text-sm">{errors.location}</p>
+        )}
       </div>
 
       {/* Group Size + Tooltip */}

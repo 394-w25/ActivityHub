@@ -93,8 +93,10 @@ export const useDbData = (path) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!path) return;
-
+    if (!path) {
+      console.error("Error: Path is null or undefined");
+      return;
+    }
     const dbRef = ref(database, path);
     const unsubscribe = onValue(
       dbRef,
@@ -124,6 +126,7 @@ export const useDbUpdate = (path) => {
       }
 
       if (!value || Object.keys(value).length === 0) {
+        console.log(value);
         console.error("Error: Cannot update with an empty or invalid object");
         return;
       }
