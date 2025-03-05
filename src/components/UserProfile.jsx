@@ -2,7 +2,6 @@ import React from "react";
 import { useAuthState, useDbData } from "@/hooks/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -28,8 +27,8 @@ export default function UserProfile() {
     `No bio available. This is a placeholder bio. You can edit your profile to add a personal touch!`;
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-sm rounded-lg shadow-md p-6">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
+      <div className="w-full max-w-sm rounded-lg p-6">
         <div className="flex flex-col items-center">
           <Avatar className="w-24 h-24">
             <AvatarImage src={user?.photoURL} alt={displayName} />
@@ -39,6 +38,10 @@ export default function UserProfile() {
           </Avatar>
 
           <h2 className="text-2xl font-bold mt-4">{displayName}</h2>
+
+          <Button className="mt-5 w-40 bg-orange-400 text-white hover:bg-orange-500">
+            Follow
+          </Button>
         </div>
 
         <Tabs defaultValue="about" className="mt-6">
@@ -114,7 +117,7 @@ export default function UserProfile() {
             </Button>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
