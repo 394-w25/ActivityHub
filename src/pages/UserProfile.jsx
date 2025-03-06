@@ -23,7 +23,7 @@ export default function UserProfile() {
   if (!userData) return <h1>No data found</h1>;
 
   // For demonstration, we’ll use placeholders if the userData fields are empty.
-  const displayName = userData?.name || "Unknown";
+  const name = userData?.name || "Unknown";
   const displayBio =
     userData?.bio ||
     `No bio available. This is a placeholder bio. You can edit your profile to add a personal touch!`;
@@ -44,13 +44,11 @@ export default function UserProfile() {
       <div className="w-full max-w-sm rounded-lg p-6">
         <div className="flex flex-col items-center">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={userData?.photoURL} alt={displayName} />
-            <AvatarFallback>
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
+            <AvatarImage src={userData?.photoURL} alt={name} />
+            <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
 
-          <h2 className="text-2xl font-bold mt-4">{displayName}</h2>
+          <h2 className="text-2xl font-bold mt-4">{name}</h2>
           {user?.uid !== profileUserId && (
             <Button className="mt-5 w-40 bg-orange-400 text-white hover:bg-orange-500">
               Follow

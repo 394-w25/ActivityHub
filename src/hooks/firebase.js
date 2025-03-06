@@ -54,7 +54,7 @@ export const signInWithGoogle = async () => {
       const snapshot = await get(userRef);
       const existingData = snapshot.val();
       update(userRef, {
-        displayName: existingData?.displayName || user.displayName,
+        name: existingData?.displayName || user.displayName,
         email: existingData?.email || user.email,
         photoURL: existingData?.photoURL || user.photoURL,
         bio: existingData?.bio || "",
@@ -77,16 +77,25 @@ export const signUpWithEmail = async (email, password) => {
       email,
       password,
     );
+
+    await new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser) {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+
     // Send verification email
     await sendEmailVerification(user);
     // Optionally, create or update the user in your database
     const userRef = ref(database, `users/${user.uid}`);
     update(userRef, {
       email: user.email,
-      displayName: user.displayName || "",
-      photoURL: user.photoURL || "",
+      name: user.displayName || "",
       bio: "",
-      activities: {},
+      hosted_activities: {},
     });
     return user;
   } catch (error) {
@@ -205,10 +214,10 @@ export const useDbData = (path) => {
 };
 
 // Update data in the database
-export const useDbUpdate = (path, value) => {
+export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
   const updateData = useCallback(
-    async (path, value) => {
+    async (value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;

@@ -59,7 +59,7 @@ const ChatPage = () => {
     setNewMessage("");
   };
 
-  const displayName = recipient?.displayName || "Unknown";
+  const name = recipient?.name || "Unknown";
 
   return (
     <div className="flex flex-col h-screen">
@@ -69,10 +69,10 @@ const ChatPage = () => {
       />
       <div className="flex flex-col justify-center items-center p-4 border-b-2 border-gray-100 text-black text-center text-lg font-semibold">
         <Avatar className="w-16 h-16">
-          <AvatarImage src={recipient?.photoURL} alt={displayName} />
-          <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarImage src={recipient?.photoURL} alt={name} />
+          <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
-        {displayName}
+        {name}
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">

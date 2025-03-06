@@ -7,7 +7,7 @@ export async function handleUserInterested(activity, currentUser) {
 
   console.log("recipientId: ", activity.posterUid);
   console.log("senderId: ", currentUser.uid);
-  console.log("senderName: ", currentUser.displayName);
+  console.log("senderName: ", currentUser.name);
   console.log("senderPhotoURL: ", currentUser.photoURL);
   console.log("eventTitle: ", activity.title);
   console.log("createdAt: ", Date.now());
@@ -15,7 +15,7 @@ export async function handleUserInterested(activity, currentUser) {
   await addDoc(collection(db, "notifications"), {
     recipientId: activity.posterUid,
     senderId: currentUser.uid,
-    senderName: currentUser.displayName,
+    senderName: currentUser.name,
     senderPhotoURL: currentUser.photoURL,
     eventTitle: activity.title,
     createdAt: Date.now(),

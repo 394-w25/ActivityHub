@@ -38,14 +38,12 @@ const ChatsListPage = () => {
                 }
               }
 
-              // Get last message & timestamp
               const messages = chat.messages
                 ? Object.values(chat.messages)
                 : [];
               const lastMessage =
                 messages.length > 0 ? messages[messages.length - 1] : null;
 
-              // Count unread messages
               const unreadCount = messages.filter(
                 (msg) => msg.sender !== user.uid && msg.read === false,
               ).length;
@@ -63,7 +61,7 @@ const ChatsListPage = () => {
                       },
                     )
                   : null,
-                unreadCount, // Track unread messages
+                unreadCount,
               };
             }),
         );
@@ -118,7 +116,7 @@ const ChatsListPage = () => {
             <div className="flex flex-row items-center">
               <Avatar className="w-10 h-10">
                 <AvatarImage
-                  src={chat.participant.photoURL || ""}
+                  src={chat.participant.photoURL}
                   alt={chat.participant.name}
                 />
                 <AvatarFallback>

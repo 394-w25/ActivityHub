@@ -101,7 +101,8 @@ const ActivityForm = ({ onSuccess }) => {
       }
     }
 
-    updateData(`/users/${user?.uid}/hosted_activities`, {
+    updateData({
+      // `/users/${user?.uid}/hosted_activities`,
       [uuid4()]: {
         title,
         description,
