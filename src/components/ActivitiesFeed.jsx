@@ -1,5 +1,5 @@
 import { useDbData } from "../hooks/firebase.js";
-import { getActivities } from "../utils/activity.js";
+import { getHostedActivities } from "../utils/activity.js";
 import Activity from "./Activity.jsx";
 
 const ActivitiesFeed = ({ filters }) => {
@@ -10,7 +10,7 @@ const ActivitiesFeed = ({ filters }) => {
   if (!data) return <h1>No data found</h1>;
 
   // Get all activities without any native filtering.
-  const allActivities = getActivities(data, {});
+  const allActivities = getHostedActivities(data, {});
 
   const { startTimeFrom, startTimeTo, maxDuration, maxGroupSize, maxDistance } =
     filters;

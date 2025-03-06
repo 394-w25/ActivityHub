@@ -58,12 +58,14 @@ export default function UserProfile() {
           </TabsContent>
 
           <TabsContent value="event" className="mt-4">
-            {userData?.activities ? (
-              Object.values(userData.activities).map((activity, index) => (
-                <div key={index} className="text-sm text-gray-700 mb-2">
-                  • {activity.title || "Untitled Activity"}
-                </div>
-              ))
+            {userData?.hosted_activities ? (
+              Object.values(userData.hosted_activities).map(
+                (activity, index) => (
+                  <div key={index} className="text-sm text-gray-700 mb-2">
+                    • {activity.title || "Untitled Activity"}
+                  </div>
+                ),
+              )
             ) : (
               <p className="text-gray-500">No events/activities yet.</p>
             )}
