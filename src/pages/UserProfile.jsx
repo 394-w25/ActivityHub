@@ -11,7 +11,6 @@ export default function UserProfile() {
   const [user] = useAuthState();
 
   const { id: profileUserId } = useParams();
-  console.log("profileUserId", profileUserId);
   const [userData, error] = useDbData(
     profileUserId ? `users/${profileUserId}` : null,
   );

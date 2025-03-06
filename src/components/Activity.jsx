@@ -5,16 +5,16 @@ const Activity = ({ activity }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
-    console.log("Activity prop received:", activity);
+    // console.log("Activity prop received:", activity);
   }, [activity]);
 
   const openDetails = () => {
-    console.log("Opening details for activity:", activity);
+    // console.log("Opening details for activity:", activity);
     setDetailsOpen(true);
   };
 
   const closeDetails = () => {
-    console.log("Closing details for activity:", activity);
+    // console.log("Closing details for activity:", activity);
     setDetailsOpen(false);
   };
 
