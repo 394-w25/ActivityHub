@@ -1,4 +1,3 @@
-// src/components/SignIn.jsx
 import React, { useState, useEffect } from "react";
 import { getAuth } from "firebase/auth";
 import {
@@ -172,7 +171,6 @@ const SignIn = () => {
               Confirm Code
             </button>
           </form>
-          {/* Container for reCAPTCHA (required for phone auth) */}
           <div id="recaptcha-container"></div>
         </div>
       )}
