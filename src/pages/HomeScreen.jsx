@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthState } from "@/hooks/firebase";
+import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
 import cookingImage from "@assets/cooking.jpg";
@@ -22,17 +22,27 @@ const HomeScreen = () => {
     setIsModalOpen(false);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white pb-10">
       <div className="bg-gray-100 py-3 shadow-md flex justify-between px-6">
         <h1 className="text-xl font-bold">ActivityHub</h1>
-        <div className="flex gap-4">
+        <div className="flex gap-5">
           <button
             onClick={() => navigate(`/user_profile/${user.uid}`)}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             Profile
           </button>
+
           <button
             onClick={() => navigate("/create_activity")}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
@@ -46,6 +56,14 @@ const HomeScreen = () => {
             className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             <Bell size={24} />
+          </button>
+
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            style={{ fontFamily: "Lato, sans-serif" }}
+          >
+            Sign Out
           </button>
         </div>
       </div>
