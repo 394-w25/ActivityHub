@@ -23,7 +23,9 @@ export function NotificationCard({ notification }) {
     });
   }
 
-  const displayMessage = message.replace(/^(Event Organizer|.*?):\s*/, "");
+  const displayMessage = message
+    ? message.replace(/^(Event Organizer|.*?):\s*/, "")
+    : "No message available.";
 
   const handleViewProfile = () => {
     if (!senderId) {

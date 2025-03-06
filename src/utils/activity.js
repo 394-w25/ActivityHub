@@ -20,14 +20,18 @@ export const getHostedActivities = (
   allData,
   { userFilter = (user) => true, activityFilter = (activity) => true },
 ) => {
-  const result = Object.entries(allData.users)
+  return Object.entries(allData.users)
     .filter(([userID]) => userFilter(userID))
     .flatMap(([userID, userData]) =>
-      Object.values(userData.hosted_activities || {}).filter((activityData) =>
-        activityFilter(activityData),
+      Object.entries(userData.hosted_activities || {}).map(
+        ([activityID, activityData]) => ({
+          ...activityData,
+          id: activityID, // Attach the activity ID
+          posterUid: userID, // and the user who created the activity
+        }),
       ),
-    );
-  return result;
+    )
+    .filter(activityFilter);
 };
 
 export const removeHostedActivity = (userID, activityID) =>

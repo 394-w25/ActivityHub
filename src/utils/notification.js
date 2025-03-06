@@ -1,6 +1,4 @@
-import { getDatabase, ref, push, set } from "firebase/database";
-import { db } from "@/hooks/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getDatabase, ref, set } from "firebase/database";
 
 function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
   if (!eventTimestamp.endsWith("Z") && !eventTimestamp.includes("+")) {
@@ -26,49 +24,8 @@ function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
   };
 }
 
-async function sendNotification({
-  recipientId,
-  senderId,
-  senderName,
-  senderPhotoURL,
-  eventTitle,
-  eventTimestamp,
-  location,
-  type,
-  message,
-}) {
-  if (!recipientId || !senderId || !eventTitle || !type) {
-    console.error("Missing required fields for notification.");
-    return;
-  }
-
-  try {
-    const db = getDatabase();
-    const notificationsRef = ref(db, "notifications"); // Root-level notifications
-    const newNotificationRef = push(notificationsRef); // Generate a unique ID
-
-    await set(newNotificationRef, {
-      recipientId,
-      senderId,
-      senderName,
-      senderPhotoURL,
-      eventTitle,
-      eventTimestamp,
-      location,
-      createdAt: Date.now(),
-      read: false,
-      type,
-      message,
-    });
-
-    console.log(`Notification stored for ${recipientId}: ${type}`);
-  } catch (error) {
-    console.error("Error storing notification:", error);
-  }
-}
-
+// User expresses interest in an activity
 export async function handleUserInterested(activity, currentUser) {
-  console.log("handleUserInterested called here");
   if (!activity || !currentUser) return;
 
   console.log("User expressed interest:", {
@@ -77,11 +34,13 @@ export async function handleUserInterested(activity, currentUser) {
     eventTitle: activity.title,
     eventTimestamp: activity.eventTimestamp,
     location: activity.location,
+    eventId: activity.id,
   });
+
   const db = getDatabase();
   const interestedRef = ref(
     db,
-    `users/${activity.posterUid}/activities/${activity.id}/interested/${currentUser.uid}`,
+    `users/${activity.posterUid}/hosted_activities/${activity.id}/interested/${currentUser.uid}`,
   );
 
   await set(interestedRef, {
@@ -89,80 +48,102 @@ export async function handleUserInterested(activity, currentUser) {
     timestamp: Date.now(),
   });
 
-  console.log("User added to interested list under the host's activity.");
-
-  await sendNotification({
-    recipientId: activity.posterUid,
-    senderId: currentUser.uid,
-    senderName: currentUser.displayName,
-    senderPhotoURL: currentUser.photoURL,
-    eventTitle: activity.title,
-    eventTimestamp: activity.eventTimestamp,
-    location: activity.location,
-    type: "INTERESTED",
-    message: `${currentUser.displayName} is interested in ${activity.title}.`,
-  });
+  console.log("✅ User added to interested list under the host's activity.");
 }
 
-export async function handleAcceptInterest(notification) {
-  if (!notification || !notification.senderId || !notification.recipientId)
-    return;
+// Host accepts a user from the interested list
+export async function handleAcceptInterest(
+  hostId,
+  activityId,
+  userId,
+  eventTitle,
+  eventTimestamp,
+  location,
+) {
+  if (!hostId || !activityId || !userId) return;
 
   console.log("Interest accepted:", {
-    recipientId: notification.senderId,
-    senderId: notification.recipientId,
-    eventTitle: notification.eventTitle,
-    eventTimestamp: notification.eventTimestamp,
-    location: notification.location,
+    recipientId: userId,
+    senderId: hostId,
+    eventTitle,
+    eventTimestamp,
+    location,
+    eventId: activityId,
   });
 
   const { google, ics } = generateCalendarLinks(
-    notification.eventTitle,
-    notification.eventTimestamp,
-    notification.location,
+    eventTitle,
+    eventTimestamp,
+    location,
   );
 
   const db = getDatabase();
   const interestedRef = ref(
     db,
-    `users/${notification.recipientId}/activities/${notification.eventId}/interested/${notification.senderId}`,
+    `users/${hostId}/hosted_activities/${activityId}/interested/${userId}`,
   );
   const approvedRef = ref(
     db,
-    `users/${notification.recipientId}/activities/${notification.eventId}/approved/${notification.senderId}`,
+    `users/${hostId}/hosted_activities/${activityId}/approved/${userId}`,
+  );
+  const participatingRef = ref(
+    db,
+    `users/${userId}/participating_activities/${activityId}`,
   );
 
   // Move user to approved and remove from interested
   await set(approvedRef, {
-    userId: notification.senderId,
+    userId,
     timestamp: Date.now(),
   });
 
-  await set(interestedRef, null); // Delete from interested
-  console.log(
-    "User moved from interested to approved under the host's activity.",
-  );
-
-  await sendNotification({
-    recipientId: notification.senderId,
-    senderId: notification.recipientId,
-    senderName: "Event Organizer",
-    senderPhotoURL: "",
-    eventTitle: notification.eventTitle,
-    eventTimestamp: notification.eventTimestamp,
-    location: notification.location,
-    type: "ACCEPTED",
-    message: `Your interest in ${notification.eventTitle} has been accepted! <br>
-            <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
-              <a href="${google}" target="_blank"
-                 style="color: #007bff; text-decoration: none; font-size: 13px; font-weight: 500;">
-                Add to Google Calendar
-              </a>
-              <span style="color: #888; font-size: 13px;">|</span>
-              <a href="${ics}" download="event.ics"
-                 style="color: #007bff; text-decoration: none; font-size: 13px; font-weight: 500;">
-                Download Calendar Event
-              </a>
-            </div>`,
+  await set(participatingRef, {
+    hostingUserId: hostId,
+    activityId,
+    eventTitle,
+    eventTimestamp,
+    location,
+    timestamp: Date.now(),
   });
+
+  await set(interestedRef, null); // Remove from interested list
+  console.log(
+    "✅ User moved from interested to approved under the host's activity.",
+  );
+}
+
+// Fetch notifications for the host (interested users)
+export function getHostNotifications(hostedActivities) {
+  let notifications = [];
+
+  Object.entries(hostedActivities || {}).forEach(([activityId, activity]) => {
+    if (activity.interested) {
+      Object.entries(activity.interested).forEach(([userId, details]) => {
+        notifications.push({
+          type: "INTEREST_REQUEST",
+          message: `${userId} is interested in "${activity.title}". Approve or deny?`,
+          eventTitle: activity.title,
+          eventId: activityId,
+          timestamp: details.timestamp,
+          userId,
+        });
+      });
+    }
+  });
+
+  return notifications;
+}
+
+// Fetch notifications for participants (approved users)
+export function getUserNotifications(participatingActivities) {
+  return Object.entries(participatingActivities || {}).map(
+    ([activityId, details]) => ({
+      type: "APPROVAL",
+      message: `You've been accepted to attend "${details.eventTitle}".`,
+      eventTitle: details.eventTitle,
+      eventId: activityId,
+      timestamp: details.timestamp,
+      hostingUserId: details.hostingUserId,
+    }),
+  );
 }

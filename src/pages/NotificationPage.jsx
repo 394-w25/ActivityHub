@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "@/hooks/firebase";
 import { getDatabase, ref, onValue } from "firebase/database";
-import { NotificationCard } from "./NotificationCard";
+import { NotificationCard } from "@/components/NotificationCard";
 import { useNavigate } from "react-router-dom";
 
 export default function NotificationsPage() {
@@ -13,21 +13,21 @@ export default function NotificationsPage() {
   useEffect(() => {
     if (!currentUser) return;
 
-    const notificationsRef = ref(db, "notifications");
+    const notificationsRef = ref(db, `users/${currentUser.uid}/notifications`);
 
     onValue(notificationsRef, (snapshot) => {
-      const allNotifications = snapshot.val();
-
-      if (!allNotifications) {
+      if (!snapshot.exists()) {
         setNotifications([]);
         return;
       }
 
-      const userNotifications = Object.values(allNotifications).filter(
-        (notif) => notif.recipientId === currentUser.uid,
-      );
+      const data = snapshot.val();
+      const notificationsArray = Object.keys(data).map((key) => ({
+        id: key, // Ensure each notification has a unique ID
+        ...data[key],
+      }));
 
-      setNotifications(userNotifications.reverse());
+      setNotifications(notificationsArray.reverse());
     });
   }, [currentUser, db]);
 
