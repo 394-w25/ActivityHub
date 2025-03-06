@@ -17,6 +17,7 @@ import {
   update,
   onValue,
   remove,
+  push,
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 
@@ -57,7 +58,7 @@ export const signInWithGoogle = async () => {
         email: existingData?.email || user.email,
         photoURL: existingData?.photoURL || user.photoURL,
         bio: existingData?.bio || "",
-        activities: existingData?.activities || {},
+        hosted_activities: existingData?.hosted_activities || {},
       });
     }
   } catch (error) {
@@ -73,16 +74,18 @@ export const firebaseSignOut = () => {
 // Custom Hook: Track authentication state
 export const useAuthState = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setLoading(false);
     });
 
     return unsubscribe; // Cleanup on unmount
   }, []);
 
-  return [user];
+  return [user, loading];
 };
 
 // Custom Hook: Read data from the database
@@ -117,14 +120,13 @@ export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
 
   const updateData = useCallback(
-    async (path, value) => {
+    async (value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;
       }
 
       if (!value || Object.keys(value).length === 0) {
-        console.log(value);
         console.error("Error: Cannot update with an empty or invalid object");
         return;
       }
@@ -150,7 +152,6 @@ export const useDbUpdate = (path) => {
 export const useDbRemove = (path) => {
   const [result, setResult] = useState();
   const removeData = useCallback(() => {
-    console.log(path);
     remove(ref(database, path))
       .then(() =>
         setResult({
@@ -168,4 +169,85 @@ export const useDbRemove = (path) => {
       );
   }, [path]);
   return [removeData, result];
+};
+
+// Messaging
+export const createOrGetChat = async (user1Id, user2Id) => {
+  const chatKey = [user1Id, user2Id].sort().join("_");
+
+  const chatRef = ref(database, `chats/${chatKey}`);
+  const snapshot = await get(chatRef);
+
+  if (!snapshot.exists()) {
+    await set(chatRef, {
+      users: { [user1Id]: true, [user2Id]: true },
+      createdAt: Date.now(),
+    });
+  }
+
+  return chatKey;
+};
+
+export const sendMessage = async (chatId, senderId, text) => {
+  const messagesRef = ref(database, `chats/${chatId}/messages`);
+  await push(messagesRef, {
+    sender: senderId,
+    text,
+    timestamp: Date.now(),
+  });
+};
+
+export const useChatMessages = (chatId) => {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (!chatId) return;
+
+    const messagesRef = ref(database, `chats/${chatId}/messages`);
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setMessages(
+          Object.entries(snapshot.val()).map(([id, data]) => ({
+            id,
+            ...data,
+          })),
+        );
+      } else {
+        setMessages([]);
+      }
+    });
+
+    return unsubscribe;
+  }, [chatId]);
+  return messages;
+};
+
+export const deleteMessage = async (chatId, messageId) => {
+  const messageRef = ref(database, `chats/${chatId}/messages/${messageId}`);
+  await remove(messageRef);
+};
+
+export const useUserChats = (userId) => {
+  const [chats, setChats] = useState([]);
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const chatsRef = ref(database, "chats");
+    const unsubscribe = onValue(chatsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const chatData = snapshot.val();
+        const userChats = Object.keys(chatData).filter((chatId) =>
+          chatId.includes(userId),
+        );
+        setChats(userChats);
+      } else {
+        setChats([]);
+      }
+    });
+
+    return unsubscribe;
+  }, [userId]);
+
+  return chats;
 };
