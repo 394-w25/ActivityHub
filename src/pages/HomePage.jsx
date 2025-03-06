@@ -1,4 +1,4 @@
-import HomeScreen from "@/components/HomeScreen.jsx";
+import HomeScreen from "@/pages/HomeScreen.jsx";
 import ActivitiesFeed from "@/components/ActivitiesFeed.jsx";
 
 function HomePage() {
