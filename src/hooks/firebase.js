@@ -58,7 +58,7 @@ export const signInWithGoogle = async () => {
         email: existingData?.email || user.email,
         photoURL: existingData?.photoURL || user.photoURL,
         bio: existingData?.bio || "",
-        activities: existingData?.activities || {},
+        hosted_activities: existingData?.hosted_activities || {},
       });
     }
   } catch (error) {
@@ -120,7 +120,7 @@ export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
 
   const updateData = useCallback(
-    async (path, value) => {
+    async (value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;
