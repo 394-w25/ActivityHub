@@ -1,8 +1,20 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { X } from "lucide-react";
+import { firebaseSignOut } from "@/hooks/firebase";
 
 const Sidebar = ({ isOpen, onClose, user }) => {
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
     <>
       {/* Sidebar */}
@@ -44,6 +56,16 @@ const Sidebar = ({ isOpen, onClose, user }) => {
             Messages
           </Link>
         </nav>
+
+        {/* Sign Out Button at the bottom */}
+        <div className="absolute bottom-6 w-full px-6">
+          <button
+            onClick={handleSignOut}
+            className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            <span>Sign Out</span>
+          </button>
+        </div>
       </div>
     </>
   );

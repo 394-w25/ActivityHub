@@ -7,9 +7,10 @@ import cookingImage from "@assets/cooking.jpg";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import FilterPage from "@components/FilterPage.jsx";
-import { Bell, Menu, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import FiltersModal from "@/components/FiltersModal.jsx";
 import Sidebar from "@components/Sidebar";
+import Header from "@components/Header";
 
 const HomeScreen = () => {
   const getCurrentDate = () => {
@@ -74,8 +75,7 @@ const HomeScreen = () => {
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters);
-    console.log("New filters set as: ");
-    console.log(newFilters);
+    console.log("New filters set as: ", newFilters);
     setIsModalOpen(false);
   };
 
@@ -93,47 +93,12 @@ const HomeScreen = () => {
       {/* Sidebar */}
       <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} user={user} />
 
-      {/* Header */}
-      <header className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={toggleSidebar}
-            className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            <Menu size={24} />
-          </button>
-          <h1 className="text-3xl font-bold">ActivityHub</h1>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate(`/user_profile/${user.uid}`)}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            Profile
-          </button>
-
-          <button
-            onClick={() => navigate("/create_activity")}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            Create Activity
-          </button>
-          <button
-            onClick={() => navigate("/notification")}
-            className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            <Bell />
-          </button>
-
-          <button
-            onClick={handleSignOut}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-            style={{ fontFamily: "Lato, sans-serif" }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </header>
+      {/* Header: Using our new Header component */}
+      <Header
+        currentLocation="Chicago, IL"
+        isSidebarOpen={isSidebarOpen}
+        onSidebarClick={toggleSidebar}
+      />
 
       {/* Main Content */}
       <main className="p-4">
@@ -166,8 +131,8 @@ const HomeScreen = () => {
 
       {/* Filter Page Overlay */}
       {isFilterOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
+        <div className="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[40%]">
             <FilterPage {...filterPageProps} />
           </div>
         </div>
