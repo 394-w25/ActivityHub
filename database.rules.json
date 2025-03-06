@@ -14,14 +14,6 @@
         "photoURL": {
           ".validate": "newData.isString() && newData.val().matches(/^(ht|f)tp(s?):\\/\\/[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*((0-9)*)*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\+&=%\\$#_]*)?$/)"
         },
-        "onboardingComplete": { ".validate": "newData.isBoolean()" },
-        "permissions": {
-          "notifications": { ".validate": "newData.isBoolean()" },
-          "location": { ".validate": "newData.isBoolean()" }
-        },
-        "interests": {
-          ".validate": "newData.isArray() && newData.val().length <= 20"
-        },
         "hosted_activities": {
           "$activity_id": {
             ".validate": "auth.uid === $user_id",
@@ -46,26 +38,6 @@
             "hostingUserId": { ".validate": "newData.isString()" },
             "activityId": { ".validate": "newData.isString()" },
             "timestamp": { ".validate": "newData.isNumber()" }
-          }
-        }
-      }
-    },
-    "chats": {
-      "$chatId": {
-        ".read": "auth != null && data.child('users').child(auth.uid).exists()",
-        ".write": "auth != null && data.child('users').child(auth.uid).exists()",
-
-        "users": {
-          "$user_id": {
-            ".validate": "newData.val() === true"
-          }
-        },
-
-        "messages": {
-          "$messageId": {
-            ".read": "auth != null && root.child('chats').child($chatId).child('users').child(auth.uid).exists()",
-            ".write": "auth != null && root.child('chats').child($chatId).child('users').child(auth.uid).exists()",
-            ".validate": "newData.child('sender').val() === auth.uid && newData.child('text').val().length > 0"
           }
         }
       }
