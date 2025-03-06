@@ -18,7 +18,7 @@ const ActivitiesFeed = ({ filters }) => {
   // Filter activities using a similar approach to the Posts component.
   const filteredActivities = allActivities.filter((activity) => {
     // Extract just the time portion from the event timestamp
-    const eventTime = activity.eventTimestamp.split("T")[1];
+    const eventTime = activity?.eventTimestamp?.split("T")[1];
 
     // Compare just the time portions
     if (startTimeFrom && eventTime < startTimeFrom) {
@@ -58,9 +58,11 @@ const ActivitiesFeed = ({ filters }) => {
     <section>
       <h2 className="text-xl font-bold mb-4">Nearby Activities</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {sortedActivities.map((activity, idx) => (
-          <Activity key={idx} activity={activity} />
-        ))}
+        {sortedActivities.map((activity, idx) => {
+          if (!activity) return;
+
+          return <Activity key={idx} activity={activity} />;
+        })}
       </div>
     </section>
   );

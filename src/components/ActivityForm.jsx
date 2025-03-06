@@ -101,7 +101,7 @@ const ActivityForm = ({ onSuccess }) => {
       }
     }
 
-    updateData({
+    updateData(`/users/${user?.uid}/hosted_activities`, {
       [uuid4()]: {
         title,
         description,
@@ -114,8 +114,6 @@ const ActivityForm = ({ onSuccess }) => {
         imageUrl,
       },
     });
-
-    console.log("Activity posted successfully!");
 
     if (onSuccess) {
       onSuccess();

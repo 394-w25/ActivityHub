@@ -17,8 +17,6 @@ const HomeScreen = () => {
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters);
-    console.log("New filters set as: ");
-    console.log(newFilters);
     setIsModalOpen(false);
   };
 
@@ -33,8 +31,8 @@ const HomeScreen = () => {
 
   return (
     <div className="min-h-screen bg-white pb-10">
+      <h1 className="m-2 text-xl font-bold">ActivityHub</h1>
       <div className="bg-gray-100 py-3 shadow-md flex justify-between px-6">
-        <h1 className="text-xl font-bold">ActivityHub</h1>
         <div className="flex gap-5">
           <button
             onClick={() => navigate(`/user_profile/${user.uid}`)}
@@ -56,6 +54,13 @@ const HomeScreen = () => {
             className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             <Bell size={24} />
+          </button>
+
+          <button
+            onClick={() => navigate("/chats")}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+          >
+            Chats
           </button>
 
           <button

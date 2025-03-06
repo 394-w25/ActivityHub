@@ -15,6 +15,7 @@ import {
   getDatabase,
   ref,
   get,
+  set,
   update,
   onValue,
   remove,
@@ -204,10 +205,10 @@ export const useDbData = (path) => {
 };
 
 // Update data in the database
-export const useDbUpdate = (path) => {
+export const useDbUpdate = (path, value) => {
   const [result, setResult] = useState();
   const updateData = useCallback(
-    async (value) => {
+    async (path, value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;
@@ -279,6 +280,7 @@ export const sendMessage = async (chatId, senderId, text) => {
     sender: senderId,
     text,
     timestamp: Date.now(),
+    read: false,
   });
 };
 

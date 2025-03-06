@@ -57,7 +57,14 @@
           "$messageId": {
             ".read": "auth != null && root.child('chats').child($chatId).child('users').child(auth.uid).exists()",
             ".write": "auth != null && root.child('chats').child($chatId).child('users').child(auth.uid).exists()",
-            ".validate": "newData.child('sender').val() === auth.uid && newData.child('text').val().length > 0"
+            ".validate": "newData.hasChildren(['sender', 'text', 'timestamp', 'read']) && newData.child('text').val().length > 0",
+
+            "sender": { ".validate": "newData.isString()" },
+            "text": {
+              ".validate": "newData.isString() && newData.val().length > 0"
+            },
+            "timestamp": { ".validate": "newData.isNumber()" },
+            "read": { ".validate": "newData.isBoolean()" }
           }
         }
       }

@@ -6,7 +6,6 @@ const CreateActivityPage = () => {
   const navigate = useNavigate();
 
   const handleSuccess = () => {
-    console.log("Activity posted successfully");
     navigate("/home");
   };
 
