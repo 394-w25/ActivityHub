@@ -1,6 +1,6 @@
 import { startAfter } from "firebase/database";
 import { useDbData } from "../hooks/firebase.js";
-import { getActivities } from "../utils/activity.js";
+import { getHostedActivities } from "../utils/activity.js";
 import Activity from "./Activity.jsx";
 
 const ActivitiesFeed = ({
@@ -19,86 +19,119 @@ const ActivitiesFeed = ({
   if (data === undefined) return <h1>Loading data...</h1>;
   if (!data) return <h1>No data found</h1>;
 
-  const allActivities = getActivities(data, {});
+  // Get all activities without any native filtering.
+  const allActivities = getHostedActivities(data, {});
 
   const isValidTimestamp = (timestamp) => {
     return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(timestamp);
   };
 
-  const filteredActivities = allActivities.filter((request) => {
-    let okayDate = true;
-    let okayStartTime = true;
-    let okayEndTime = true;
+  // Partition activities into accepted and rejected in a single pass
+  const { accepted, rejected } = allActivities.reduce(
+    (acc, activity) => {
+      let okayDate = true;
+      let okayStartTime = true;
+      let okayEndTime = true;
 
-    if (request.eventTimestamp && isValidTimestamp(request.eventTimestamp)) {
-      const [eventDate, eventTime] = request.eventTimestamp.split("T");
-
-      let eventEndTime = null;
       if (
-        request.endEventTimestamp &&
-        isValidTimestamp(request.endEventTimestamp)
+        activity.eventTimestamp &&
+        isValidTimestamp(activity.eventTimestamp)
       ) {
-        eventEndTime = request.endEventTimestamp.split("T")[1];
+        const [eventDate, eventTime] = activity.eventTimestamp.split("T");
+        console.log(
+          "Here is the event time: ",
+          eventTime,
+          " comparing with ",
+          startTime,
+        );
+
+        let eventEndTime =
+          activity.endEventTimestamp &&
+          isValidTimestamp(activity.endEventTimestamp)
+            ? activity.endEventTimestamp.split("T")[1]
+            : null;
+
+        okayStartTime = eventTime >= startTime;
+        okayEndTime = eventEndTime ? eventEndTime <= endTime : true;
+        okayDate = endDate
+          ? eventDate >= startDate && eventDate <= endDate
+          : eventDate >= startDate;
       }
 
-      okayStartTime = eventTime >= startTime;
-      okayEndTime = eventEndTime ? eventEndTime <= endTime : true;
-
-      okayDate = eventDate >= startDate;
-      if (endDate) {
-        okayDate = eventDate >= startDate && eventDate <= endDate;
-      }
-    }
-
-    // Handle "lookingFor" filter
-    const matchesLooking = request.lookingFor
-      ? request.lookingFor === lookingFor
-      : true;
-
-    // Group size check
-    const okayGroupSize =
-      typeof request.groupSize === "number"
-        ? request.groupSize <= maxGroupSize
+      const matchesLooking = activity.lookingFor
+        ? activity.lookingFor === lookingFor
         : true;
+      const okayGroupSize =
+        typeof activity.groupSize === "number"
+          ? activity.groupSize <= maxGroupSize
+          : true;
+      const okayDistance = true; // placeholder for distance filtering
 
-    // Placeholder for distance filtering
-    const okayDistance = true;
+      console.log(
+        "For a post titled: ",
+        activity.title,
+        " here were the filters passed and not:",
+        "\nMatches Looking: ",
+        matchesLooking,
+        "\nStart Time: ",
+        okayStartTime,
+        "\nEnd Time: ",
+        okayEndTime,
+        "\nDate: ",
+        okayDate,
+        "\nGroup Size: ",
+        okayGroupSize,
+        "\nDistance: ",
+        okayDistance,
+      );
 
-    return (
-      matchesLooking &&
-      okayStartTime &&
-      okayEndTime &&
-      okayDate &&
-      okayGroupSize &&
-      okayDistance
-    );
-  });
+      const passesFilters =
+        matchesLooking &&
+        okayStartTime &&
+        okayEndTime &&
+        okayDate &&
+        okayGroupSize &&
+        okayDistance;
 
-  // we want to sort by whatever the user gave us. there are three sort options:
-  // start time (ascending)
-  // distance (ascending)
-  // popularity (ascending)
-  const sortedActivities = [...filteredActivities].sort((a, b) => {
-    return a["eventTimestamp"] - b["eventTimestamp"];
-    if (sortBy === "Distance") {
-      // calculate distance from me and put lowest first. do later
-    } else if (sortBy === "Popularity") {
-      if (a["interested"] && b["interested"]) {
-        return a["interested"].length - b["interested"].length;
+      if (passesFilters) {
+        acc.accepted.push(activity);
       } else {
-        return 1;
+        acc.rejected.push(activity);
       }
-    } else if (sortBy === "Start Time") {
-      return a["eventTimestamp"] - b["eventTimestamp"];
+      return acc;
+    },
+    { accepted: [], rejected: [] },
+  );
+
+  // Sorting function; you can expand for "Distance" or "Popularity" later
+  const sortFunction = (a, b) => {
+    if (sortBy === "Start Time") {
+      return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+    } else if (sortBy === "Popularity") {
+      const aCount = a.interested ? a.interested.length : 0;
+      const bCount = b.interested ? b.interested.length : 0;
+      return aCount - bCount;
     }
-    return 1;
-  });
+    // Default to sorting by start time
+    return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+  };
+
+  const sortedAccepted = [...accepted].sort(sortFunction);
+  const sortedRejected = [...rejected].sort(sortFunction);
 
   return (
     <section>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredActivities.map((activity, idx) => (
-          <Activity key={idx} activity={activity} />
+        {sortedAccepted.map((activity, idx) => (
+          <Activity key={`accepted-${idx}`} activity={activity} />
+        ))}
+      </div>
+      <div style={{ textAlign: "center", margin: "20px 0" }}>
+        <strong>More results</strong>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {sortedRejected.map((activity, idx) => (
+          <Activity key={`rejected-${idx}`} activity={activity} />
         ))}
       </div>
     </section>

@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthState } from "@/hooks/firebase";
+import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
+import gymImage from "@assets/gym.jpg";
+import museumImage from "@assets/museum.jpg";
+import cookingImage from "@assets/cooking.jpg";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import FilterPage from "@components/FilterPage.jsx";
 import { Bell, Menu, Filter } from "lucide-react";
+import FiltersModal from "@/components/FiltersModal.jsx";
 import Sidebar from "@components/Sidebar";
 
 const HomeScreen = () => {
@@ -65,6 +69,24 @@ const HomeScreen = () => {
 
   const [user] = useAuthState();
   const navigate = useNavigate();
+  const [filters, setFilters] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleApplyFilters = (newFilters) => {
+    setFilters(newFilters);
+    console.log("New filters set as: ");
+    console.log(newFilters);
+    setIsModalOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await firebaseSignOut();
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -89,6 +111,7 @@ const HomeScreen = () => {
           >
             Profile
           </button>
+
           <button
             onClick={() => navigate("/create_activity")}
             className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
@@ -100,6 +123,14 @@ const HomeScreen = () => {
             className="flex items-center justify-center p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
           >
             <Bell />
+          </button>
+
+          <button
+            onClick={handleSignOut}
+            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            style={{ fontFamily: "Lato, sans-serif" }}
+          >
+            Sign Out
           </button>
         </div>
       </header>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import Activity from "@components/Activity";
 import { useDbData } from "@hooks/firebase";
-import { getActivities } from "@utils/activity";
+import { getHostedActivities } from "@/utils/activity";
 
 const ActivitiesMap = () => {
   const [userCoords, setUserCoords] = useState([42.056, -87.6755]);
@@ -15,7 +15,7 @@ const ActivitiesMap = () => {
   if (data === undefined) return <h1>Loading data...</h1>;
   if (!data) return <h1>No data found</h1>;
 
-  const allActivities = getActivities(data, {});
+  const allActivities = getHostedActivities(data, {});
   return (
     <div>
       <MapContainer center={userCoords} zoom={17} className="h-128 z-0">
