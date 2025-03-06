@@ -31,7 +31,7 @@ export const getActivities = (
 };
 
 export const removeActivity = (userID, activityID) =>
-  useDbRemove(`users/${userID}/activities/${activiyID}`);
+  useDbRemove(`users/${userID}/activities/${activityID}`);
 
 export const updateActivity = (userID, activityData) => {
   const [updateActivity] = useDbUpdate(`users/${userID}/activities`);
