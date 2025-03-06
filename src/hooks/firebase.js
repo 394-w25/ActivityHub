@@ -117,7 +117,7 @@ export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
 
   const updateData = useCallback(
-    async (path, value) => {
+    async (value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;
