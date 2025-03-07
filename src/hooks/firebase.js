@@ -269,17 +269,13 @@ export const useDbRemove = (path) => {
 // Messaging
 export const createOrGetChat = async (user1Id, user2Id) => {
   const chatKey = [user1Id, user2Id].sort().join("_");
-
   const chatRef = ref(database, `chats/${chatKey}`);
   const snapshot = await get(chatRef);
-
-  if (!snapshot.exists()) {
-    await set(chatRef, {
-      users: { [user1Id]: true, [user2Id]: true },
-      createdAt: Date.now(),
-    });
-  }
-
+  const existingData = snapshot.val();
+  await update(chatRef, {
+    users: { [user1Id]: true, [user2Id]: true },
+    createdAt: existingData?.createdAt || Date.now(),
+  });
   return chatKey;
 };
 
