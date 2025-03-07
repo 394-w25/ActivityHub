@@ -33,7 +33,6 @@ const ActivitiesFeed = ({
       let okayDate = true;
       let okayStartTime = true;
       let okayEndTime = true;
-
       if (
         activity.eventTimestamp &&
         isValidTimestamp(activity.eventTimestamp)

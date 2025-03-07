@@ -10,21 +10,15 @@ const ActivityDetails = ({ activity, onClose }) => {
 
   const handleJoinActivity = async () => {
     try {
-      console.log("Joining activity:", activity);
       await handleUserInterested(activity, user);
     } catch (error) {
       console.error("Error joining activity:", error);
     }
   };
 
-  const handleMessageHost = async () => {
-    const chatId = await createOrGetChat(user.uid, activity.posterUid);
-    navigate(`/chat/${chatId}`);
-  };
-
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
+      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
@@ -107,10 +101,10 @@ const ActivityDetails = ({ activity, onClose }) => {
 
           <div className="pt-4">
             <button
-              onClick={handleMessageHost}
+              onClick={() => navigate(`/user_profile/${activity.posterUid}`)}
               className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
             >
-              Message Host
+              View Host Profile
             </button>
           </div>
 
