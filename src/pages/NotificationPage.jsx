@@ -32,28 +32,31 @@ export default function NotificationsPage() {
         Object.entries(hostedActivities).forEach(([activityId, activity]) => {
           if (activity.interested) {
             Object.entries(activity.interested).forEach(([userId, details]) => {
-              const userRef = ref(db, `users/${userId}/displayName`);
-
+              const userRef = ref(db, `users/${userId}`);
               onValue(
                 userRef,
                 (userSnapshot) => {
-                  const displayName = userSnapshot.exists()
-                    ? userSnapshot.val()
-                    : "A user"; // Default name
+                  if (userSnapshot.exists()) {
+                    const userData = userSnapshot.val(); // ✅ Now userData is defined!
+                    const displayName = userData.displayName || "A user";
+                    const profileImage =
+                      userData.photoURL || "/default-avatar.png"; // ✅ Default image if missing
 
-                  notificationsList.push({
-                    type: "INTEREST_REQUEST",
-                    message: `${displayName} is interested in "${activity.title}".`,
-                    eventTitle: activity.title,
-                    eventId: activityId,
-                    eventTimestamp: activity.eventTimestamp,
-                    timestamp: details.timestamp, // This is just the notification timestamp
-                    userId, // The interested user
-                    posterUid: activity.posterUid, // Pass host ID
-                    location: activity.location ?? "Unknown Location", // Pass location
-                  });
+                    notificationsList.push({
+                      type: "INTEREST_REQUEST",
+                      message: `${displayName} is interested in "${activity.title}".`,
+                      eventTitle: activity.title,
+                      eventId: activityId,
+                      eventTimestamp: activity.eventTimestamp,
+                      timestamp: details.timestamp, // This is just the notification timestamp
+                      userId, // The interested user
+                      profilePhoto: profileImage,
+                      posterUid: activity.posterUid, // Pass host ID
+                      location: activity.location ?? "Unknown Location", // Pass location
+                    });
 
-                  setNotifications([...notificationsList].reverse());
+                    setNotifications([...notificationsList].reverse());
+                  }
                 },
                 { onlyOnce: true },
               ); // Ensures we fetch the name only once
@@ -70,15 +73,16 @@ export default function NotificationsPage() {
 
         Object.entries(participatingActivities).forEach(
           ([activityId, details]) => {
-            const hostRef = ref(
-              db,
-              `users/${details.hostingUserId}/displayName`,
-            ); // Fetch host's name
+            const hostRef = ref(db, `users/${details.hostingUserId}`);
 
             onValue(
               hostRef,
               (hostSnapshot) => {
+                const hostData = hostSnapshot.exists()
+                  ? hostSnapshot.val()
+                  : {};
                 const eventTitle = details.eventTitle || "Unknown Event";
+                const hostProfileImage = hostData.photoURL;
                 const eventTimestamp =
                   details.eventTimestamp || new Date().toISOString();
                 const eventLocation =
@@ -97,6 +101,7 @@ export default function NotificationsPage() {
                   timestamp: details.timestamp,
                   userId, // The interested user
                   posterUid: details.hostingUserId, // Pass host ID
+                  profilePhoto: hostProfileImage,
                   message: `
   You've been accepted to attend "<strong>${eventTitle}</strong>".<br><br>
   <div style="display: flex; gap: 15px;">

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 
 export function NotificationCard({ notification }) {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export function NotificationCard({ notification }) {
     type,
     message,
   } = notification;
+  const [profilePic, setProfilePic] = useState(null);
 
   let timeAgo = "Just now";
   if (createdAt?.seconds) {
@@ -41,8 +43,8 @@ export function NotificationCard({ notification }) {
       <div className="flex justify-between items-start">
         <div className="flex items-center space-x-3">
           <Avatar className="h-12 w-12 flex-shrink-0">
-            <AvatarImage src={senderPhotoURL} alt={`${senderName}'s profile`} />
-            <AvatarFallback>{senderName?.charAt(0) || "U"}</AvatarFallback>
+            <AvatarImage src={notification.profilePhoto} alt="User Profile" />
+            <AvatarFallback>{notification.message.charAt(0)}</AvatarFallback>
           </Avatar>
 
           <p
