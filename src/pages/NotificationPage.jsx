@@ -13,7 +13,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     if (!currentUser) return;
-
+    const notificationsList = [];
     const userId = currentUser.uid;
     const hostedRef = ref(db, `users/${userId}/hosted_activities`);
     const participatingRef = ref(
@@ -21,47 +21,55 @@ export default function NotificationsPage() {
       `users/${userId}/participating_activities`,
     );
 
-    const notificationsList = [];
-
     // Fetch interested users for hosted events (For hosts)
     onValue(hostedRef, (snapshot) => {
       if (snapshot.exists()) {
         const hostedActivities = snapshot.val();
-        const notificationsList = [];
 
-        Object.entries(hostedActivities).forEach(([activityId, activity]) => {
-          if (activity.interested) {
-            Object.entries(activity.interested).forEach(([userId, details]) => {
-              const userRef = ref(db, `users/${userId}`);
-              onValue(
-                userRef,
-                (userSnapshot) => {
-                  if (userSnapshot.exists()) {
-                    const userData = userSnapshot.val(); // ✅ Now userData is defined!
-                    const displayName = userData.displayName || "A user";
-                    const profileImage =
-                      userData.photoURL || "/default-avatar.png"; // ✅ Default image if missing
+        const fetchPromises = Object.entries(hostedActivities).flatMap(
+          ([activityId, activity]) => {
+            if (activity.interested) {
+              return Object.entries(activity.interested).map(
+                ([userId, details]) => {
+                  return new Promise((resolve) => {
+                    const userRef = ref(db, `users/${userId}`);
+                    onValue(
+                      userRef,
+                      (userSnapshot) => {
+                        if (userSnapshot.exists()) {
+                          const userData = userSnapshot.val();
+                          const displayName = userData.displayName || "A user";
+                          const profileImage =
+                            userData.photoURL || "/default-avatar.png";
 
-                    notificationsList.push({
-                      type: "INTEREST_REQUEST",
-                      message: `${displayName} is interested in "${activity.title}".`,
-                      eventTitle: activity.title,
-                      eventId: activityId,
-                      eventTimestamp: activity.eventTimestamp,
-                      timestamp: details.timestamp, // This is just the notification timestamp
-                      userId, // The interested user
-                      profilePhoto: profileImage,
-                      posterUid: activity.posterUid, // Pass host ID
-                      location: activity.location ?? "Unknown Location", // Pass location
-                    });
-
-                    setNotifications([...notificationsList].reverse());
-                  }
+                          notificationsList.push({
+                            type: "INTEREST_REQUEST",
+                            message: `${displayName} is interested in "${activity.title}".`,
+                            eventTitle: activity.title,
+                            eventId: activityId,
+                            eventTimestamp: activity.eventTimestamp,
+                            timestamp: details.timestamp,
+                            userId,
+                            profilePhoto: profileImage,
+                            posterUid: activity.posterUid,
+                            location: activity.location ?? "Unknown Location",
+                          });
+                        }
+                        resolve(); // Ensure we resolve the Promise after fetching
+                      },
+                      { onlyOnce: true },
+                    );
+                  });
                 },
-                { onlyOnce: true },
-              ); // Ensures we fetch the name only once
-            });
-          }
+              );
+            }
+            return [];
+          },
+        );
+
+        Promise.all(fetchPromises).then(() => {
+          console.log("🔥 Debug: Final Notifications List:", notificationsList);
+          setNotifications([...notificationsList].reverse());
         });
       }
     });

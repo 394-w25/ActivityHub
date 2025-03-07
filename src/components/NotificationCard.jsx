@@ -43,7 +43,11 @@ export function NotificationCard({ notification }) {
       <div className="flex justify-between items-start">
         <div className="flex items-center space-x-3">
           <Avatar className="h-12 w-12 flex-shrink-0">
-            <AvatarImage src={notification.profilePhoto} alt="User Profile" />
+            <AvatarImage
+              src={notification.profilePhoto || "/default-avatar.png"}
+              alt="User Profile"
+            />
+
             <AvatarFallback>{notification.message.charAt(0)}</AvatarFallback>
           </Avatar>
 
