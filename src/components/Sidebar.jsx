@@ -50,7 +50,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
             Create Activity
           </Link>
           <Link
-            to="/home"
+            to="/chats"
             className="text-lg font-medium text-gray-700 hover:text-orange-500"
           >
             Messages
