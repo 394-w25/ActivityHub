@@ -17,10 +17,10 @@
 import { useDbData, useDbUpdate, useDbRemove } from "@hooks/firebase";
 
 export const getHostedActivities = (
-  allData,
+  userData,
   { userFilter = (user) => true, activityFilter = (activity) => true },
 ) => {
-  return Object.entries(allData.users)
+  return Object.entries(userData)
     .filter(([userID]) => userFilter(userID))
     .flatMap(([userID, userData]) =>
       Object.entries(userData.hosted_activities || {}).map(

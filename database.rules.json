@@ -84,9 +84,9 @@
       }
     },
     "chats": {
+      ".read": "auth != null",
+      ".write": "auth != null",
       "$chatId": {
-        ".read": "auth != null && data.child('users').child(auth.uid).exists()",
-        ".write": "auth != null && data.child('users').child(auth.uid).exists()",
         "users": {
           "$user_id": {
             ".validate": "newData.val() === true"
