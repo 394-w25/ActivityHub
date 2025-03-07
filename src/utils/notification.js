@@ -1,6 +1,10 @@
 import { getDatabase, ref, set } from "firebase/database";
 
-function generateCalendarLinks(eventTitle, eventTimestamp, eventLocation = "") {
+export function generateCalendarLinks(
+  eventTitle,
+  eventTimestamp,
+  eventLocation = "",
+) {
   if (!eventTimestamp.endsWith("Z") && !eventTimestamp.includes("+")) {
     eventTimestamp += "Z"; // Ensure UTC format
   }
@@ -48,10 +52,9 @@ export async function handleUserInterested(activity, currentUser) {
     timestamp: Date.now(),
   });
 
-  console.log("✅ User added to interested list under the host's activity.");
+  console.log("User added to interested list under the host's activity.");
 }
 
-// Host accepts a user from the interested list
 export async function handleAcceptInterest(
   hostId,
   activityId,
@@ -60,7 +63,10 @@ export async function handleAcceptInterest(
   eventTimestamp,
   location,
 ) {
-  if (!hostId || !activityId || !userId) return;
+  if (!hostId || !activityId || !userId) {
+    console.error("Missing required parameters!");
+    return;
+  }
 
   console.log("Interest accepted:", {
     recipientId: userId,
@@ -71,79 +77,42 @@ export async function handleAcceptInterest(
     eventId: activityId,
   });
 
-  const { google, ics } = generateCalendarLinks(
-    eventTitle,
-    eventTimestamp,
-    location,
-  );
+  try {
+    const formattedTimestamp = new Date(eventTimestamp).toISOString(); // Convert number to string
+    const { google, ics } = generateCalendarLinks(
+      eventTitle,
+      formattedTimestamp,
+      location,
+    );
+    const db = getDatabase();
 
-  const db = getDatabase();
-  const interestedRef = ref(
-    db,
-    `users/${hostId}/hosted_activities/${activityId}/interested/${userId}`,
-  );
-  const approvedRef = ref(
-    db,
-    `users/${hostId}/hosted_activities/${activityId}/approved/${userId}`,
-  );
-  const participatingRef = ref(
-    db,
-    `users/${userId}/participating_activities/${activityId}`,
-  );
+    const interestedRef = ref(
+      db,
+      `users/${hostId}/hosted_activities/${activityId}/interested/${userId}`,
+    );
+    const approvedRef = ref(
+      db,
+      `users/${hostId}/hosted_activities/${activityId}/approved/${userId}`,
+    );
+    const participatingRef = ref(
+      db,
+      `users/${userId}/participating_activities/${activityId}`,
+    );
 
-  // Move user to approved and remove from interested
-  await set(approvedRef, {
-    userId,
-    timestamp: Date.now(),
-  });
+    await set(approvedRef, { userId, timestamp: Date.now() });
+    await set(participatingRef, {
+      hostingUserId: hostId,
+      activityId,
+      eventTitle,
+      eventTimestamp,
+      location,
+      timestamp: Date.now(),
+    });
+    await set(interestedRef, null); // Remove from interested list
 
-  await set(participatingRef, {
-    hostingUserId: hostId,
-    activityId,
-    eventTitle,
-    eventTimestamp,
-    location,
-    timestamp: Date.now(),
-  });
-
-  await set(interestedRef, null); // Remove from interested list
-  console.log(
-    "✅ User moved from interested to approved under the host's activity.",
-  );
-}
-
-// Fetch notifications for the host (interested users)
-export function getHostNotifications(hostedActivities) {
-  let notifications = [];
-
-  Object.entries(hostedActivities || {}).forEach(([activityId, activity]) => {
-    if (activity.interested) {
-      Object.entries(activity.interested).forEach(([userId, details]) => {
-        notifications.push({
-          type: "INTEREST_REQUEST",
-          message: `${userId} is interested in "${activity.title}". Approve or deny?`,
-          eventTitle: activity.title,
-          eventId: activityId,
-          timestamp: details.timestamp,
-          userId,
-        });
-      });
-    }
-  });
-
-  return notifications;
-}
-
-// Fetch notifications for participants (approved users)
-export function getUserNotifications(participatingActivities) {
-  return Object.entries(participatingActivities || {}).map(
-    ([activityId, details]) => ({
-      type: "APPROVAL",
-      message: `You've been accepted to attend "${details.eventTitle}".`,
-      eventTitle: details.eventTitle,
-      eventId: activityId,
-      timestamp: details.timestamp,
-      hostingUserId: details.hostingUserId,
-    }),
-  );
+    console.log("User moved from interested to approved.");
+  } catch (error) {
+    console.error("Firebase Error:", error);
+    alert("Error processing interest. Check console for details.");
+  }
 }
