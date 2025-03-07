@@ -81,8 +81,8 @@ const ChatPage = () => {
             key={msg.id}
             className={`flex flex-col max-w-80 w-fit p-1 my-2 px-4 pt-2 rounded-3xl text-[18px] ${
               msg.sender === user.uid
-                ? "rounded-br-none bg-gray-100 text-black justify-self-end"
-                : "rounded-bl-none bg-orange-500 text-white justify-self-start"
+                ? "rounded-br-none bg-gray-100 text-black ml-auto"
+                : "rounded-bl-none bg-orange-500 text-white mr-auto"
             }`}
           >
             {msg.text}
