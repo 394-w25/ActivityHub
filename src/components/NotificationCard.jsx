@@ -19,10 +19,12 @@ export function NotificationCard({ notification }) {
   const [profilePic, setProfilePic] = useState(null);
 
   let timeAgo = "Just now";
-  if (createdAt?.seconds) {
-    timeAgo = formatDistanceToNow(new Date(createdAt.seconds * 1000), {
-      addSuffix: true,
-    });
+  if (notification.timestamp) {
+    const timestamp =
+      typeof notification.timestamp === "number"
+        ? notification.timestamp
+        : notification.timestamp?.seconds * 1000; // Handle Firestore and regular timestamps
+    timeAgo = formatDistanceToNow(new Date(timestamp), { addSuffix: true });
   }
 
   const displayMessage = message
@@ -57,7 +59,9 @@ export function NotificationCard({ notification }) {
           ></p>
         </div>
 
-        <p className="text-xs text-gray-400 ml-auto">{timeAgo}</p>
+        <p className="text-[10px] text-gray-400 ml-2 shrink-0 whitespace-nowrap self-start">
+          {timeAgo}
+        </p>
       </div>
 
       {type === "INTEREST_REQUEST" && (

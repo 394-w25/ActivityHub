@@ -124,7 +124,25 @@ export default function NotificationsPage() {
 `,
                 });
 
-                setNotifications([...notificationsList].reverse()); // Update state
+                setNotifications((prevNotifications) => {
+                  const uniqueNotifications = [
+                    ...prevNotifications,
+                    ...notificationsList,
+                  ].reduce((acc, notification) => {
+                    if (
+                      !acc.find(
+                        (n) =>
+                          n.eventId === notification.eventId &&
+                          n.userId === notification.userId,
+                      )
+                    ) {
+                      acc.push(notification);
+                    }
+                    return acc;
+                  }, []);
+
+                  return uniqueNotifications.reverse();
+                });
               },
               { onlyOnce: true },
             ); // we fetch the name only once
@@ -154,7 +172,7 @@ export default function NotificationsPage() {
         ) : (
           notifications.map((notification) => (
             <NotificationCard
-              key={notification.id}
+              key={`${notification.eventId}-${notification.userId}`}
               notification={notification}
             />
           ))
