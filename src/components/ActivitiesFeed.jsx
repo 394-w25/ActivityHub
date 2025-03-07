@@ -39,12 +39,6 @@ const ActivitiesFeed = ({
         isValidTimestamp(activity.eventTimestamp)
       ) {
         const [eventDate, eventTime] = activity.eventTimestamp.split("T");
-        console.log(
-          "Here is the event time: ",
-          eventTime,
-          " comparing with ",
-          startTime,
-        );
 
         let eventEndTime =
           activity.endEventTimestamp &&
@@ -76,26 +70,6 @@ const ActivitiesFeed = ({
           ? activity.groupSize <= maxGroupSize
           : true;
       const okayDistance = true; // placeholder for distance filtering
-
-      console.log(
-        "For a post titled: ",
-        activity.title,
-        " here were the filters passed and not:",
-        "\nMatches Looking: ",
-        matchesLooking,
-        "\nStart Time: ",
-        okayStartTime,
-        "\nEnd Time: ",
-        okayEndTime,
-        "\nDate: ",
-        okayDate,
-        "\nGroup Size: ",
-        okayGroupSize,
-        "\nDistance: ",
-        okayDistance,
-        "\nSearch Query: ",
-        matchesSearch,
-      );
 
       const passesFilters =
         matchesLooking &&

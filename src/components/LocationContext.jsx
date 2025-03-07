@@ -14,25 +14,30 @@ const LocationProvider = ({ children }) => {
   }, []);
 
   const getUserLocation = () => {
-    if (!("geolocation" in navigator)) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
+    return new Promise((resolve, reject) => {
+      if (!("geolocation" in navigator)) {
+        alert("Geolocation is not supported by your browser.");
+        reject("Geolocation not supported");
+        return;
+      }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setLocation({ latitude, longitude });
-        setPermissionStatus("granted");
-      },
-      (error) => {
-        console.error("Error fetching location:", error.message);
-        setPermissionStatus("denied");
-        alert(
-          "Failed to retrieve location. Please enable location permissions.",
-        );
-      },
-    );
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLocation({ latitude, longitude });
+          setPermissionStatus("granted");
+          resolve({ latitude, longitude });
+        },
+        (error) => {
+          console.error("Error fetching location:", error.message);
+          setPermissionStatus("denied");
+          alert(
+            "Failed to retrieve location. Please enable location permissions.",
+          );
+          reject(error);
+        },
+      );
+    });
   };
 
   return (

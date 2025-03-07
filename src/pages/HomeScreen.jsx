@@ -14,11 +14,23 @@ import Header from "@components/Header";
 import { LocationContext } from "@components/LocationContext";
 
 const HomeScreen = () => {
-  const { location, getUserLocation } = useContext(LocationContext);
+  const { location, permissionStatus, getUserLocation } =
+    useContext(LocationContext);
 
   useEffect(() => {
-    getUserLocation();
-  }, []);
+    // Only request location if permission isn't explicitly denied
+    if (permissionStatus !== "denied") {
+      const getLocation = async () => {
+        try {
+          await getUserLocation();
+        } catch (error) {
+          console.error("Error fetching location in HomeScreen:", error);
+        }
+      };
+
+      getLocation();
+    }
+  }, [permissionStatus]);
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -91,7 +103,6 @@ const HomeScreen = () => {
 
   const handleApplyFilters = (newFilters) => {
     setFilters(newFilters);
-    console.log("New filters set as: ", newFilters);
     setIsModalOpen(false);
   };
 
@@ -108,15 +119,13 @@ const HomeScreen = () => {
     setSearchQuery(e.target.value);
   };
 
-  console.log(location);
+  useEffect(() => {}, [location, permissionStatus]);
 
   return (
     <div className="min-h-screen relative pt-16">
       {/* Header: Fixed to top with rounded edges */}
       <div className="fixed top-0 left-0 right-0 z-40">
         <div className="mx-2 mt-2">
-          {/* You can remove the extra .bg-white if you want the header fully orange */}
-          {/* Also remove .rounded-xl here if you only want the header to control rounding */}
           <div className="shadow-md overflow-hidden">
             <Header
               currentLocation={location}

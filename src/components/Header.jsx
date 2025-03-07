@@ -3,7 +3,6 @@ import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 
 const Header = ({ currentLocation, isSidebarOpen, onSidebarClick, user }) => {
-  console.log(currentLocation);
   return (
     <>
       {/* Full-width Header Bar with shadow and only bottom corners rounded */}

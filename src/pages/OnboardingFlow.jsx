@@ -39,7 +39,8 @@ const OnboardingFlow = () => {
   const [locationText, setLocationText] = useState("");
 
   // Permissions (Steps 2 and 4)
-  const { location, getUserLocation } = useContext(LocationContext);
+  const { location, permissionStatus, getUserLocation } =
+    useContext(LocationContext);
   const [locationPermission, setLocationPermission] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState(false);
 
@@ -148,16 +149,23 @@ const OnboardingFlow = () => {
   );
 
   // ------------------ STEP 2: Location Permission ------------------
-  const handleEnableLocation = () => {
-    // Optionally request geolocation
-    getUserLocation();
-    if (location) {
-      console.log("Location fetched successfully!");
-      console.log(location.latitude, location.longitude);
+  const handleEnableLocation = async () => {
+    try {
+      // Check if permission is already granted
+      if (permissionStatus === "granted" && location) {
+        console.log("Location already available:", location);
+        setLocationPermission(true);
+        setStep(3);
+        return;
+      }
+
+      // Request location
+      const locationData = await getUserLocation();
+      console.log("Location fetched successfully:", locationData);
       setLocationPermission(true);
       setStep(3);
-    } else {
-      console.log("Location permissions denied");
+    } catch (error) {
+      console.error("Error getting location:", error);
     }
   };
 
