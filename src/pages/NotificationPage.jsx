@@ -68,7 +68,6 @@ export default function NotificationsPage() {
         );
 
         Promise.all(fetchPromises).then(() => {
-          console.log("🔥 Debug: Final Notifications List:", notificationsList);
           setNotifications([...notificationsList].reverse());
         });
       }
