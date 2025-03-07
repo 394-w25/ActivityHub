@@ -40,6 +40,7 @@
             },
             "interested": {
               "$interested_user_id": {
+                ".read": "auth != null && auth.uid === $user_id",
                 ".write": "auth != null && auth.uid === $interested_user_id",
                 ".validate": "newData.child('userId').isString() && newData.child('timestamp').isNumber()"
               }
