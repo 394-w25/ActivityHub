@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useDbUpdate } from "@/hooks/firebase";
+import React, { useState, useEffect, useContext } from "react";
+import { useAuthState, useDbUpdate, database } from "@hooks/firebase";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { ref, get } from "firebase/database";
-import { database } from "@/hooks/firebase";
+import { LocationContext } from "@components/LocationContext";
 
 // List of interests (you can update these as needed)
 const allInterests = [
@@ -38,6 +38,8 @@ const OnboardingFlow = () => {
   const [locationText, setLocationText] = useState("");
 
   // Permissions (Steps 2 and 4)
+  const { location, permissionStatus, getUserLocation } =
+    useContext(LocationContext);
   const [locationPermission, setLocationPermission] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState(false);
 
@@ -49,7 +51,8 @@ const OnboardingFlow = () => {
 
   const navigate = useNavigate();
   const auth = getAuth();
-  const [updateData] = useDbUpdate("/users");
+  const [user, loading] = useAuthState();
+  const [updateData] = useDbUpdate(user ? `/users/${user.uid}` : null);
 
   // Optional: Check if the user has already completed onboarding.
   useEffect(() => {
@@ -146,10 +149,24 @@ const OnboardingFlow = () => {
   );
 
   // ------------------ STEP 2: Location Permission ------------------
-  const handleEnableLocation = () => {
-    // Optionally request geolocation
-    setLocationPermission(true);
-    setStep(3);
+  const handleEnableLocation = async () => {
+    try {
+      // Check if permission is already granted
+      if (permissionStatus === "granted" && location) {
+        console.log("Location already available:", location);
+        setLocationPermission(true);
+        setStep(3);
+        return;
+      }
+
+      // Request location
+      const locationData = await getUserLocation();
+      console.log("Location fetched successfully:", locationData);
+      setLocationPermission(true);
+      setStep(3);
+    } catch (error) {
+      console.error("Error getting location:", error);
+    }
   };
 
   const renderLocationPermissionScreen = () => (
@@ -298,7 +315,7 @@ const OnboardingFlow = () => {
         },
         onboardingComplete: true,
       };
-      await updateData(`/users/${user.uid}`, updatedData);
+      await updateData(updatedData); // `/users/${user.uid}`,
       navigate("/home");
     } catch (error) {
       console.error("Error updating user data:", error);
