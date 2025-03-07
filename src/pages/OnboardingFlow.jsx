@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDbUpdate } from "@/hooks/firebase";
+import { useAuthState, useDbUpdate } from "@/hooks/firebase";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { ref, get } from "firebase/database";
@@ -49,7 +49,8 @@ const OnboardingFlow = () => {
 
   const navigate = useNavigate();
   const auth = getAuth();
-  const [updateData] = useDbUpdate("/users");
+  const [user, loading] = useAuthState();
+  const [updateData] = useDbUpdate(user ? `/users/${user.uid}` : null);
 
   // Optional: Check if the user has already completed onboarding.
   useEffect(() => {
@@ -298,7 +299,7 @@ const OnboardingFlow = () => {
         },
         onboardingComplete: true,
       };
-      await updateData(`/users/${user.uid}`, updatedData);
+      await updateData(updatedData); // `/users/${user.uid}`,
       navigate("/home");
     } catch (error) {
       console.error("Error updating user data:", error);
