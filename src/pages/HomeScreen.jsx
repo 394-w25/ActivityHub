@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
@@ -7,12 +7,19 @@ import cookingImage from "@assets/cooking.jpg";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import FilterPage from "@components/FilterPage.jsx";
-import { Filter } from "lucide-react";
+import { Filter, Search, X } from "lucide-react";
 import FiltersModal from "@/components/FiltersModal.jsx";
 import Sidebar from "@components/Sidebar";
 import Header from "@components/Header";
+import { LocationContext } from "@components/LocationContext";
 
 const HomeScreen = () => {
+  const { location, getUserLocation } = useContext(LocationContext);
+
+  useEffect(() => {
+    getUserLocation();
+  }, []);
+
   const getCurrentDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -30,12 +37,20 @@ const HomeScreen = () => {
   const [endDate, setEndDate] = useState("");
   const [maxDistance, setMaxDistance] = useState(50);
   const [maxGroupSize, setMaxGroupSize] = useState(10);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleFilter = () => setIsFilterOpen(!isFilterOpen);
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (isSearchOpen) {
+      setSearchQuery("");
+    }
+  };
 
   const filterPageProps = {
     onClose: toggleFilter,
@@ -66,6 +81,7 @@ const HomeScreen = () => {
     endDate,
     maxGroupSize,
     maxDistance,
+    searchQuery,
   };
 
   const [user] = useAuthState();
@@ -88,17 +104,29 @@ const HomeScreen = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen relative">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} user={user} />
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
-      {/* Header: Using our new Header component */}
-      <Header
-        currentLocation="Chicago, IL"
-        isSidebarOpen={isSidebarOpen}
-        onSidebarClick={toggleSidebar}
-      />
+  console.log(location);
+
+  return (
+    <div className="min-h-screen relative pt-16">
+      {/* Header: Fixed to top with rounded edges */}
+      <div className="fixed top-0 left-0 right-0 z-40">
+        <div className="mx-2 mt-2">
+          {/* You can remove the extra .bg-white if you want the header fully orange */}
+          {/* Also remove .rounded-xl here if you only want the header to control rounding */}
+          <div className="shadow-md overflow-hidden">
+            <Header
+              currentLocation={location}
+              isSidebarOpen={isSidebarOpen}
+              onSidebarClick={toggleSidebar}
+              user={user}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="p-4">
@@ -114,13 +142,39 @@ const HomeScreen = () => {
         {/* Nearby Activities Header with Filter Button */}
         <div className="mt-4 flex justify-between items-center">
           <h3 className="text-xl font-bold">Nearby Activities</h3>
-          <button
-            onClick={toggleFilter}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-          >
-            <Filter size={20} />
-            Filter and Sort
-          </button>
+          <div className="flex items-center gap-2">
+            {isSearchOpen ? (
+              <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  placeholder="Search activities..."
+                  className="px-3 py-2 outline-none bg-transparent"
+                />
+                <button
+                  onClick={toggleSearch}
+                  className="p-2 text-gray-600 hover:text-black"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={toggleSearch}
+                className="p-2 text-black rounded-md hover:bg-gray-100 transition-colors"
+              >
+                <Search className="w-6 h-6" />
+              </button>
+            )}
+            <button
+              onClick={toggleFilter}
+              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
+            >
+              <Filter size={20} />
+              Filter and Sort
+            </button>
+          </div>
         </div>
 
         {/* Activities Feed */}
@@ -131,8 +185,8 @@ const HomeScreen = () => {
 
       {/* Filter Page Overlay */}
       {isFilterOpen && (
-        <div className="fixed inset-0 bg-white bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] sm:w-[80%] md:w-[60%] lg:w-[50%] xl:w-[40%]">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50 p-4 sm:p-6">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[50vw] xl:w-[40vw] max-h-[90vh] overflow-y-auto">
             <FilterPage {...filterPageProps} />
           </div>
         </div>

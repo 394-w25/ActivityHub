@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useDbUpdate } from "@/hooks/firebase";
 import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { ref, get } from "firebase/database";
 import { database } from "@/hooks/firebase";
+import { LocationContext } from "@components/LocationContext";
 
 // List of interests (you can update these as needed)
 const allInterests = [
@@ -38,6 +39,7 @@ const OnboardingFlow = () => {
   const [locationText, setLocationText] = useState("");
 
   // Permissions (Steps 2 and 4)
+  const { location, getUserLocation } = useContext(LocationContext);
   const [locationPermission, setLocationPermission] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState(false);
 
@@ -148,8 +150,15 @@ const OnboardingFlow = () => {
   // ------------------ STEP 2: Location Permission ------------------
   const handleEnableLocation = () => {
     // Optionally request geolocation
-    setLocationPermission(true);
-    setStep(3);
+    getUserLocation();
+    if (location) {
+      console.log("Location fetched successfully!");
+      console.log(location.latitude, location.longitude);
+      setLocationPermission(true);
+      setStep(3);
+    } else {
+      console.log("Location permissions denied");
+    }
   };
 
   const renderLocationPermissionScreen = () => (

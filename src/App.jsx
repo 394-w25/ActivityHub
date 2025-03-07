@@ -1,10 +1,13 @@
 import Dispatcher from "./components/Dispatcher";
+import LocationProvider from "@components/LocationContext";
 
 function App() {
   return (
-    <div>
-      <Dispatcher />
-    </div>
+    <LocationProvider>
+      <div>
+        <Dispatcher />
+      </div>
+    </LocationProvider>
   );
 }
 

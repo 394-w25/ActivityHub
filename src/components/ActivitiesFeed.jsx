@@ -12,6 +12,7 @@ const ActivitiesFeed = ({
   endDate,
   maxGroupSize,
   maxDistance,
+  searchQuery,
 }) => {
   const [data, error] = useDbData("/");
 
@@ -58,6 +59,15 @@ const ActivitiesFeed = ({
           : eventDate >= startDate;
       }
 
+      let matchesSearch = true;
+      if (searchQuery && searchQuery != "") {
+        matchesSearch =
+          activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          activity.description
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+      }
+
       const matchesLooking = activity.lookingFor
         ? activity.lookingFor === lookingFor
         : true;
@@ -83,6 +93,8 @@ const ActivitiesFeed = ({
         okayGroupSize,
         "\nDistance: ",
         okayDistance,
+        "\nSearch Query: ",
+        matchesSearch,
       );
 
       const passesFilters =
@@ -91,7 +103,8 @@ const ActivitiesFeed = ({
         okayEndTime &&
         okayDate &&
         okayGroupSize &&
-        okayDistance;
+        okayDistance &&
+        matchesSearch;
 
       if (passesFilters) {
         acc.accepted.push(activity);
@@ -121,12 +134,15 @@ const ActivitiesFeed = ({
 
   return (
     <section>
+      <div className="text-left my-5">
+        <strong>Filtered Results</strong>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sortedAccepted.map((activity, idx) => (
           <Activity key={`accepted-${idx}`} activity={activity} />
         ))}
       </div>
-      <div style={{ textAlign: "center", margin: "20px 0" }}>
+      <div className="text-left my-5">
         <strong>More results</strong>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

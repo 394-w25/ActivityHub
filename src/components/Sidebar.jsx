@@ -32,19 +32,19 @@ const Sidebar = ({ isOpen, onClose, user }) => {
 
         <nav className="flex flex-col p-6 space-y-6">
           <Link
-            to={user ? `/user_profile/${user.uid}` : "/login"}
+            to={user ? `/user_profile/${user.uid}` : "/"}
             className="text-lg font-medium text-gray-700 hover:text-orange-500"
           >
             Profile
           </Link>
           <Link
-            to="/notification"
+            to={user ? `/notification` : "/"}
             className="text-lg font-medium text-gray-700 hover:text-orange-500"
           >
             Notifications
           </Link>
           <Link
-            to="/create_activity"
+            to={user ? `/create_activity` : "/"}
             className="text-lg font-medium text-gray-700 hover:text-orange-500"
           >
             Create Activity
