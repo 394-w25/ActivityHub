@@ -13,7 +13,6 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     if (!currentUser) return;
-    const notificationsList = [];
     const userId = currentUser.uid;
     const hostedRef = ref(db, `users/${userId}/hosted_activities`);
     const participatingRef = ref(
@@ -21,134 +20,141 @@ export default function NotificationsPage() {
       `users/${userId}/participating_activities`,
     );
 
-    // Fetch interested users for hosted events (For hosts)
-    onValue(hostedRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const hostedActivities = snapshot.val();
+    const notificationsList = [];
 
-        const fetchPromises = Object.entries(hostedActivities).flatMap(
-          ([activityId, activity]) => {
-            if (activity.interested) {
-              return Object.entries(activity.interested).map(
-                ([userId, details]) => {
-                  return new Promise((resolve) => {
-                    const userRef = ref(db, `users/${userId}`);
-                    onValue(
-                      userRef,
-                      (userSnapshot) => {
-                        if (userSnapshot.exists()) {
-                          const userData = userSnapshot.val();
-                          const displayName = userData.displayName || "A user";
-                          const profileImage =
-                            userData.photoURL || "/default-avatar.png";
+    const fetchHostedNotifications = new Promise((resolve) => {
+      onValue(hostedRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const hostedActivities = snapshot.val();
+          const fetchPromises = Object.entries(hostedActivities).flatMap(
+            ([activityId, activity]) => {
+              if (activity.interested) {
+                return Object.entries(activity.interested).map(
+                  ([interestedUserId, details]) => {
+                    return new Promise((resolve) => {
+                      const userRef = ref(db, `users/${interestedUserId}`);
+                      onValue(
+                        userRef,
+                        (userSnapshot) => {
+                          if (userSnapshot.exists()) {
+                            const userData = userSnapshot.val();
+                            notificationsList.push({
+                              type: "INTEREST_REQUEST",
+                              message: `${userData.displayName || "A user"} is interested in "${activity.title}".`,
+                              eventTitle: activity.title,
+                              eventId: activityId,
+                              eventTimestamp: activity.eventTimestamp,
+                              timestamp: details.timestamp,
+                              userId: interestedUserId,
+                              profilePhoto:
+                                userData.photoURL || "/default-avatar.png",
+                              posterUid: activity.posterUid,
+                              location: activity.location ?? "Unknown Location",
+                            });
+                          }
+                          resolve();
+                        },
+                        { onlyOnce: true },
+                      );
+                    });
+                  },
+                );
+              }
+              return [];
+            },
+          );
 
-                          notificationsList.push({
-                            type: "INTEREST_REQUEST",
-                            message: `${displayName} is interested in "${activity.title}".`,
-                            eventTitle: activity.title,
-                            eventId: activityId,
-                            eventTimestamp: activity.eventTimestamp,
-                            timestamp: details.timestamp,
-                            userId,
-                            profilePhoto: profileImage,
-                            posterUid: activity.posterUid,
-                            location: activity.location ?? "Unknown Location",
-                          });
-                        }
-                        resolve(); // Ensure we resolve the Promise after fetching
-                      },
-                      { onlyOnce: true },
-                    );
-                  });
-                },
-              );
-            }
-            return [];
-          },
-        );
-
-        Promise.all(fetchPromises).then(() => {
-          setNotifications([...notificationsList].reverse());
-        });
-      }
+          Promise.all(fetchPromises).then(resolve);
+        } else {
+          resolve();
+        }
+      });
     });
 
-    // Fetch approved events (For participants)
-    onValue(participatingRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const participatingActivities = snapshot.val();
+    const fetchParticipatingNotifications = new Promise((resolve) => {
+      onValue(participatingRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const participatingActivities = snapshot.val();
+          const fetchPromises = Object.entries(participatingActivities).map(
+            ([activityId, details]) => {
+              return new Promise((resolve) => {
+                const hostRef = ref(db, `users/${details.hostingUserId}`);
+                onValue(
+                  hostRef,
+                  (hostSnapshot) => {
+                    const hostData = hostSnapshot.exists()
+                      ? hostSnapshot.val()
+                      : {};
+                    const eventTitle = details.eventTitle || "Unknown Event";
+                    const eventTimestamp =
+                      details.eventTimestamp || new Date().toISOString();
+                    const eventLocation =
+                      details.location || "No location provided";
+                    const { google, ics } = generateCalendarLinks(
+                      eventTitle,
+                      eventTimestamp,
+                      eventLocation,
+                    );
 
-        Object.entries(participatingActivities).forEach(
-          ([activityId, details]) => {
-            const hostRef = ref(db, `users/${details.hostingUserId}`);
+                    notificationsList.push({
+                      id: activityId,
+                      type: "APPROVAL",
+                      eventTitle,
+                      eventId: activityId,
+                      timestamp: details.timestamp,
+                      userId, // The interested user
+                      posterUid: details.hostingUserId, // Pass host ID
+                      profilePhoto: hostData.photoURL,
+                      message: `
+        You've been accepted to attend "<strong>${eventTitle}</strong>".<br><br>
+        <div style="display: flex; gap: 15px;">
+          <a href="${google}" target="_blank" rel="noopener noreferrer" 
+             style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+             Add to Google Calendar
+          </a>
+          <a href="${ics}" download="event.ics" 
+             style="color: #3b82f6; text-decoration: none; font-weight: 500;">
+             Download ICS File
+          </a>
+        </div>
+        `,
+                    });
 
-            onValue(
-              hostRef,
-              (hostSnapshot) => {
-                const hostData = hostSnapshot.exists()
-                  ? hostSnapshot.val()
-                  : {};
-                const eventTitle = details.eventTitle || "Unknown Event";
-                const hostProfileImage = hostData.photoURL;
-                const eventTimestamp =
-                  details.eventTimestamp || new Date().toISOString();
-                const eventLocation =
-                  details.location || "No location provided";
-                const { google, ics } = generateCalendarLinks(
-                  eventTitle,
-                  eventTimestamp,
-                  eventLocation,
+                    resolve();
+                  },
+                  { onlyOnce: true },
                 );
+              });
+            },
+          );
 
-                notificationsList.push({
-                  id: activityId,
-                  type: "APPROVAL",
-                  eventTitle,
-                  eventId: activityId,
-                  timestamp: details.timestamp,
-                  userId, // The interested user
-                  posterUid: details.hostingUserId, // Pass host ID
-                  profilePhoto: hostProfileImage,
-                  message: `
-  You've been accepted to attend "<strong>${eventTitle}</strong>".<br><br>
-  <div style="display: flex; gap: 15px;">
-    <a href="${google}" target="_blank" rel="noopener noreferrer" 
-       style="color: #3b82f6; text-decoration: none; font-weight: 500;">
-       Add to Google Calendar
-    </a>
-    <a href="${ics}" download="event.ics" 
-       style="color: #3b82f6; text-decoration: none; font-weight: 500;">
-       Download ICS File
-    </a>
-  </div>
-`,
-                });
+          Promise.all(fetchPromises).then(resolve);
+        } else {
+          resolve();
+        }
+      });
+    });
 
-                setNotifications((prevNotifications) => {
-                  const uniqueNotifications = [
-                    ...prevNotifications,
-                    ...notificationsList,
-                  ].reduce((acc, notification) => {
-                    if (
-                      !acc.find(
-                        (n) =>
-                          n.eventId === notification.eventId &&
-                          n.userId === notification.userId,
-                      )
-                    ) {
-                      acc.push(notification);
-                    }
-                    return acc;
-                  }, []);
-
-                  return uniqueNotifications.reverse();
-                });
-              },
-              { onlyOnce: true },
-            ); // we fetch the name only once
-          },
-        );
-      }
+    Promise.all([
+      fetchHostedNotifications,
+      fetchParticipatingNotifications,
+    ]).then(() => {
+      setNotifications(
+        [...notificationsList]
+          .reduce((acc, notification) => {
+            if (
+              !acc.find(
+                (n) =>
+                  n.eventId === notification.eventId &&
+                  n.userId === notification.userId,
+              )
+            ) {
+              acc.push(notification);
+            }
+            return acc;
+          }, [])
+          .sort((a, b) => b.timestamp - a.timestamp), // Sort newest first
+      );
     });
   }, [currentUser, db]);
 
