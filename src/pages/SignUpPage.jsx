@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import googleIcon from "@assets/google.png";
-import { signUpWithEmail, signInWithGoogle } from "@/hooks/firebase";
+import { signUpWithEmail, signInWithGoogle, auth } from "@/hooks/firebase";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ const SignUpPage = () => {
     }
     try {
       await signUpWithEmail(identifier, password);
+      console.log("Current Auth User:", auth.currentUser);
       navigate("/onboarding");
     } catch (err) {
       setError(err.message);

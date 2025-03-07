@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { ref, get } from "firebase/database";
 import { database } from "@/hooks/firebase";
 
-// List of interests (you can update these as needed)
+// List of interests
 const allInterests = [
   "Photography",
   "Shopping",
@@ -49,9 +49,8 @@ const OnboardingFlow = () => {
 
   const navigate = useNavigate();
   const auth = getAuth();
-  const [updateData] = useDbUpdate("/users");
+  const [updateData] = useDbUpdate(`/users/${auth.currentUser?.uid}`);
 
-  // Optional: Check if the user has already completed onboarding.
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       const user = auth.currentUser;
@@ -298,7 +297,10 @@ const OnboardingFlow = () => {
         },
         onboardingComplete: true,
       };
-      await updateData(`/users/${user.uid}`, updatedData);
+      // await updateData(`/users/${user.uid}`, updatedData);
+      await updateData(updatedData);
+
+      console.log("User data updated:", updatedData);
       navigate("/home");
     } catch (error) {
       console.error("Error updating user data:", error);

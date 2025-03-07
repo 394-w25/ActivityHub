@@ -15,7 +15,6 @@ const LandingPage = () => {
         <h2 className="text-2xl ">Let’s Connect Together</h2>
       </div>
 
-      {/* Buttons */}
       <div className="w-full max-w-xs flex flex-col space-y-4">
         <button
           onClick={() => navigate("/signin")}

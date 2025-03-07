@@ -70,7 +70,9 @@ const HomeScreen = () => {
       <header className="bg-white shadow">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <h1 className="text-2xl font-bold">Welcome to ActivityHub!</h1>
-          <p className="text-lg text-gray-600">What’s happening near you?</p>
+          <p className="text-lg text-gray-600">
+            What’s happening near you? phone testing
+          </p>
         </div>
       </header>
 
