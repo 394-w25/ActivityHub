@@ -176,6 +176,7 @@ export const resetRecaptcha = () => {
 
 export const signInWithPhone = async (phoneNumber) => {
   try {
+    resetRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     const confirmationResult = await signInWithPhoneNumber(
       auth,
