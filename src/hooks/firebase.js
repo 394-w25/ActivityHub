@@ -15,6 +15,7 @@ import {
   getDatabase,
   ref,
   get,
+  set,
   update,
   set,
   onValue,
@@ -71,17 +72,15 @@ export const signInWithGoogle = async () => {
     if (user) {
       const userRef = ref(database, `users/${user.uid}`);
       const snapshot = await get(userRef);
-      if (!snapshot.exists()) {
-        await set(userRef, getInitialUserData(user));
-      } else {
-        await update(userRef, {
-          email: user.email,
-          photoURL: user.photoURL || "",
-          phoneNumber: user.phoneNumber || "",
-        });
-      }
+      const existingData = snapshot.val();
+      update(userRef, {
+        name: existingData?.displayName || user.displayName,
+        email: existingData?.email || user.email,
+        photoURL: existingData?.photoURL || user.photoURL,
+        bio: existingData?.bio || "",
+        hosted_activities: existingData?.hosted_activities || {},
+      });
     }
-    return user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
     throw error;
@@ -100,6 +99,17 @@ export const signUpWithEmail = async (email, password) => {
       email,
       password,
     );
+
+    await new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser) {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+
+    // Send verification email
     await sendEmailVerification(user);
 
     await new Promise((resolve) => {
@@ -113,22 +123,13 @@ export const signUpWithEmail = async (email, password) => {
     });
 
     const userRef = ref(database, `users/${user.uid}`);
-
-    const userData = {
-      ...getInitialUserData(user),
-      email: user.email || "",
+    update(userRef, {
+      email: user.email,
+      displayName: user.displayName || "",
       photoURL: user.photoURL || "",
-      phoneNumber: user.phoneNumber || "",
-    };
-
-    const snapshot = await get(userRef);
-    if (!snapshot.exists()) {
-      await set(userRef, userData);
-    } else {
-      console.log("User already exists, skipping set()");
-    }
-
-    console.log("Successfully wrote to database:", userData);
+      bio: "",
+      activities: {},
+    });
     return user;
   } catch (error) {
     console.error("Error signing up with email:", error);
@@ -348,6 +349,7 @@ export const sendMessage = async (chatId, senderId, text) => {
     sender: senderId,
     text,
     timestamp: Date.now(),
+    read: false,
   });
 };
 
