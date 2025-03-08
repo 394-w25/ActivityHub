@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import googleIcon from "@assets/google.png";
-import { signInWithEmail, signInWithGoogle } from "@/hooks/firebase";
+import { signInWithEmail, signInWithGoogle, auth } from "@/hooks/firebase";
 
 const SignInPage = () => {
   const navigate = useNavigate();
@@ -13,9 +13,6 @@ const SignInPage = () => {
 
   const handleSignIn = async (e) => {
     e.preventDefault();
-
-    // Example detection: if input contains '@', treat it as email
-    // (Or use a more robust check to see if it matches phone pattern)
     const isEmail = identifier.includes("@");
 
     if (isEmail) {

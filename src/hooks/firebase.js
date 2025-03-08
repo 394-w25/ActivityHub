@@ -23,6 +23,7 @@ import {
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 import { getFirestore } from "firebase/firestore";
+import { PhoneOutgoing } from "lucide-react";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -43,34 +44,33 @@ const db = getFirestore(firebase);
 
 export { firebase, auth, database, db };
 
-// ------------------------- Google Sign In -------------------------
+/* ===================== Google Sign In ===================== */
+
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, new GoogleAuthProvider());
     const user = result.user;
     if (user) {
-      // Create or update user in the database
       const userRef = ref(database, `users/${user.uid}`);
-      const snapshot = await get(userRef);
-      const existingData = snapshot.val();
       update(userRef, {
-        name: existingData?.displayName || user.displayName,
-        email: existingData?.email || user.email,
-        photoURL: existingData?.photoURL || user.photoURL,
-        bio: existingData?.bio || "",
-        hosted_activities: existingData?.hosted_activities || {},
+        email: user.email,
+        name: user.displayName,
+        photoURL: user.photoURL,
       });
+      return user;
     }
   } catch (error) {
-    console.error("Error signing in with Google:", error);
+    console.error("Error signing up with google:", error);
     throw error;
   }
 };
 
-// ------------------------- Email Authentication -------------------------
+/* ===================== Email Authentication ===================== */
 
-// Sign Up with Email
 export const signUpWithEmail = async (email, password) => {
+  const auth = getAuth();
+  const database = getDatabase();
+
   try {
     const { user } = await createUserWithEmailAndPassword(
       auth,
@@ -78,24 +78,12 @@ export const signUpWithEmail = async (email, password) => {
       password,
     );
 
-    await new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser) {
-          unsubscribe();
-          resolve();
-        }
-      });
-    });
-
     // Send verification email
     await sendEmailVerification(user);
-    // Optionally, create or update the user in your database
+
     const userRef = ref(database, `users/${user.uid}`);
     update(userRef, {
       email: user.email,
-      name: user.displayName || "",
-      bio: "",
-      hosted_activities: {},
     });
     return user;
   } catch (error) {
@@ -104,7 +92,6 @@ export const signUpWithEmail = async (email, password) => {
   }
 };
 
-// Sign In with Email
 export const signInWithEmail = async (email, password) => {
   try {
     const { user } = await signInWithEmailAndPassword(auth, email, password);
@@ -115,33 +102,37 @@ export const signInWithEmail = async (email, password) => {
   }
 };
 
-// ------------------------- Phone Authentication -------------------------
+/* ===================== Phone Authentication ===================== */
 
-// Initialize reCAPTCHA verifier (make sure a div with id "recaptcha-container" exists in your UI)
 export const setupRecaptcha = () => {
-  // If a verifier already exists, clear it first
+  if (!window.recaptchaVerifier) {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: (response) => {
+          console.log("reCAPTCHA verified", response);
+        },
+        "expired-callback": () => {
+          console.log("reCAPTCHA expired, reset required.");
+        },
+      },
+    );
+  }
+};
+
+export const resetRecaptcha = () => {
   if (window.recaptchaVerifier) {
     window.recaptchaVerifier.clear();
     window.recaptchaVerifier = null;
   }
-  window.recaptchaVerifier = new RecaptchaVerifier(
-    auth,
-    "recaptcha-container",
-    {
-      size: "invisible",
-      callback: (response) => {
-        console.log("reCAPTCHA verified", response);
-      },
-      "expired-callback": () => {
-        console.log("reCAPTCHA expired, reset required.");
-      },
-    },
-  );
+  setupRecaptcha();
 };
 
-// Start phone sign in process (sends SMS code)
 export const signInWithPhone = async (phoneNumber) => {
   try {
+    resetRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     const confirmationResult = await signInWithPhoneNumber(
       auth,
@@ -156,29 +147,33 @@ export const signInWithPhone = async (phoneNumber) => {
   }
 };
 
-// Confirm the SMS verification code
 export const confirmPhoneCode = async (code) => {
   try {
     const result = await window.confirmationResult.confirm(code);
-    return result.user;
+    const user = result.user;
+    if (user) {
+      console.log("User authenticated:", user.uid, "Phone:", user.phoneNumber);
+      const userRef = ref(database, `users/${user.uid}`);
+      update(userRef, {
+        phoneNumber: user.phoneNumber,
+      });
+      return user;
+    }
   } catch (error) {
-    console.error("Error confirming SMS code:", error);
+    console.error("Error signing up with phone:", error);
     throw error;
   }
 };
 
-// ------------------------- Sign Out -------------------------
+/* ===================== Sign Out ===================== */
 export const firebaseSignOut = () => {
   signOut(auth).catch((error) => console.error("Error signing out:", error));
 };
 
-// ------------------------- Custom Hooks -------------------------
-
-// Track authentication state
+/* ===================== Custom Hooks ===================== */
 export const useAuthState = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
@@ -189,7 +184,6 @@ export const useAuthState = () => {
   return [user, loading];
 };
 
-// Read data from the database
 export const useDbData = (path) => {
   const [data, setData] = useState();
   const [error, setError] = useState(null);
@@ -213,7 +207,6 @@ export const useDbData = (path) => {
   return [data, error];
 };
 
-// Update data in the database
 export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
   const updateData = useCallback(
@@ -243,7 +236,6 @@ export const useDbUpdate = (path) => {
   return [updateData, result];
 };
 
-// Remove data from the database
 export const useDbRemove = (path) => {
   const [result, setResult] = useState();
   const removeData = useCallback(() => {
@@ -266,7 +258,8 @@ export const useDbRemove = (path) => {
   return [removeData, result];
 };
 
-// Messaging
+// Messaging functions…
+
 export const createOrGetChat = async (user1Id, user2Id) => {
   const chatKey = [user1Id, user2Id].sort().join("_");
   const chatRef = ref(database, `chats/${chatKey}`);
@@ -291,10 +284,8 @@ export const sendMessage = async (chatId, senderId, text) => {
 
 export const useChatMessages = (chatId) => {
   const [messages, setMessages] = useState([]);
-
   useEffect(() => {
     if (!chatId) return;
-
     const messagesRef = ref(database, `chats/${chatId}/messages`);
     const unsubscribe = onValue(messagesRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -308,7 +299,6 @@ export const useChatMessages = (chatId) => {
         setMessages([]);
       }
     });
-
     return unsubscribe;
   }, [chatId]);
   return messages;
@@ -321,10 +311,8 @@ export const deleteMessage = async (chatId, messageId) => {
 
 export const useUserChats = (userId) => {
   const [chats, setChats] = useState([]);
-
   useEffect(() => {
     if (!userId) return;
-
     const chatsRef = ref(database, "chats");
     const unsubscribe = onValue(chatsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -337,9 +325,7 @@ export const useUserChats = (userId) => {
         setChats([]);
       }
     });
-
     return unsubscribe;
   }, [userId]);
-
   return chats;
 };

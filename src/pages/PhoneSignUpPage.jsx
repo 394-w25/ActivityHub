@@ -4,6 +4,7 @@ import {
   signInWithPhone,
   confirmPhoneCode,
   setupRecaptcha,
+  resetRecaptcha,
 } from "@/hooks/firebase";
 
 const PhoneSignUpPage = () => {
@@ -21,6 +22,7 @@ const PhoneSignUpPage = () => {
     e.preventDefault();
     setError("");
     try {
+      resetRecaptcha();
       await signInWithPhone(phoneNumber);
       setCodeSent(true);
     } catch (err) {

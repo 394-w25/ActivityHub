@@ -5,7 +5,7 @@ import { getAuth } from "firebase/auth";
 import { ref, get } from "firebase/database";
 import { LocationContext } from "@components/LocationContext";
 
-// List of interests (you can update these as needed)
+// List of interests
 const allInterests = [
   "Photography",
   "Shopping",
@@ -54,7 +54,6 @@ const OnboardingFlow = () => {
   const [user, loading] = useAuthState();
   const [updateData] = useDbUpdate(user ? `/users/${user.uid}` : null);
 
-  // Optional: Check if the user has already completed onboarding.
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       const user = auth.currentUser;
