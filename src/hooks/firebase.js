@@ -17,7 +17,6 @@ import {
   get,
   set,
   update,
-  set,
   onValue,
   remove,
   push,
@@ -50,11 +49,11 @@ const getInitialUserData = (user) => ({
   email: user.email || "",
   gender: "",
   hosted_activities: {},
-  interests: {},
+  interests: null,
   location: "",
-  name: user.name || "",
+  name: user.displayName || "",
   onboardingComplete: false,
-  participatingActivities: {},
+  participating_activities: {},
   permissions: {
     notifications: false,
     location: false,
@@ -72,15 +71,17 @@ export const signInWithGoogle = async () => {
     if (user) {
       const userRef = ref(database, `users/${user.uid}`);
       const snapshot = await get(userRef);
-      const existingData = snapshot.val();
-      update(userRef, {
-        name: existingData?.displayName || user.displayName,
-        email: existingData?.email || user.email,
-        photoURL: existingData?.photoURL || user.photoURL,
-        bio: existingData?.bio || "",
-        hosted_activities: existingData?.hosted_activities || {},
-      });
+      if (!snapshot.exists()) {
+        await set(userRef, getInitialUserData(user));
+      } else {
+        await update(userRef, {
+          email: user.email,
+          photoURL: user.photoURL || "",
+          phoneNumber: user.phoneNumber || "",
+        });
+      }
     }
+    return user;
   } catch (error) {
     console.error("Error signing in with Google:", error);
     throw error;
