@@ -23,6 +23,7 @@ import {
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 import { getFirestore } from "firebase/firestore";
+import { PhoneOutgoing } from "lucide-react";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -43,25 +44,6 @@ const db = getFirestore(firebase);
 
 export { firebase, auth, database, db };
 
-const getInitialUserData = (user) => ({
-  bio: "",
-  dob: "",
-  email: user.email || "",
-  gender: "",
-  hosted_activities: {},
-  interests: null,
-  location: "",
-  name: user.displayName || "",
-  onboardingComplete: false,
-  participating_activities: {},
-  permissions: {
-    notifications: false,
-    location: false,
-  },
-  photoURL: user.photoURL || "",
-  phoneNumber: user.phoneNumber || "",
-});
-
 /* ===================== Google Sign In ===================== */
 
 export const signInWithGoogle = async () => {
@@ -70,20 +52,15 @@ export const signInWithGoogle = async () => {
     const user = result.user;
     if (user) {
       const userRef = ref(database, `users/${user.uid}`);
-      const snapshot = await get(userRef);
-      if (!snapshot.exists()) {
-        await set(userRef, getInitialUserData(user));
-      } else {
-        await update(userRef, {
-          email: user.email,
-          photoURL: user.photoURL || "",
-          phoneNumber: user.phoneNumber || "",
-        });
-      }
+      update(userRef, {
+        email: user.email,
+        name: user.displayName,
+        photoURL: user.photoURL,
+      });
+      return user;
     }
-    return user;
   } catch (error) {
-    console.error("Error signing in with Google:", error);
+    console.error("Error signing up with google:", error);
     throw error;
   }
 };
@@ -101,35 +78,12 @@ export const signUpWithEmail = async (email, password) => {
       password,
     );
 
-    await new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser) {
-          unsubscribe();
-          resolve();
-        }
-      });
-    });
-
     // Send verification email
     await sendEmailVerification(user);
-
-    await new Promise((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-        if (authUser) {
-          console.log("User is authenticated:", authUser.uid);
-          unsubscribe();
-          resolve();
-        }
-      });
-    });
 
     const userRef = ref(database, `users/${user.uid}`);
     update(userRef, {
       email: user.email,
-      displayName: user.displayName || "",
-      photoURL: user.photoURL || "",
-      bio: "",
-      activities: {},
     });
     return user;
   } catch (error) {
@@ -199,39 +153,14 @@ export const confirmPhoneCode = async (code) => {
     const user = result.user;
     if (user) {
       console.log("User authenticated:", user.uid, "Phone:", user.phoneNumber);
-
-      await new Promise((resolve) => {
-        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
-          if (authUser) {
-            console.log("Auth state confirmed:", authUser.uid);
-            unsubscribe();
-            resolve();
-          }
-        });
-      });
-
-      const database = getDatabase();
       const userRef = ref(database, `users/${user.uid}`);
-
-      const userData = {
-        ...getInitialUserData(user),
-        phoneNumber: user.phoneNumber || "MISSING_PHONE",
-      };
-
-      const snapshot = await get(userRef);
-      if (!snapshot.exists()) {
-        await set(userRef, userData);
-        console.log("User record created:", userData);
-      } else {
-        await update(userRef, {
-          phoneNumber: user.phoneNumber || "MISSING_PHONE",
-        });
-        console.log("User record updated with phone number.");
-      }
+      update(userRef, {
+        phoneNumber: user.phoneNumber,
+      });
+      return user;
     }
-    return user;
   } catch (error) {
-    console.error("Error confirming SMS code:", error);
+    console.error("Error signing up with phone:", error);
     throw error;
   }
 };
