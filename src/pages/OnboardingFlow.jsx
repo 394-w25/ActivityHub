@@ -168,6 +168,13 @@ const OnboardingFlow = () => {
     }
   };
 
+  // --- Skip location permission ---
+  const handleSkipLocation = () => {
+    // User chooses not to grant location permission
+    setLocationPermission(false);
+    setStep(3);
+  };
+
   const renderLocationPermissionScreen = () => (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-white">
       <div className="w-full max-w-sm text-center space-y-6">
@@ -180,6 +187,13 @@ const OnboardingFlow = () => {
           className="w-full py-3 bg-orange-500 text-white rounded-md text-lg font-semibold hover:bg-orange-600"
         >
           Enable Location
+        </button>
+        {/* Skip button */}
+        <button
+          onClick={handleSkipLocation}
+          className="w-full py-3 bg-gray-100 text-gray-700 rounded-md text-lg font-semibold hover:bg-gray-200"
+        >
+          Skip
         </button>
       </div>
     </div>
