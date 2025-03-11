@@ -1,4 +1,4 @@
-import React from "react";
+import { React, useState } from "react";
 import { createOrGetChat, useAuthState, useDbData } from "@/hooks/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,22 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate, useParams } from "react-router-dom";
 import Activity from "@/components/Activity";
 import { ArrowLeft } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { MoreVertical } from "lucide-react";
 
 export default function UserProfile() {
   const [user] = useAuthState();
   const navigate = useNavigate();
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  const handleFollowClick = () => {
+    setIsFollowing((prev) => !prev);
+  };
 
   const { id: profileUserId } = useParams();
   const [userData, error] = useDbData(
@@ -40,6 +52,24 @@ export default function UserProfile() {
           onClick={() => navigate(-1)}
           className="absolute top-6 left-6 w-6 h-6"
         />
+
+        {user?.uid !== profileUserId && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-100">
+                <MoreVertical className="w-6 h-6" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                className="text-red-500 cursor-pointer"
+                onClick={() => alert("User Blocked!")}
+              >
+                Block
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
       <div className="w-full max-w-sm rounded-lg p-6">
         <div className="flex flex-col items-center">
@@ -50,8 +80,15 @@ export default function UserProfile() {
 
           <h2 className="text-2xl font-bold mt-4">{name}</h2>
           {user?.uid !== profileUserId && (
-            <Button className="mt-5 w-40 bg-orange-400 text-white hover:bg-orange-500">
-              Follow
+            <Button
+              onClick={handleFollowClick}
+              className={`mt-5 w-40 text-white ${
+                isFollowing
+                  ? "bg-gray-400 hover:bg-gray-500"
+                  : "bg-orange-400 hover:bg-orange-500"
+              }`}
+            >
+              {isFollowing ? "Unfollow" : "Follow"}
             </Button>
           )}
         </div>
@@ -128,7 +165,7 @@ export default function UserProfile() {
               Chat
             </Button>
             <Button className="bg-orange-400 text-white hover:bg-orange-500">
-              Accept
+              Interested
             </Button>
           </div>
         )}
