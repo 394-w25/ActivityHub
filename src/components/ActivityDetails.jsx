@@ -1,20 +1,24 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
+import { createOrGetChat } from "@/hooks/firebase";
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
+  const navigate = useNavigate();
+
   const handleJoinActivity = async () => {
     try {
-      console.log("Joining activity:", activity);
       await handleUserInterested(activity, user);
     } catch (error) {
       console.error("Error joining activity:", error);
     }
   };
+
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-hidden shadow-lg relative">
+      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
@@ -94,6 +98,15 @@ const ActivityDetails = ({ activity, onClose }) => {
               className="w-full h-48 object-cover rounded-lg"
             />
           )}
+
+          <div className="pt-4">
+            <button
+              onClick={() => navigate(`/user_profile/${activity.posterUid}`)}
+              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              View Host Profile
+            </button>
+          </div>
 
           {/* Join Activity button */}
           <div className="pt-4">

@@ -18,7 +18,7 @@ import uuid4 from "uuid4";
 const ActivityForm = ({ onSuccess }) => {
   const [user] = useAuthState();
   const [updateData] = useDbUpdate(
-    user ? `users/${user.uid}/activities` : null,
+    user ? `users/${user.uid}/hosted_activities` : null,
   );
   const [title, setTitle] = useState("");
   const [image, setImage] = useState(null);
@@ -90,7 +90,7 @@ const ActivityForm = ({ onSuccess }) => {
         const storage = getStorage();
         const imageRef = ref(
           storage,
-          `activities/${user.uid}/${uuid4()}_${image.name}`,
+          `hosted_activities/${user.uid}/${uuid4()}_${image.name}`,
         );
         await uploadBytes(imageRef, image);
         imageUrl = await getDownloadURL(imageRef);
@@ -102,6 +102,7 @@ const ActivityForm = ({ onSuccess }) => {
     }
 
     updateData({
+      // `/users/${user?.uid}/hosted_activities`,
       [uuid4()]: {
         title,
         description,
@@ -114,8 +115,6 @@ const ActivityForm = ({ onSuccess }) => {
         imageUrl,
       },
     });
-
-    console.log("Activity posted successfully!");
 
     if (onSuccess) {
       onSuccess();

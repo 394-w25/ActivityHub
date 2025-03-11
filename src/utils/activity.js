@@ -16,24 +16,30 @@
 
 import { useDbData, useDbUpdate, useDbRemove } from "@hooks/firebase";
 
-export const getActivities = (
-  allData,
+export const getHostedActivities = (
+  userData,
   { userFilter = (user) => true, activityFilter = (activity) => true },
 ) => {
-  const result = Object.entries(allData.users)
+  return Object.entries(userData)
     .filter(([userID]) => userFilter(userID))
     .flatMap(([userID, userData]) =>
-      Object.values(userData.activities || {}).filter((activityData) =>
-        activityFilter(activityData),
+      Object.entries(userData.hosted_activities || {}).map(
+        ([activityID, activityData]) => ({
+          ...activityData,
+          id: activityID, // Attach the activity ID
+          posterUid: userID, // and the user who created the activity
+        }),
       ),
-    );
-  return result;
+    )
+    .filter(activityFilter);
 };
 
-export const removeActivity = (userID, activityID) =>
-  useDbRemove(`users/${userID}/activities/${activiyID}`);
+export const removeHostedActivity = (userID, activityID) =>
+  useDbRemove(`users/${userID}/hosted_activities/${activityID}`);
 
-export const updateActivity = (userID, activityData) => {
-  const [updateActivity] = useDbUpdate(`users/${userID}/activities`);
-  updateActivity(activityData);
+export const updateHostedActivity = (userID, activityData) => {
+  const [updateHostedActivity] = useDbUpdate(
+    `users/${userID}/hosted_activities`,
+  );
+  updateHostedActivity(activityData);
 };

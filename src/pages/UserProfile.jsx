@@ -1,17 +1,19 @@
 import React from "react";
-import { useAuthState, useDbData } from "@/hooks/firebase";
+import { createOrGetChat, useAuthState, useDbData } from "@/hooks/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import Activity from "@/components/Activity";
+import { ArrowLeft } from "lucide-react";
 
 export default function UserProfile() {
   const [user] = useAuthState();
+  const navigate = useNavigate();
 
   const { id: profileUserId } = useParams();
-  console.log("profileUserId", profileUserId);
   const [userData, error] = useDbData(
     profileUserId ? `users/${profileUserId}` : null,
   );
@@ -21,33 +23,43 @@ export default function UserProfile() {
   if (!userData) return <h1>No data found</h1>;
 
   // For demonstration, we’ll use placeholders if the userData fields are empty.
-  const displayName = userData?.firstName || "Jake";
+  const name = userData?.name || "Unknown";
   const displayBio =
     userData?.bio ||
     `No bio available. This is a placeholder bio. You can edit your profile to add a personal touch!`;
 
+  const handleChatClick = async () => {
+    const chatId = await createOrGetChat(user?.uid, profileUserId);
+    navigate(`/chat/${chatId}`);
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-start p-4">
+      <div className="flex flex-row justify-start items-center gap-4 pl-2 pt-4 pb-4">
+        <ArrowLeft
+          onClick={() => navigate(-1)}
+          className="absolute top-6 left-6 w-6 h-6"
+        />
+      </div>
       <div className="w-full max-w-sm rounded-lg p-6">
         <div className="flex flex-col items-center">
           <Avatar className="w-24 h-24">
-            <AvatarImage src={user?.photoURL} alt={displayName} />
-            <AvatarFallback>
-              {displayName.charAt(0).toUpperCase()}
-            </AvatarFallback>
+            <AvatarImage src={userData?.photoURL} alt={name} />
+            <AvatarFallback>{name.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
 
-          <h2 className="text-2xl font-bold mt-4">{displayName}</h2>
-
-          <Button className="mt-5 w-40 bg-orange-400 text-white hover:bg-orange-500">
-            Follow
-          </Button>
+          <h2 className="text-2xl font-bold mt-4">{name}</h2>
+          {user?.uid !== profileUserId && (
+            <Button className="mt-5 w-40 bg-orange-400 text-white hover:bg-orange-500">
+              Follow
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="about" className="mt-6">
           <TabsList className="grid grid-cols-3 w-full">
             <TabsTrigger value="about">ABOUT</TabsTrigger>
-            <TabsTrigger value="event">EVENT</TabsTrigger>
+            <TabsTrigger value="event">EVENTS</TabsTrigger>
             <TabsTrigger value="trust">TRUST BADGE</TabsTrigger>
           </TabsList>
 
@@ -58,12 +70,12 @@ export default function UserProfile() {
           </TabsContent>
 
           <TabsContent value="event" className="mt-4">
-            {userData?.activities ? (
-              Object.values(userData.activities).map((activity, index) => (
-                <div key={index} className="text-sm text-gray-700 mb-2">
-                  • {activity.title || "Untitled Activity"}
-                </div>
-              ))
+            {userData?.hosted_activities ? (
+              Object.values(userData.hosted_activities).map(
+                (activity, index) => (
+                  <Activity key={index} activity={activity} />
+                ),
+              )
             ) : (
               <p className="text-gray-500">No events/activities yet.</p>
             )}
@@ -109,7 +121,10 @@ export default function UserProfile() {
         {/* only showing buttons when viewing other user's profile */}
         {user?.uid !== profileUserId && (
           <div className="flex justify-around mt-10">
-            <Button className="bg-orange-400 text-white hover:bg-orange-500">
+            <Button
+              onClick={() => handleChatClick()}
+              className="bg-orange-400 text-white hover:bg-orange-500"
+            >
               Chat
             </Button>
             <Button className="bg-orange-400 text-white hover:bg-orange-500">

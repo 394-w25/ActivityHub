@@ -1,13 +1,15 @@
 import { initializeApp } from "firebase/app";
-// Note: add SDKs for Firebase products that you want to use
-// See: https://firebase.google.com/docs/web/setup#available-libraries
-
 import {
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
   signInWithPopup,
   signOut,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendEmailVerification,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
 } from "firebase/auth";
 import {
   getDatabase,
@@ -17,15 +19,17 @@ import {
   update,
   onValue,
   remove,
+  push,
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
-
 import { getFirestore } from "firebase/firestore";
+import { PhoneOutgoing } from "lucide-react";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyA5F93mf9yEHv1hVZqSn4qFyXlPYMf6hGI",
   authDomain: "activityhubapp.firebaseapp.com",
+  databaseURL: "https://activityhubapp-default-rtdb.firebaseio.com",
   projectId: "activityhubapp",
   storageBucket: "activityhubapp.firebasestorage.app",
   messagingSenderId: "622399618264",
@@ -37,59 +41,152 @@ const firebase = initializeApp(firebaseConfig);
 const auth = getAuth(firebase);
 const database = getDatabase(firebase);
 const db = getFirestore(firebase);
+
 export { firebase, auth, database, db };
 
-// Sign in with Google
+/* ===================== Google Sign In ===================== */
+
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, new GoogleAuthProvider());
     const user = result.user;
-
     if (user) {
-      // Create or update user in the database
       const userRef = ref(database, `users/${user.uid}`);
-
-      const snapshot = await get(userRef);
-      const existingData = snapshot.val();
-
       update(userRef, {
-        displayName: existingData?.displayName || user.displayName,
-        email: existingData?.email || user.email,
-        photoURL: existingData?.photoURL || user.photoURL,
-        bio: existingData?.bio || "",
-        activities: existingData?.activities || {},
+        email: user.email,
+        name: user.displayName,
+        photoURL: user.photoURL,
       });
+      return user;
     }
   } catch (error) {
-    console.error("Error signing in with Google:", error);
+    console.error("Error signing up with google:", error);
+    throw error;
   }
 };
 
-// Sign out
+/* ===================== Email Authentication ===================== */
+
+export const signUpWithEmail = async (email, password) => {
+  const auth = getAuth();
+  const database = getDatabase();
+
+  try {
+    const { user } = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
+
+    // Send verification email
+    await sendEmailVerification(user);
+
+    const userRef = ref(database, `users/${user.uid}`);
+    update(userRef, {
+      email: user.email,
+    });
+    return user;
+  } catch (error) {
+    console.error("Error signing up with email:", error);
+    throw error;
+  }
+};
+
+export const signInWithEmail = async (email, password) => {
+  try {
+    const { user } = await signInWithEmailAndPassword(auth, email, password);
+    return user;
+  } catch (error) {
+    console.error("Error signing in with email:", error);
+    throw error;
+  }
+};
+
+/* ===================== Phone Authentication ===================== */
+
+export const setupRecaptcha = () => {
+  if (!window.recaptchaVerifier) {
+    window.recaptchaVerifier = new RecaptchaVerifier(
+      auth,
+      "recaptcha-container",
+      {
+        size: "invisible",
+        callback: (response) => {
+          console.log("reCAPTCHA verified", response);
+        },
+        "expired-callback": () => {
+          console.log("reCAPTCHA expired, reset required.");
+        },
+      },
+    );
+  }
+};
+
+export const resetRecaptcha = () => {
+  if (window.recaptchaVerifier) {
+    window.recaptchaVerifier.clear();
+    window.recaptchaVerifier = null;
+  }
+  setupRecaptcha();
+};
+
+export const signInWithPhone = async (phoneNumber) => {
+  try {
+    resetRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+    const confirmationResult = await signInWithPhoneNumber(
+      auth,
+      phoneNumber,
+      appVerifier,
+    );
+    window.confirmationResult = confirmationResult;
+    console.log("SMS code sent.");
+  } catch (error) {
+    console.error("Error during phone sign-in:", error);
+    throw error;
+  }
+};
+
+export const confirmPhoneCode = async (code) => {
+  try {
+    const result = await window.confirmationResult.confirm(code);
+    const user = result.user;
+    if (user) {
+      console.log("User authenticated:", user.uid, "Phone:", user.phoneNumber);
+      const userRef = ref(database, `users/${user.uid}`);
+      update(userRef, {
+        phoneNumber: user.phoneNumber,
+      });
+      return user;
+    }
+  } catch (error) {
+    console.error("Error signing up with phone:", error);
+    throw error;
+  }
+};
+
+/* ===================== Sign Out ===================== */
 export const firebaseSignOut = () => {
   signOut(auth).catch((error) => console.error("Error signing out:", error));
 };
 
-// Custom Hook: Track authentication state
+/* ===================== Custom Hooks ===================== */
 export const useAuthState = () => {
   const [user, setUser] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
+      setLoading(false);
     });
-
-    return unsubscribe; // Cleanup on unmount
+    return unsubscribe;
   }, []);
-
-  return [user];
+  return [user, loading];
 };
 
-// Custom Hook: Read data from the database
 export const useDbData = (path) => {
   const [data, setData] = useState();
   const [error, setError] = useState(null);
-
   useEffect(() => {
     if (!path) {
       console.error("Error: Path is null or undefined");
@@ -105,30 +202,23 @@ export const useDbData = (path) => {
         setError(error);
       },
     );
-
-    return unsubscribe; // Cleanup on unmount
+    return unsubscribe;
   }, [path]);
-
   return [data, error];
 };
 
-// Custom Hook: Update data in the database
 export const useDbUpdate = (path) => {
   const [result, setResult] = useState();
-
   const updateData = useCallback(
-    async (path, value) => {
+    async (value) => {
       if (!path) {
         console.error("Error: Path is null or undefined");
         return;
       }
-
       if (!value || Object.keys(value).length === 0) {
-        console.log(value);
         console.error("Error: Cannot update with an empty or invalid object");
         return;
       }
-
       try {
         await update(ref(database, path), value);
         setResult({
@@ -143,14 +233,12 @@ export const useDbUpdate = (path) => {
     },
     [path],
   );
-
   return [updateData, result];
 };
 
 export const useDbRemove = (path) => {
   const [result, setResult] = useState();
   const removeData = useCallback(() => {
-    console.log(path);
     remove(ref(database, path))
       .then(() =>
         setResult({
@@ -168,4 +256,76 @@ export const useDbRemove = (path) => {
       );
   }, [path]);
   return [removeData, result];
+};
+
+// Messaging functions…
+
+export const createOrGetChat = async (user1Id, user2Id) => {
+  const chatKey = [user1Id, user2Id].sort().join("_");
+  const chatRef = ref(database, `chats/${chatKey}`);
+  const snapshot = await get(chatRef);
+  const existingData = snapshot.val();
+  await update(chatRef, {
+    users: { [user1Id]: true, [user2Id]: true },
+    createdAt: existingData?.createdAt || Date.now(),
+  });
+  return chatKey;
+};
+
+export const sendMessage = async (chatId, senderId, text) => {
+  const messagesRef = ref(database, `chats/${chatId}/messages`);
+  await push(messagesRef, {
+    sender: senderId,
+    text,
+    timestamp: Date.now(),
+    read: false,
+  });
+};
+
+export const useChatMessages = (chatId) => {
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    if (!chatId) return;
+    const messagesRef = ref(database, `chats/${chatId}/messages`);
+    const unsubscribe = onValue(messagesRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setMessages(
+          Object.entries(snapshot.val()).map(([id, data]) => ({
+            id,
+            ...data,
+          })),
+        );
+      } else {
+        setMessages([]);
+      }
+    });
+    return unsubscribe;
+  }, [chatId]);
+  return messages;
+};
+
+export const deleteMessage = async (chatId, messageId) => {
+  const messageRef = ref(database, `chats/${chatId}/messages/${messageId}`);
+  await remove(messageRef);
+};
+
+export const useUserChats = (userId) => {
+  const [chats, setChats] = useState([]);
+  useEffect(() => {
+    if (!userId) return;
+    const chatsRef = ref(database, "chats");
+    const unsubscribe = onValue(chatsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const chatData = snapshot.val();
+        const userChats = Object.keys(chatData).filter((chatId) =>
+          chatId.includes(userId),
+        );
+        setChats(userChats);
+      } else {
+        setChats([]);
+      }
+    });
+    return unsubscribe;
+  }, [userId]);
+  return chats;
 };
