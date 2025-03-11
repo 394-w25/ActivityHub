@@ -54,9 +54,34 @@
         },
         "hosted_activities": {
           "$activity_id": {
-            "activity_details": {
-              ".write": "auth != null && $user_id === auth.uid",
-              ".validate": "newData.hasChildren(['title', 'description', 'eventTimestamp', 'location'])"
+            ".write": "auth != null && $user_id === auth.uid",
+            "coords": {
+              "latitude": { ".validate": "newData.isNumber()" },
+              "longitude": { ".validate": "newData.isNumber()" }
+            },
+            "creationTimestamp": {
+              ".validate": "newData.isNumber()"
+            },
+            "description": {
+              ".validate": "newData.isString()"
+            },
+            "eventTimestamp": {
+              ".validate": "newData.isString()"
+            },
+            "groupSize": {
+              ".validate": "newData.isNumber()"
+            },
+            "imageUrl": {
+              ".validate": "newData.isString() && newData.val().matches(/^(ht|f)tp(s?):\\/\\/[0-9a-zA-Z]([-.\\w]*[0-9a-zA-Z])*((0-9)*)*(\\/?)([a-zA-Z0-9\\-\\.\\?\\,\\'\\/\\\\+&=%\\$#_]*)?$/)"
+            },
+            "location": {
+              ".validate": "newData.isString()"
+            },
+            "posterUid": {
+              ".validate": "newData.isString()"
+            },
+            "title": {
+              ".validate": "newData.isString()"
             },
             "interested": {
               "$interested_user_id": {
