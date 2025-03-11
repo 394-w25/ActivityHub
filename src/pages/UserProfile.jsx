@@ -165,7 +165,7 @@ export default function UserProfile() {
               Chat
             </Button>
             <Button className="bg-orange-400 text-white hover:bg-orange-500">
-              Accept
+              Interested
             </Button>
           </div>
         )}
