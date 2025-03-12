@@ -4,10 +4,14 @@ import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react 
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
 import { createOrGetChat } from "@/hooks/firebase";
+import stackedProfilePics from "../../assets/stacked-profile-pics.png";
+import ParticipantsModal from "./ParticipantsModal";
+
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
+  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
 
   const handleJoinActivity = async () => {
     setIsPending(true);
@@ -19,21 +23,39 @@ const ActivityDetails = ({ activity, onClose }) => {
     }
   };
 
+  const openParticipantsModal = () => {
+    setParticipantsModalOpen(true);
+  };
+
+  const closeParticipantsModal = () => {
+    setParticipantsModalOpen(false);
+  };
+
   return (
-    <div className="z-3 relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
+    <div className="z-3 relative w-full h-full text-white">
+      <div className="flex flex-col items-center w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
-          className="fixed top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="fixed top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <X size={24} className="text-gray-600" />
         </button>
         {/* Image */}
         <div>
-          <img src={activity.imageUrl} className="w-full" />
+          <img src={activity.imageUrl} className="bg-cover bg-center w-full" />
         </div>
-        <div className="p-6 space-y-4">
+        <div
+          onClick={openParticipantsModal}
+          className={
+            activity.imageUrl
+              ? "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] m-[-30px] shadow-lg"
+              : "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] mt-[30px] mb-[-30px] shadow-lg"
+          }
+        >
+          <img src={stackedProfilePics} alt="Participants" />+ 1 Going
+        </div>
+        <div className="w-full mt-6 p-6 space-y-4">
           {/* Title */}
           <div>
             <h2 className="text-2xl text-orange-600 font-bold text-center">
@@ -122,6 +144,14 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
         </div>
       </div>
+      {participantsModalOpen && (
+        <ParticipantsModal
+          participants={
+            activity.approved ? Object.values(activity.approved) : []
+          }
+          onClose={closeParticipantsModal}
+        />
+      )}
     </div>
   );
 };
