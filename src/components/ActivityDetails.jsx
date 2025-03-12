@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
 import { handleUserInterested } from "@utils/notification";
@@ -7,12 +7,15 @@ import { createOrGetChat } from "@/hooks/firebase";
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
+  const [isPending, setIsPending] = useState(false);
 
   const handleJoinActivity = async () => {
+    setIsPending(true);
     try {
       await handleUserInterested(activity, user);
     } catch (error) {
       console.error("Error joining activity:", error);
+      setIsPending(false);
     }
   };
 
@@ -107,9 +110,14 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="pt-4">
             <button
               onClick={handleJoinActivity}
-              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-400 transition-colors"
+              disabled={isPending}
+              className={`w-full py-2 px-4 text-white rounded-lg transition-colors ${
+                isPending
+                  ? "bg-orange-700 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600"
+              }`}
             >
-              I'm Interested!
+              {isPending ? "Interest Sent" : "Interested"}
             </button>
           </div>
         </div>
