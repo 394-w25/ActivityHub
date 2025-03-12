@@ -12,25 +12,50 @@ import FiltersModal from "@/components/FiltersModal.jsx";
 import Sidebar from "@components/Sidebar";
 import Header from "@components/Header";
 import { LocationContext } from "@components/LocationContext";
+import LocationModal from "@/components/LocationModal";
 
 const HomeScreen = () => {
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [city, setCity] = useState("");
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+
   const { location, permissionStatus, getUserLocation } =
     useContext(LocationContext);
 
   useEffect(() => {
-    // Only request location if permission isn't explicitly denied
     if (permissionStatus !== "denied") {
-      const getLocation = async () => {
-        try {
-          await getUserLocation();
-        } catch (error) {
-          console.error("Error fetching location in HomeScreen:", error);
-        }
-      };
-
-      getLocation();
+      getUserLocation().catch((error) => {
+        console.error("Error fetching location:", error);
+      });
+    } else {
+      console.warn("Location permission denied.");
     }
   }, [permissionStatus]);
+
+  const handleLocationChange = async (newLocation) => {
+    setCurrentLocation(newLocation);
+    try {
+      const cityName = await fetchCityName(newLocation[0], newLocation[1]);
+      setCity(cityName);
+    } catch (error) {
+      console.error("Error fetching city name:", error);
+    }
+  };
+
+  const fetchCityName = async (lat, lng) => {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+    );
+    const data = await response.json();
+
+    return (
+      data.address.city ||
+      data.address.town ||
+      data.address.village ||
+      data.address.county ||
+      ""
+    );
+  };
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -123,12 +148,20 @@ const HomeScreen = () => {
 
   return (
     <div className="min-h-screen relative pt-16">
-      {/* Header: Fixed to top with rounded edges */}
       <div className="fixed top-0 left-0 right-0 z-40">
         <div className="mx-2 mt-2">
           <div className="shadow-md overflow-hidden">
             <Header
-              currentLocation={location}
+              currentLocation={
+                currentLocation
+                  ? {
+                      latitude: currentLocation[0],
+                      longitude: currentLocation[1],
+                    }
+                  : null
+              }
+              city={city}
+              onLocationClick={() => setIsLocationModalOpen(true)}
               isSidebarOpen={isSidebarOpen}
               onSidebarClick={toggleSidebar}
               user={user}
@@ -199,6 +232,14 @@ const HomeScreen = () => {
             <FilterPage {...filterPageProps} />
           </div>
         </div>
+      )}
+
+      {isLocationModalOpen && (
+        <LocationModal
+          currentLocation={currentLocation}
+          onLocationChange={handleLocationChange}
+          onClose={() => setIsLocationModalOpen(false)}
+        />
       )}
     </div>
   );
