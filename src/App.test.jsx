@@ -6,3 +6,7 @@ describe("Onboarding", () => {
     expect(screen.findByText("Continue with Google"));
   });
 });
+
+test("check for no crashes, basic rendering", () => {
+  expect(screen.findByText("Activity"));
+});
