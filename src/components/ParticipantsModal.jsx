@@ -20,7 +20,7 @@ const ParticipantItem = ({ participant, onClose }) => {
     >
       <div className="flex flex-row gap-4 items-center justify-center">
         <img
-          src={data.photoURL || ""}
+          src={data.photoURL || "User"}
           alt={data.name || "User"}
           className="w-10 h-10 rounded-full object-cover"
         />
