@@ -17,12 +17,12 @@ const ActivityDetails = ({ activity, onClose }) => {
   };
 
   return (
-    <div className="relative w-full h-full p-4 bg-gray-900 text-white">
+    <div className="z-3 relative w-full h-full p-4 bg-gray-900 text-white">
       <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="fixed top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <X size={24} className="text-gray-600" />
         </button>
@@ -33,7 +33,7 @@ const ActivityDetails = ({ activity, onClose }) => {
         <div className="p-6 space-y-4">
           {/* Title */}
           <div>
-            <h2 className="text-2xl font-bold text-center">
+            <h2 className="text-2xl text-orange-600 font-bold text-center">
               {activity.title || "N/A"}
             </h2>
           </div>
@@ -41,7 +41,7 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="flex items-center gap-x-4 text-gray-600">
             <Calendar
               size={48}
-              className="shrink-0 bg-orange-200 rounded-lg p-2"
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
             <div>
               <p className="font-semibold text-md">
@@ -64,7 +64,7 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="flex items-center gap-x-4 text-gray-600">
             <MapPin
               size={48}
-              className="shrink-0 bg-orange-200 rounded-lg p-2"
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
             <div>
               <p className="font-semibold text-md">
@@ -77,7 +77,10 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
           {/* Group Size */}
           <div className="flex items-center gap-x-4 text-gray-600">
-            <User size={48} className="shrink-0 bg-orange-200 rounded-lg p-2" />
+            <User
+              size={48}
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
+            />
             <div>
               <p className="font-semibold text-md">Slots Available</p>
               <p className="text-sm">{activity.groupSize || "N/A"}</p>
@@ -91,18 +94,10 @@ const ActivityDetails = ({ activity, onClose }) => {
             </p>
           </div>
 
-          {activity.imageUrl && (
-            <img
-              src={activity.imageUrl}
-              alt="Activity"
-              className="w-full h-48 object-cover rounded-lg"
-            />
-          )}
-
           <div className="pt-4">
             <button
               onClick={() => navigate(`/user_profile/${activity.posterUid}`)}
-              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className="w-full py-2 px-4 bg-orange-400 text-white rounded-lg hover:bg-orange-600 transition-colors"
             >
               View Host Profile
             </button>
@@ -112,9 +107,9 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="pt-4">
             <button
               onClick={handleJoinActivity}
-              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-400 transition-colors"
             >
-              Join Activity
+              I'm Interested!
             </button>
           </div>
         </div>

@@ -11,6 +11,7 @@ import SignUpPage from "@/pages/SignUpPage";
 import PhoneSignUpPage from "@/pages/PhoneSignUpPage";
 // import OnboardingPage from "@/pages/OnboardingPage";
 import LandingPage from "@/pages/LandingPage";
+import MapPage from "@/pages/MapPage";
 
 const Dispatcher = () => {
   return (
@@ -19,6 +20,7 @@ const Dispatcher = () => {
         <Route path="/create_activity" element={<CreateActivityPage />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/phone-signup" element={<PhoneSignUpPage />} />

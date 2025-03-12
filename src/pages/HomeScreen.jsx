@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
@@ -13,6 +13,7 @@ import Sidebar from "@components/Sidebar";
 import Header from "@components/Header";
 import { LocationContext } from "@components/LocationContext";
 import LocationModal from "@/components/LocationModal";
+import sortBtn from "../../assets/sort-btn.png";
 
 const HomeScreen = () => {
   const [currentLocation, setCurrentLocation] = useState(null);
@@ -172,18 +173,20 @@ const HomeScreen = () => {
 
       {/* Main Content */}
       <main className="p-4">
-        <h2 className="text-2xl font-semibold">Welcome to ActivityHub!</h2>
-        <p className="mt-2">What's happening near you?</p>
-
         {/* Activities Map */}
         <div className="mt-4">
-          <h3 className="text-xl font-bold">Activities Map</h3>
-          <ActivitiesMap />
+          <div className="flex flex-row justify-between items-center">
+            <h3 className="text-xl font-bold mb-2">Nearby You</h3>
+            <Link to="/map" className="text-md">
+              {"See All >"}
+            </Link>
+          </div>
+          <ActivitiesMap center={currentLocation} heightClass="h-64" />
         </div>
 
         {/* Nearby Activities Header with Filter Button */}
         <div className="mt-4 flex justify-between items-center">
-          <h3 className="text-xl font-bold">Nearby Activities</h3>
+          <h3 className="text-xl font-bold">Upcoming Events</h3>
           <div className="flex items-center gap-2">
             {isSearchOpen ? (
               <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden">
@@ -209,12 +212,8 @@ const HomeScreen = () => {
                 <Search className="w-6 h-6" />
               </button>
             )}
-            <button
-              onClick={toggleFilter}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-            >
-              <Filter size={20} />
-              Filter and Sort
+            <button onClick={toggleFilter} className="flex hover:opacity-50">
+              <img src={sortBtn} alt="Sort Button" />
             </button>
           </div>
         </div>
