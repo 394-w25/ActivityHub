@@ -88,7 +88,6 @@ const ActivityDetails = ({ activity, onClose }) => {
               </span>
             </div>
           )}
-
           {/* Title */}
           <div>
             <h2 className="text-2xl text-orange-600 font-bold text-center">
@@ -190,3 +189,4 @@ const ActivityDetails = ({ activity, onClose }) => {
 };
 
 export default ActivityDetails;
+
