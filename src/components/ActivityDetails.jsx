@@ -4,10 +4,14 @@ import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react 
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
 import { createOrGetChat } from "@/hooks/firebase";
+import stackedProfilePics from "../../assets/stacked-profile-pics.png";
+import ParticipantsModal from "./ParticipantsModal";
+
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
+  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
 
   const handleJoinActivity = async () => {
     setIsPending(true);
@@ -19,24 +23,42 @@ const ActivityDetails = ({ activity, onClose }) => {
     }
   };
 
+  const openParticipantsModal = () => {
+    setParticipantsModalOpen(true);
+  };
+
+  const closeParticipantsModal = () => {
+    setParticipantsModalOpen(false);
+  };
+
   return (
-    <div className="relative w-full h-full p-4 bg-gray-900 text-white">
-      <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
+    <div className="z-3 relative w-full h-full text-white">
+      <div className="flex flex-col items-center w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="fixed top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <X size={24} className="text-gray-600" />
         </button>
         {/* Image */}
         <div>
-          <img src={activity.imageUrl} className="w-full" />
+          <img src={activity.imageUrl} className="bg-cover bg-center w-full" />
         </div>
-        <div className="p-6 space-y-4">
+        <div
+          onClick={openParticipantsModal}
+          className={
+            activity.imageUrl
+              ? "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] m-[-30px] shadow-lg"
+              : "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] mt-[30px] mb-[-30px] shadow-lg"
+          }
+        >
+          <img src={stackedProfilePics} alt="Participants" />+ 1 Going
+        </div>
+        <div className="w-full mt-6 p-6 space-y-4">
           {/* Title */}
           <div>
-            <h2 className="text-2xl font-bold text-center">
+            <h2 className="text-2xl text-orange-600 font-bold text-center">
               {activity.title || "N/A"}
             </h2>
           </div>
@@ -44,7 +66,7 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="flex items-center gap-x-4 text-gray-600">
             <Calendar
               size={48}
-              className="shrink-0 bg-orange-200 rounded-lg p-2"
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
             <div>
               <p className="font-semibold text-md">
@@ -67,7 +89,7 @@ const ActivityDetails = ({ activity, onClose }) => {
           <div className="flex items-center gap-x-4 text-gray-600">
             <MapPin
               size={48}
-              className="shrink-0 bg-orange-200 rounded-lg p-2"
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
             <div>
               <p className="font-semibold text-md">
@@ -80,7 +102,10 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
           {/* Group Size */}
           <div className="flex items-center gap-x-4 text-gray-600">
-            <User size={48} className="shrink-0 bg-orange-200 rounded-lg p-2" />
+            <User
+              size={48}
+              className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
+            />
             <div>
               <p className="font-semibold text-md">Slots Available</p>
               <p className="text-sm">{activity.groupSize || "N/A"}</p>
@@ -94,18 +119,10 @@ const ActivityDetails = ({ activity, onClose }) => {
             </p>
           </div>
 
-          {activity.imageUrl && (
-            <img
-              src={activity.imageUrl}
-              alt="Activity"
-              className="w-full h-48 object-cover rounded-lg"
-            />
-          )}
-
           <div className="pt-4">
             <button
               onClick={() => navigate(`/user_profile/${activity.posterUid}`)}
-              className="w-full py-2 px-4 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+              className="w-full py-2 px-4 bg-orange-400 text-white rounded-lg hover:bg-orange-600 transition-colors"
             >
               View Host Profile
             </button>
@@ -127,6 +144,14 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
         </div>
       </div>
+      {participantsModalOpen && (
+        <ParticipantsModal
+          participants={
+            activity.approved ? Object.values(activity.approved) : []
+          }
+          onClose={closeParticipantsModal}
+        />
+      )}
     </div>
   );
 };

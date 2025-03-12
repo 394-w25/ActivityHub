@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ActivityDetails from "./ActivityDetails";
+import { Bookmark } from "lucide-react";
 
 const Activity = ({ activity }) => {
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -40,7 +41,7 @@ const Activity = ({ activity }) => {
 
     // Format the date
     return new Intl.DateTimeFormat("en-US", {
-      weekday: "long",
+      // weekday: "long",
       month: "long",
       day: "numeric",
       hour: "numeric",
@@ -49,18 +50,38 @@ const Activity = ({ activity }) => {
     }).format(date);
   }
 
+  const getRandomColorClass = () => {
+    const colors = ["#D9A5B5", "#8E97FD", "#FFCF86", "#76C79E", "#4E5567"];
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  };
+
+  const randColor = getRandomColorClass();
+
   return (
     <>
       <div
         onClick={openDetails}
-        className="bg-gray-100 rounded-lg shadow p-4 w-full cursor-pointer"
+        className="bg-gray-100 h-45 rounded-lg shadow p-2 w-full cursor-pointer flex flex-1 flex-col justify-between items-start"
+        style={
+          activity.imageUrl
+            ? {
+                backgroundImage: `url(${activity.imageUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }
+            : { backgroundColor: randColor }
+        }
       >
-        <div className="flex justify-between items-center">
-          <p className="text-sm tessxt-gray-500">
+        <div className="p-1 bg-white bg-opacity-50 rounded-[4px]">
+          <Bookmark className="text-gray-400" />
+        </div>
+        <div className="p-2 text-white">
+          <p className="text-sm">
             {formatAnyTimestamp(activity.eventTimestamp)}
           </p>
+          <h3 className="text-md font-bold mt-1">{activity.title}</h3>
         </div>
-        <h3 className="text-md font-semibold mt-1">{activity.title}</h3>
       </div>
 
       {detailsOpen && (
