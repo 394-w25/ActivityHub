@@ -19,6 +19,10 @@ const ActivityDetails = ({ activity, onClose }) => {
     }
   };
 
+  const approvedArray = activity.approved
+    ? Object.values(activity.approved)
+    : [];
+
   return (
     <div className="relative w-full h-full p-4 bg-gray-900 text-white">
       <div className="max-w-sm h-full mx-auto bg-white text-black rounded-xl overflow-scroll shadow-lg relative">
@@ -34,6 +38,40 @@ const ActivityDetails = ({ activity, onClose }) => {
           <img src={activity.imageUrl} className="w-full" />
         </div>
         <div className="p-6 space-y-4">
+          {/* Approved Users section (below top image, above the title) */}
+          {/* Approved Users section (below top image, above the title) */}
+          {approvedArray.length > 0 ? (
+            <div className="bg-white rounded-full py-2 px-4 shadow-md flex items-center gap-3">
+              {/* Show up to 3 avatars in a stacked style */}
+              <div className="flex -space-x-2">
+                {approvedArray.slice(0, 3).map(({ userId }) => (
+                  <div
+                    key={userId}
+                    className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium ring-2 ring-white"
+                  >
+                    {userId.charAt(0).toUpperCase()}
+                  </div>
+                ))}
+              </div>
+
+              {/* Text aligned to the right */}
+              <span className="text-sm text-gray-800 ml-auto">
+                {approvedArray.length > 3
+                  ? `+${approvedArray.length - 3} Going`
+                  : `${approvedArray.length} Going`}
+              </span>
+            </div>
+          ) : (
+            <div className="bg-white rounded-full py-2 px-4 shadow-md flex flex-col items-center justify-center gap-1">
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium">
+                ?
+              </div>
+              <span className="text-sm text-gray-800">
+                Be the first to join
+              </span>
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <h2 className="text-2xl font-bold text-center">
