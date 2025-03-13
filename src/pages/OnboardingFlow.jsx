@@ -36,6 +36,7 @@ const OnboardingFlow = () => {
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState("");
   const [locationText, setLocationText] = useState("");
+  const [bio, setBio] = useState("");
 
   // Permissions (Steps 2 and 4)
   const { location, permissionStatus, getUserLocation } =
@@ -56,9 +57,9 @@ const OnboardingFlow = () => {
 
   useEffect(() => {
     const checkOnboardingStatus = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const userRef = ref(database, `users/${user.uid}`);
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        const userRef = ref(database, `users/${currentUser.uid}`);
         const snapshot = await get(userRef);
         if (snapshot.exists() && snapshot.val().onboardingComplete) {
           navigate("/home");
@@ -71,7 +72,14 @@ const OnboardingFlow = () => {
   // ------------------ STEP 1: Personal Info ----------------------
   const handlePersonalInfoSubmit = () => {
     setFormError("");
-    if (!name.trim() || !gender || !dob || !locationText.trim()) {
+    // Require the new bio field along with the others
+    if (
+      !name.trim() ||
+      !gender ||
+      !dob ||
+      !locationText.trim() ||
+      !bio.trim()
+    ) {
       setFormError("All fields are required. Please fill them out.");
       return;
     }
@@ -95,6 +103,17 @@ const OnboardingFlow = () => {
             onChange={(e) => setName(e.target.value)}
             className="w-full border px-3 py-2 rounded-md"
             placeholder="e.g., John Doe"
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium text-gray-700">
+            About <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            className="w-full border px-3 py-2 rounded-md"
+            placeholder="Briefly describe yourself..."
           />
         </div>
         <div>
@@ -310,8 +329,8 @@ const OnboardingFlow = () => {
 
   // ------------------ Final DB Update & Navigation ----------------
   const handleFinish = async () => {
-    const user = auth.currentUser;
-    if (!user) {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
       console.error("No user is signed in, cannot store data.");
       return;
     }
@@ -321,6 +340,7 @@ const OnboardingFlow = () => {
         gender,
         dob,
         location: locationText,
+        bio,
         interests,
         permissions: {
           location: locationPermission,

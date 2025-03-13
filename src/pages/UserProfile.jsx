@@ -106,11 +106,13 @@ export default function UserProfile() {
             </p>
           </TabsContent>
 
-          <TabsContent value="event" className="mt-4">
+          <TabsContent value="event" className="mt-4 gap-2">
             {userData?.hosted_activities ? (
               Object.values(userData.hosted_activities).map(
                 (activity, index) => (
-                  <Activity key={index} activity={activity} />
+                  <div className="my-2" key={index}>
+                    <Activity activity={activity} />
+                  </div>
                 ),
               )
             ) : (
@@ -163,9 +165,6 @@ export default function UserProfile() {
               className="bg-orange-400 text-white hover:bg-orange-500"
             >
               Chat
-            </Button>
-            <Button className="bg-orange-400 text-white hover:bg-orange-500">
-              Accept
             </Button>
           </div>
         )}
