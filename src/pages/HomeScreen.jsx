@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
 import gymImage from "@assets/gym.jpg";
 import museumImage from "@assets/museum.jpg";
@@ -12,25 +12,51 @@ import FiltersModal from "@/components/FiltersModal.jsx";
 import Sidebar from "@components/Sidebar";
 import Header from "@components/Header";
 import { LocationContext } from "@components/LocationContext";
+import LocationModal from "@/components/LocationModal";
+import sortBtn from "../../assets/sort-btn.png";
 
 const HomeScreen = () => {
+  const [currentLocation, setCurrentLocation] = useState(null);
+  const [city, setCity] = useState("");
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+
   const { location, permissionStatus, getUserLocation } =
     useContext(LocationContext);
 
   useEffect(() => {
-    // Only request location if permission isn't explicitly denied
     if (permissionStatus !== "denied") {
-      const getLocation = async () => {
-        try {
-          await getUserLocation();
-        } catch (error) {
-          console.error("Error fetching location in HomeScreen:", error);
-        }
-      };
-
-      getLocation();
+      getUserLocation().catch((error) => {
+        console.error("Error fetching location:", error);
+      });
+    } else {
+      console.warn("Location permission denied.");
     }
   }, [permissionStatus]);
+
+  const handleLocationChange = async (newLocation) => {
+    setCurrentLocation(newLocation);
+    try {
+      const cityName = await fetchCityName(newLocation[0], newLocation[1]);
+      setCity(cityName);
+    } catch (error) {
+      console.error("Error fetching city name:", error);
+    }
+  };
+
+  const fetchCityName = async (lat, lng) => {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`,
+    );
+    const data = await response.json();
+
+    return (
+      data.address.city ||
+      data.address.town ||
+      data.address.village ||
+      data.address.county ||
+      ""
+    );
+  };
 
   const getCurrentDate = () => {
     const today = new Date();
@@ -123,12 +149,20 @@ const HomeScreen = () => {
 
   return (
     <div className="min-h-screen relative pt-16">
-      {/* Header: Fixed to top with rounded edges */}
       <div className="fixed top-0 left-0 right-0 z-40">
         <div className="mx-2 mt-2">
           <div className="shadow-md overflow-hidden">
             <Header
-              currentLocation={location}
+              currentLocation={
+                currentLocation
+                  ? {
+                      latitude: currentLocation[0],
+                      longitude: currentLocation[1],
+                    }
+                  : null
+              }
+              city={city}
+              onLocationClick={() => setIsLocationModalOpen(true)}
               isSidebarOpen={isSidebarOpen}
               onSidebarClick={toggleSidebar}
               user={user}
@@ -139,18 +173,20 @@ const HomeScreen = () => {
 
       {/* Main Content */}
       <main className="p-4">
-        <h2 className="text-2xl font-semibold">Welcome to ActivityHub!</h2>
-        <p className="mt-2">What's happening near you?</p>
-
         {/* Activities Map */}
         <div className="mt-4">
-          <h3 className="text-xl font-bold">Activities Map</h3>
-          <ActivitiesMap />
+          <div className="flex flex-row justify-between items-center">
+            <h3 className="text-xl font-bold mb-2">Nearby You</h3>
+            <Link to="/map" className="text-md">
+              {"See All >"}
+            </Link>
+          </div>
+          <ActivitiesMap center={currentLocation} heightClass="h-64" />
         </div>
 
         {/* Nearby Activities Header with Filter Button */}
         <div className="mt-4 flex justify-between items-center">
-          <h3 className="text-xl font-bold">Nearby Activities</h3>
+          <h3 className="text-xl font-bold">Upcoming Events</h3>
           <div className="flex items-center gap-2">
             {isSearchOpen ? (
               <div className="flex items-center bg-gray-100 rounded-lg overflow-hidden">
@@ -176,12 +212,8 @@ const HomeScreen = () => {
                 <Search className="w-6 h-6" />
               </button>
             )}
-            <button
-              onClick={toggleFilter}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
-            >
-              <Filter size={20} />
-              Filter and Sort
+            <button onClick={toggleFilter} className="flex hover:opacity-50">
+              <img src={sortBtn} alt="Sort Button" />
             </button>
           </div>
         </div>
@@ -199,6 +231,14 @@ const HomeScreen = () => {
             <FilterPage {...filterPageProps} />
           </div>
         </div>
+      )}
+
+      {isLocationModalOpen && (
+        <LocationModal
+          currentLocation={currentLocation}
+          onLocationChange={handleLocationChange}
+          onClose={() => setIsLocationModalOpen(false)}
+        />
       )}
     </div>
   );

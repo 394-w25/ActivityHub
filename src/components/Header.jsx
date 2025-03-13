@@ -1,31 +1,39 @@
 import React from "react";
-import { Menu } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 
-const Header = ({ currentLocation, isSidebarOpen, onSidebarClick, user }) => {
+const Header = ({
+  currentLocation,
+  city,
+  isSidebarOpen,
+  onSidebarClick,
+  user,
+  onLocationClick,
+}) => {
   return (
     <>
-      {/* Full-width Header Bar with shadow and only bottom corners rounded */}
-      <header className="fixed top-0 left-0 right-0 bg-orange-500 p-4 flex items-center justify-between shadow-md rounded-b-xl z-50">
-        {/* Left: Hamburger Button */}
+      <header className="fixed top-0 left-0 right-0 bg-orange-500 p-6 pb-10 flex items-center justify-center shadow-md rounded-b-xl z-50">
         <button
-          className="p-2 text-white rounded-md hover:bg-orange-600 transition-colors"
+          className="absolute left-4 p-2 text-white rounded-md hover:bg-orange-600 transition-colors"
           onClick={onSidebarClick}
         >
           <Menu className="w-6 h-6" />
         </button>
 
-        <div className="flex flex-col items-center text-white text-center">
-          <span className="text-xs font-light">Current Location</span>
+        <div
+          onClick={onLocationClick}
+          className="flex flex-col items-center text-white text-center"
+        >
+          <span className="flex flex-row gap-2 items-center text-xs font-light">
+            Location
+            <ChevronDown size={16} />
+          </span>
           <span className="text-sm font-semibold sm:text-base">
-            {currentLocation
-              ? `${currentLocation.latitude.toFixed(6)}, ${currentLocation.longitude.toFixed(6)}`
-              : "Location unavailable"}
+            {currentLocation ? city : "Choose a location"}
           </span>
         </div>
       </header>
 
-      {/* Sidebar (overlay or drawer) */}
       <Sidebar isOpen={isSidebarOpen} onClose={onSidebarClick} user={user} />
     </>
   );
