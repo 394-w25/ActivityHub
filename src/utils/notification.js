@@ -42,7 +42,8 @@ export async function handleUserInterested(activity, currentUser) {
     recipientId: activity.posterUid,
     senderId: currentUser.uid,
     eventTitle: activity.title,
-    eventTimestamp: activity.eventStartTimestamp,
+    eventStartTimestamp: activity.eventStartTimestamp,
+    eventEndTimestamp: activity.eventEndTimestamp,
     location: activity.location,
     eventId: activity.id,
   });
@@ -66,7 +67,8 @@ export async function handleAcceptInterest(
   activityId,
   userId,
   eventTitle,
-  eventTimestamp,
+  eventStartTimestamp,
+  eventEndTimestamp,
   location,
 ) {
   if (!hostId || !activityId || !userId) {
@@ -78,16 +80,19 @@ export async function handleAcceptInterest(
     recipientId: userId,
     senderId: hostId,
     eventTitle,
-    eventTimestamp,
+    eventStartTimestamp,
+    eventEndTimestamp,
     location,
     eventId: activityId,
   });
 
   try {
-    const formattedTimestamp = new Date(eventTimestamp).toISOString(); // Convert number to string
+    const formattedStartTimestamp = new Date(eventStartTimestamp).toISOString(); // Convert number to string
+    const formattedEndTimestamp = new Date(eventEndTimestamp).toISOString(); // Convert number to string
     const { google, ics } = generateCalendarLinks(
       eventTitle,
-      formattedTimestamp,
+      formattedStartTimestamp,
+      formattedEndTimestamp,
       location,
     );
     const db = getDatabase();
@@ -110,7 +115,8 @@ export async function handleAcceptInterest(
       hostingUserId: hostId,
       activityId,
       eventTitle,
-      eventTimestamp,
+      eventStartTimestamp,
+      eventEndTimestamp,
       location,
       timestamp: Date.now(),
     });

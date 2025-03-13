@@ -43,8 +43,9 @@ export default function NotificationsPage() {
                               message: `${userData.displayName || "A user"} is interested in "${activity.title}".`,
                               eventTitle: activity.title,
                               eventId: activityId,
-                              eventTimestamp: activity.eventStartTimestamp,
-                              timestamp: details.timestamp,
+                              eventStartTimestamp: activity.eventStartTimestamp,
+                              eventEndTimestamp: activity.eventEndTimestamp,
+                              timestamp: details.eventStartTimestamp,
                               userId: interestedUserId,
                               profilePhoto:
                                 userData.photoURL || "/default-avatar.png",
