@@ -43,8 +43,9 @@ export default function NotificationsPage() {
                               message: `${userData.displayName || "A user"} is interested in "${activity.title}".`,
                               eventTitle: activity.title,
                               eventId: activityId,
-                              eventTimestamp: activity.eventTimestamp,
-                              timestamp: details.timestamp,
+                              eventStartTimestamp: activity.eventStartTimestamp,
+                              eventEndTimestamp: activity.eventEndTimestamp,
+                              timestamp: details.eventStartTimestamp,
                               userId: interestedUserId,
                               profilePhoto:
                                 userData.photoURL || "/default-avatar.png",
@@ -86,13 +87,16 @@ export default function NotificationsPage() {
                       ? hostSnapshot.val()
                       : {};
                     const eventTitle = details.eventTitle || "Unknown Event";
-                    const eventTimestamp =
-                      details.eventTimestamp || new Date().toISOString();
+                    const eventStartTimestamp =
+                      details.eventStartTimestamp || new Date().toISOString();
+                    const eventEndTimestamp =
+                      details.eventEndTimestamp || new Date().toISOString();
                     const eventLocation =
                       details.location || "No location provided";
                     const { google, ics } = generateCalendarLinks(
                       eventTitle,
-                      eventTimestamp,
+                      eventStartTimestamp,
+                      eventEndTimestamp,
                       eventLocation,
                     );
 
