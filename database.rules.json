@@ -65,7 +65,10 @@
             "description": {
               ".validate": "newData.isString()"
             },
-            "eventTimestamp": {
+            "eventEndTimestamp": {
+              ".validate": "newData.isString()"
+            },
+            "eventStartTimestamp": {
               ".validate": "newData.isString()"
             },
             "groupSize": {
