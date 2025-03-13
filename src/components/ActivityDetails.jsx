@@ -13,7 +13,7 @@ function ApprovedUserAvatar({ userId }) {
       ? userData.name.charAt(0).toUpperCase()
       : userId.charAt(0).toUpperCase();
   return (
-    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium ring-2 ring-white overflow-hidden">
+    <div className="w-8 h-8 rounded-full bg-gray-200 flex justify-center text-xs font-medium ring-2 ring-white overflow-hidden">
       {userData && userData.photoURL ? (
         <img
           src={userData.photoURL}
@@ -49,7 +49,7 @@ const ActivityDetails = ({ activity, onClose }) => {
 
   return (
     <div className="z-3 relative w-full h-full text-white">
-      <div className="flex flex-col items-center w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
+      <div className="flex flex-col w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
@@ -66,7 +66,7 @@ const ActivityDetails = ({ activity, onClose }) => {
           {approvedArray.length > 0 ? (
             <div
               onClick={() => setShowParticipantsModal(true)}
-              className="bg-white rounded-full py-2 px-4 shadow-md flex items-center gap-3 cursor-pointer"
+              className="bg-white rounded-full py-2 px-4 shadow-md flex gap-3 cursor-pointer"
             >
               {/* Show up to 3 avatars in a stacked style */}
               <div className="flex -space-x-2">
@@ -82,10 +82,7 @@ const ActivityDetails = ({ activity, onClose }) => {
               </span>
             </div>
           ) : (
-            <div className="bg-white rounded-full py-2 px-4 shadow-md flex flex-col items-center justify-center gap-1">
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium">
-                ?
-              </div>
+            <div className="bg-white rounded-full py-2 px-4 shadow-md flex flex-col items-center justify-center gap-1 text-center">
               <span className="text-sm text-gray-800">
                 Be the first to join
               </span>
@@ -99,7 +96,7 @@ const ActivityDetails = ({ activity, onClose }) => {
             </h2>
           </div>
           {/* Timestamps */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <Calendar
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
@@ -122,7 +119,7 @@ const ActivityDetails = ({ activity, onClose }) => {
             </div>
           </div>
           {/* Location */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <MapPin
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
@@ -137,7 +134,7 @@ const ActivityDetails = ({ activity, onClose }) => {
             </div>
           </div>
           {/* Group Size */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <User
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
