@@ -174,20 +174,20 @@ const ActivityForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-start items-center gap-4 pl-2 pt-4 pb-4">
+    <div className="flex flex-col md:flex-row justify-start items-center gap-4 p-4 md:p-6">
       <ArrowLeft
         onClick={() => navigate(-1)}
-        className="absolute top-6 left-6 w-6 h-6"
+        className="absolute top-4 left-4 md:top-6 md:left-6 w-6 h-6"
       />
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-lg">
         {/* Image Upload */}
-        <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-100">
+        <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-100 w-full sm:w-3/4 mx-auto">
           {imagePreview ? (
-            <div className="relative">
+            <div className="relative w-full">
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="w-full h-48 object-cover rounded-lg"
+                className="w-full h-32 md:h-48 object-cover rounded-lg"
               />
               {/* Delete Button */}
               <button
@@ -225,6 +225,7 @@ const ActivityForm = ({ onSuccess }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            className="w-full sm:w-3/4"
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title}</p>
@@ -238,6 +239,7 @@ const ActivityForm = ({ onSuccess }) => {
             name="description"
             placeholder="Description"
             required
+            className="w-full sm:w-3/4"
           />
         </div>
 
@@ -288,7 +290,7 @@ const ActivityForm = ({ onSuccess }) => {
           <MapContainer
             center={location?.coords || [42.056, -87.6755]}
             zoom={17}
-            className="h-128"
+            className="h-48 w-full rounded-lg"
           >
             <MapSearchField setActivityLocation={setActivityLocation} />
             <TileLayer
@@ -317,6 +319,7 @@ const ActivityForm = ({ onSuccess }) => {
             min="1"
             placeholder="Maximum Group Size"
             required
+            className="w-full sm:w-3/4"
           />
         </div>
 
@@ -329,10 +332,8 @@ const ActivityForm = ({ onSuccess }) => {
             type="datetime-local"
             min={new Date().toISOString().slice(0, 16)}
             required
+            className="w-full sm:w-3/4"
           />
-          {errors.eventStartTimestamp && (
-            <p className="text-red-500 text-sm">{errors.eventStartTimestamp}</p>
-          )}
         </div>
 
         <div>
@@ -343,16 +344,14 @@ const ActivityForm = ({ onSuccess }) => {
             type="datetime-local"
             min={new Date().toISOString().slice(0, 16)}
             required
+            className="w-full sm:w-3/4"
           />
-          {errors.eventEndTimestamp && (
-            <p className="text-red-500 text-sm">{errors.eventEndTimestamp}</p>
-          )}
         </div>
 
         {/* Submit Button */}
         <Button
           type="submit"
-          className="bg-orange-400 text-white font-crimson text-xl py-5 px-8 rounded-lg hover:bg-orange-500 transition w-3/4 mx-auto flex items-center justify-center"
+          className="bg-orange-400 text-white font-crimson text-xl py-4 px-6 rounded-lg hover:bg-orange-500 transition w-full sm:w-3/4 mx-auto flex items-center justify-center"
           disabled={uploading}
         >
           Create
