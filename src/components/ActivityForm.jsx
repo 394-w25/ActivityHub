@@ -32,7 +32,14 @@ const ActivityForm = ({ onSuccess }) => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const lookingForOptions = ["Friend", "Date", "Networking", "Other"];
+  const lookingForOptions = [
+    "Friendship",
+    "Dating",
+    "Meetup",
+    "Networking",
+    "Group Activity",
+    "Other",
+  ];
   const availableTags = [
     "Photography",
     "Shopping",

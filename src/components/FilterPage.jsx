@@ -96,7 +96,14 @@ const FilterPage = ({
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Looking for</h3>
         <div className="flex flex-wrap gap-2 mt-2">
-          {["Friend", "Date", "Networking", "Other"].map((option) => (
+          {[
+            "Friendship",
+            "Dating",
+            "Meetup",
+            "Networking",
+            "Group Activity",
+            "Other",
+          ].map((option) => (
             <button
               key={option}
               className={buttonStyle(lookingFor === option)}
