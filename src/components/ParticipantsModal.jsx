@@ -5,10 +5,17 @@ import { useDbData } from "@/hooks/firebase";
 
 const ParticipantItem = ({ participant, onClose }) => {
   const navigate = useNavigate();
-  const [data, error] = useDbData(`/users/${participant.userId}`);
+  const [data] = useDbData(`/users/${participant.userId}`);
 
   if (data === undefined) return <div className="text-black">Loading...</div>;
   if (data === null) return <div className="text-black">No user found.</div>;
+
+  // Fallback letter
+  const firstInitial = data.name ? data.name.charAt(0).toUpperCase() : "?";
+
+  // Check if photoURL is a valid HTTP URL
+  const photoURL =
+    data.photoURL && data.photoURL.startsWith("http") ? data.photoURL : null;
 
   return (
     <li
@@ -19,11 +26,18 @@ const ParticipantItem = ({ participant, onClose }) => {
       className="flex flex-row px-4 py-2 text-black justify-between items-center gap-4 mb-4 cursor-pointer"
     >
       <div className="flex flex-row gap-4 items-center justify-center">
-        <img
-          src={data.photoURL || "User"}
-          alt={data.name || "User"}
-          className="w-10 h-10 rounded-full object-cover"
-        />
+        {/* If photoURL is valid, show image; otherwise show fallback letter */}
+        {photoURL ? (
+          <img
+            src={photoURL}
+            alt={data.name || "User"}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg font-semibold text-white">
+            {firstInitial}
+          </div>
+        )}
         <div className="text-lg">{data.name || "Unknown"}</div>
       </div>
       <div className="text-gray-400 text-md">Participant</div>

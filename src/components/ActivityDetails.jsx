@@ -4,6 +4,7 @@ import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react 
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
 import { useDbData } from "@/hooks/firebase";
+import ParticipantsModal from "@/components/ParticipantsModal"; // Import your modal
 
 function ApprovedUserAvatar({ userId }) {
   const [userData, error] = useDbData(`users/${userId}`);
@@ -31,6 +32,7 @@ const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
 
   const handleJoinActivity = async () => {
     setIsPending(true);
@@ -63,7 +65,10 @@ const ActivityDetails = ({ activity, onClose }) => {
         <div className="p-6 space-y-4">
           {/* Approved Users section (below top image, above the title) */}
           {approvedArray.length > 0 ? (
-            <div className="bg-white rounded-full py-2 px-4 shadow-md flex items-center gap-3">
+            <div
+              onClick={() => setShowParticipantsModal(true)}
+              className="bg-white rounded-full py-2 px-4 shadow-md flex items-center gap-3 cursor-pointer"
+            >
               {/* Show up to 3 avatars in a stacked style */}
               <div className="flex -space-x-2">
                 {approvedArray.slice(0, 3).map(({ userId }) => (
@@ -176,6 +181,13 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
         </div>
       </div>
+      {/* Conditionally render the ParticipantsModal */}
+      {showParticipantsModal && (
+        <ParticipantsModal
+          participants={approvedArray}
+          onClose={() => setShowParticipantsModal(false)}
+        />
+      )}
     </div>
   );
 };
