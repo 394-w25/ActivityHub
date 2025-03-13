@@ -126,11 +126,24 @@ const ActivityForm = ({ onSuccess }) => {
       {/* Image Upload */}
       <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-100">
         {imagePreview ? (
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="w-full h-48 object-cover rounded-lg"
-          />
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-48 object-cover rounded-lg"
+            />
+            {/* Delete Button */}
+            <button
+              type="button"
+              onClick={() => {
+                setImage(null);
+                setImagePreview(null);
+              }}
+              className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-200"
+            >
+              &#x2715;
+            </button>
+          </div>
         ) : (
           <label className="cursor-pointer flex flex-col items-center">
             <span className="text-gray-500 text-sm">Upload Image</span>
