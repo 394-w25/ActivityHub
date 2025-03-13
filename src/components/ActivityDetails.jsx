@@ -189,4 +189,3 @@ const ActivityDetails = ({ activity, onClose }) => {
 };
 
 export default ActivityDetails;
-
