@@ -61,10 +61,10 @@ const ActivitiesFeed = ({
       let okayEndTime = true;
 
       if (
-        activity.eventTimestamp &&
-        isValidTimestamp(activity.eventTimestamp)
+        activity.eventStartTimestamp &&
+        isValidTimestamp(activity.eventStartTimestamp)
       ) {
-        const [eventDate, eventTime] = activity.eventTimestamp.split("T");
+        const [eventDate, eventTime] = activity.eventStartTimestamp.split("T");
 
         let eventEndTime =
           activity.endEventTimestamp &&
@@ -144,14 +144,16 @@ const ActivitiesFeed = ({
 
   const sortFunction = (a, b) => {
     if (sortBy === "Start Time") {
-      return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+      return new Date(a.eventStartTimestamp) - new Date(b.eventStartTimestamp);
     } else if (sortBy === "Popularity") {
       const aCount = a.interested ? a.interested.length : 0;
       const bCount = b.interested ? b.interested.length : 0;
       return aCount - bCount;
     } else if (sortBy === "Distance") {
       if (!userLocation) {
-        return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+        return (
+          new Date(a.eventStartTimestamp) - new Date(b.eventStartTimestamp)
+        );
       }
 
       const aHasCoords = a.coords && a.coords.latitude && a.coords.longitude;
@@ -171,7 +173,7 @@ const ActivitiesFeed = ({
       return 0;
     }
 
-    return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+    return new Date(a.eventStartTimestamp) - new Date(b.eventStartTimestamp);
   };
 
   const sortedAccepted = [...accepted].sort(sortFunction);

@@ -2,17 +2,23 @@ import { getDatabase, ref, set } from "firebase/database";
 
 export function generateCalendarLinks(
   eventTitle,
-  eventTimestamp,
+  eventStartTimestamp,
+  eventEndTimestamp,
   eventLocation = "",
 ) {
-  if (!eventTimestamp.endsWith("Z") && !eventTimestamp.includes("+")) {
-    eventTimestamp += "Z"; // Ensure UTC format
+  if (
+    !eventStartTimestamp.endsWith("Z") &&
+    !eventStartTimestamp.includes("+")
+  ) {
+    eventStartTimestamp += "Z"; // Ensure UTC format
   }
-
-  const startTime = new Date(eventTimestamp)
+  if (!eventEndTimestamp.endsWith("Z") && !eventEndTimestamp.includes("+")) {
+    eventEndTimestamp += "Z"; // Ensure UTC format
+  }
+  const startTime = new Date(eventStartTimestamp)
     .toISOString()
     .replace(/-|:|\.\d\d\d/g, "");
-  const endTime = new Date(Date.parse(eventTimestamp) + 3600000) // Default duration: 1 hour
+  const endTime = new Date(eventEndTimestamp)
     .toISOString()
     .replace(/-|:|\.\d\d\d/g, "");
 
@@ -36,7 +42,7 @@ export async function handleUserInterested(activity, currentUser) {
     recipientId: activity.posterUid,
     senderId: currentUser.uid,
     eventTitle: activity.title,
-    eventTimestamp: activity.eventTimestamp,
+    eventTimestamp: activity.eventStartTimestamp,
     location: activity.location,
     eventId: activity.id,
   });
