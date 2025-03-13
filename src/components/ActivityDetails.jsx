@@ -8,7 +8,6 @@ import ParticipantsModal from "@/components/ParticipantsModal"; // Import your m
 
 function ApprovedUserAvatar({ userId }) {
   const [userData, error] = useDbData(`users/${userId}`);
-  // Fallback: if userData exists and has a name, use its first letter; otherwise, use userId's first letter.
   const fallbackLetter =
     userData && userData.name
       ? userData.name.charAt(0).toUpperCase()
@@ -185,6 +184,7 @@ const ActivityDetails = ({ activity, onClose }) => {
       {showParticipantsModal && (
         <ParticipantsModal
           participants={approvedArray}
+          hostId={activity.posterUid}
           onClose={() => setShowParticipantsModal(false)}
         />
       )}

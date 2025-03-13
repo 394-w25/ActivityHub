@@ -3,19 +3,20 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDbData } from "@/hooks/firebase";
 
-const ParticipantItem = ({ participant, onClose }) => {
+const ParticipantItem = ({ participant, onClose, hostId }) => {
   const navigate = useNavigate();
   const [data] = useDbData(`/users/${participant.userId}`);
 
   if (data === undefined) return <div className="text-black">Loading...</div>;
   if (data === null) return <div className="text-black">No user found.</div>;
 
-  // Fallback letter
   const firstInitial = data.name ? data.name.charAt(0).toUpperCase() : "?";
-
-  // Check if photoURL is a valid HTTP URL
   const photoURL =
     data.photoURL && data.photoURL.startsWith("http") ? data.photoURL : null;
+
+  // Compare participant's userId to the hostId
+  const isHost = participant.userId === hostId;
+  const roleLabel = isHost ? "Host" : "Participant";
 
   return (
     <li
@@ -26,7 +27,6 @@ const ParticipantItem = ({ participant, onClose }) => {
       className="flex flex-row px-4 py-2 text-black justify-between items-center gap-4 mb-4 cursor-pointer"
     >
       <div className="flex flex-row gap-4 items-center justify-center">
-        {/* If photoURL is valid, show image; otherwise show fallback letter */}
         {photoURL ? (
           <img
             src={photoURL}
@@ -40,14 +40,16 @@ const ParticipantItem = ({ participant, onClose }) => {
         )}
         <div className="text-lg">{data.name || "Unknown"}</div>
       </div>
-      <div className="text-gray-400 text-md">Participant</div>
+      {/* Show "Host" or "Participant" */}
+      <div className="text-gray-400 text-md">{roleLabel}</div>
     </li>
   );
 };
 
-const ParticipantsModal = ({ participants, onClose }) => {
+const ParticipantsModal = ({ participants, hostId, onClose }) => {
   return (
     <div className="fixed inset-0 z-100 bg-white overflow-auto">
+      {/* Modal header and layout */}
       <div className="flex items-center p-4 border-b border-gray-200">
         <button
           onClick={onClose}
@@ -67,6 +69,7 @@ const ParticipantsModal = ({ participants, onClose }) => {
                 key={participant.userId}
                 participant={participant}
                 onClose={onClose}
+                hostId={hostId} // Pass hostId along
               />
             ))}
           </ul>
