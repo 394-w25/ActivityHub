@@ -26,9 +26,42 @@ const ActivityForm = ({ onSuccess }) => {
   const [image, setImage] = useState(null);
   const [activityLocation, setActivityLocation] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [lookingFor, setLookingFor] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+
+  const lookingForOptions = ["Friend", "Date", "Networking", "Other"];
+  const availableTags = [
+    "Photography",
+    "Shopping",
+    "Karaoke",
+    "Wellness",
+    "Cooking",
+    "Sports",
+    "Outdoor",
+    "Swimming",
+    "Art & Culture",
+    "Traveling",
+    "Adventure",
+    "Music",
+    "Food & Drink",
+    "Video Games",
+  ];
+
+  const toggleTag = (tag) => {
+    setSelectedTags(
+      (prevTags) =>
+        prevTags.includes(tag)
+          ? prevTags.filter((t) => t !== tag) // Remove if already selected
+          : [...prevTags, tag], // Add if not selected
+    );
+  };
+
+  const selectLookingFor = (option) => {
+    setLookingFor(option); // Only one option can be selected at a time
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -123,6 +156,8 @@ const ActivityForm = ({ onSuccess }) => {
         creationTimestamp: Date.now(),
         posterUid: user.uid,
         imageUrl,
+        tags: selectedTags,
+        lookingFor,
       },
     });
 
@@ -197,6 +232,48 @@ const ActivityForm = ({ onSuccess }) => {
             placeholder="Description"
             required
           />
+        </div>
+
+        {/* Looking For */}
+        <div>
+          <Label>Looking For</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {lookingForOptions.map((option) => (
+              <button
+                type="button"
+                key={option}
+                className={`px-3 py-1 border rounded-full text-sm transition ${
+                  lookingFor === option
+                    ? "bg-orange-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => selectLookingFor(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tags Selection */}
+        <div>
+          <Label>Tags (Select one or more)</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {availableTags.map((tag) => (
+              <button
+                type="button"
+                key={tag}
+                className={`px-3 py-1 border rounded-full text-sm transition ${
+                  selectedTags.includes(tag)
+                    ? "bg-orange-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Location */}

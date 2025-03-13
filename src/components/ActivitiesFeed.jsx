@@ -13,6 +13,8 @@ const ActivitiesFeed = ({
   maxGroupSize,
   maxDistance,
   searchQuery,
+  category,
+  userLocation,
 }) => {
   const [data, error] = useDbData("/users");
 
@@ -20,19 +22,44 @@ const ActivitiesFeed = ({
   if (data === undefined) return <h1>Loading data...</h1>;
   if (!data) return <h1>No data found</h1>;
 
-  // Get all activities without any native filtering.
   const allActivities = getHostedActivities(data, {});
 
   const isValidTimestamp = (timestamp) => {
     return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(timestamp);
   };
 
-  // Partition activities into accepted and rejected in a single pass
+  const getDistance = (userLocation, activityCoords) => {
+    if (
+      !userLocation ||
+      !activityCoords ||
+      !activityCoords.latitude ||
+      !activityCoords.longitude
+    )
+      return Infinity;
+
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 3958.8;
+
+    const dLat = toRad(activityCoords.latitude - userLocation[0]);
+    const dLon = toRad(activityCoords.longitude - userLocation[1]);
+
+    const lat1 = toRad(userLocation[0]);
+    const lat2 = toRad(activityCoords.latitude);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
   const { accepted, rejected } = allActivities.reduce(
     (acc, activity) => {
       let okayDate = true;
       let okayStartTime = true;
       let okayEndTime = true;
+
       if (
         activity.eventTimestamp &&
         isValidTimestamp(activity.eventTimestamp)
@@ -53,25 +80,51 @@ const ActivitiesFeed = ({
       }
 
       let matchesSearch = true;
-      if (searchQuery && searchQuery != "") {
+      if (searchQuery && searchQuery !== "") {
         matchesSearch =
           activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          activity.description
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase());
+          (activity.description &&
+            activity.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()));
       }
 
-      const matchesLooking = activity.lookingFor
-        ? activity.lookingFor === lookingFor
-        : true;
+      const matchesLooking =
+        lookingFor !== null && lookingFor !== undefined
+          ? activity.lookingFor !== undefined &&
+            activity.lookingFor === lookingFor
+          : true;
+
+      const matchesCategory =
+        category !== null && category !== undefined
+          ? activity.category !== undefined && activity.category === category
+          : true;
+
       const okayGroupSize =
         typeof activity.groupSize === "number"
           ? activity.groupSize <= maxGroupSize
           : true;
-      const okayDistance = true; // placeholder for distance filtering
+
+      let okayDistance = true;
+
+      if (!userLocation) {
+        okayDistance = true;
+      } else if (!maxDistance) {
+        okayDistance = true;
+      } else if (
+        !activity.coords ||
+        !activity.coords.latitude ||
+        !activity.coords.longitude
+      ) {
+        okayDistance = false;
+      } else {
+        okayDistance =
+          getDistance(userLocation, activity.coords) <= maxDistance;
+      }
 
       const passesFilters =
         matchesLooking &&
+        matchesCategory &&
         okayStartTime &&
         okayEndTime &&
         okayDate &&
@@ -89,7 +142,6 @@ const ActivitiesFeed = ({
     { accepted: [], rejected: [] },
   );
 
-  // Sorting function; you can expand for "Distance" or "Popularity" later
   const sortFunction = (a, b) => {
     if (sortBy === "Start Time") {
       return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
@@ -97,8 +149,28 @@ const ActivitiesFeed = ({
       const aCount = a.interested ? a.interested.length : 0;
       const bCount = b.interested ? b.interested.length : 0;
       return aCount - bCount;
+    } else if (sortBy === "Distance") {
+      if (!userLocation) {
+        return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
+      }
+
+      const aHasCoords = a.coords && a.coords.latitude && a.coords.longitude;
+      const bHasCoords = b.coords && b.coords.latitude && b.coords.longitude;
+
+      if (aHasCoords && bHasCoords) {
+        return (
+          getDistance(userLocation, a.coords) -
+          getDistance(userLocation, b.coords)
+        );
+      } else if (aHasCoords) {
+        return -1;
+      } else if (bHasCoords) {
+        return 1;
+      }
+
+      return 0;
     }
-    // Default to sorting by start time
+
     return new Date(a.eventTimestamp) - new Date(b.eventTimestamp);
   };
 
