@@ -70,18 +70,49 @@ const ActivityDetails = ({ activity, onClose }) => {
             />
             <div>
               <p className="font-semibold text-md">
-                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
-                  month: "short",
-                  day: "2-digit",
-                  year: "numeric",
-                })}
+                {new Date(activity.eventStartTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                  },
+                )}
               </p>
               <p className="text-xs">
-                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
-                  weekday: "long",
-                  hour: "numeric",
-                  minute: "numeric",
-                })}
+                {new Date(activity.eventStartTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    weekday: "long",
+                    hour: "numeric",
+                    minute: "numeric",
+                  },
+                )}
+              </p>
+            </div>
+
+            <div>to</div>
+
+            <div>
+              <p className="font-semibold text-md">
+                {new Date(activity.eventEndTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                  },
+                )}
+              </p>
+              <p className="text-xs">
+                {new Date(activity.eventEndTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    weekday: "long",
+                    hour: "numeric",
+                    minute: "numeric",
+                  },
+                )}
               </p>
             </div>
           </div>
