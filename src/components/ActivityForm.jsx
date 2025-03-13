@@ -174,14 +174,14 @@ const ActivityForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-start items-center gap-4 p-4 md:p-6">
+    <div className="flex flex-col md:flex-row justify-start items-center gap-4 p-4 md:p-6 w-full">
       <ArrowLeft
         onClick={() => navigate(-1)}
         className="absolute top-4 left-4 md:top-6 md:left-6 w-6 h-6"
       />
-      <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-lg">
+      <form onSubmit={handleSubmit} className="space-y-4 w-full">
         {/* Image Upload */}
-        <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-100 w-full sm:w-3/4 mx-auto">
+        <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-100 w-full">
           {imagePreview ? (
             <div className="relative w-full">
               <img
@@ -216,7 +216,7 @@ const ActivityForm = ({ onSuccess }) => {
         </div>
 
         {/* Title */}
-        <div>
+        <div className="w-full">
           <Input
             id="title"
             name="title"
@@ -225,7 +225,7 @@ const ActivityForm = ({ onSuccess }) => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full sm:w-3/4"
+            className="w-full"
           />
           {errors.title && (
             <p className="text-red-500 text-sm">{errors.title}</p>
@@ -233,18 +233,18 @@ const ActivityForm = ({ onSuccess }) => {
         </div>
 
         {/* Description */}
-        <div>
+        <div className="w-full">
           <Textarea
             id="description"
             name="description"
             placeholder="Description"
             required
-            className="w-full sm:w-3/4"
+            className="w-full"
           />
         </div>
 
         {/* Looking For */}
-        <div>
+        <div className="w-full">
           <Label>Looking For</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {lookingForOptions.map((option) => (
@@ -265,7 +265,7 @@ const ActivityForm = ({ onSuccess }) => {
         </div>
 
         {/* Tags Selection */}
-        <div>
+        <div className="w-full">
           <Label>Tags (Select one or more)</Label>
           <div className="flex flex-wrap gap-2 mt-2">
             {availableTags.map((tag) => (
@@ -286,7 +286,7 @@ const ActivityForm = ({ onSuccess }) => {
         </div>
 
         {/* Location */}
-        <div>
+        <div className="w-full">
           <MapContainer
             center={location?.coords || [42.056, -87.6755]}
             zoom={17}
@@ -304,7 +304,7 @@ const ActivityForm = ({ onSuccess }) => {
         </div>
 
         {/* Group Size + Tooltip */}
-        <div>
+        <div className="w-full">
           <TooltipProvider>
             <Tooltip>
               <TooltipContent>
@@ -319,12 +319,12 @@ const ActivityForm = ({ onSuccess }) => {
             min="1"
             placeholder="Maximum Group Size"
             required
-            className="w-full sm:w-3/4"
+            className="w-full"
           />
         </div>
 
         {/* Event Date/Time */}
-        <div>
+        <div className="w-full">
           <Label htmlFor="eventStartTimestamp">Start Time</Label>
           <Input
             id="eventStartTimestamp"
@@ -332,11 +332,11 @@ const ActivityForm = ({ onSuccess }) => {
             type="datetime-local"
             min={new Date().toISOString().slice(0, 16)}
             required
-            className="w-full sm:w-3/4"
+            className="w-full"
           />
         </div>
 
-        <div>
+        <div className="w-full">
           <Label htmlFor="eventEndTimestamp">End Time</Label>
           <Input
             id="eventEndTimestamp"
@@ -344,14 +344,14 @@ const ActivityForm = ({ onSuccess }) => {
             type="datetime-local"
             min={new Date().toISOString().slice(0, 16)}
             required
-            className="w-full sm:w-3/4"
+            className="w-full"
           />
         </div>
 
         {/* Submit Button */}
         <Button
           type="submit"
-          className="bg-orange-400 text-white font-crimson text-xl py-4 px-6 rounded-lg hover:bg-orange-500 transition w-full sm:w-3/4 mx-auto flex items-center justify-center"
+          className="bg-orange-400 text-white font-crimson text-xl py-4 px-6 rounded-lg hover:bg-orange-500 transition w-full mx-auto flex items-center justify-center"
           disabled={uploading}
         >
           Create
