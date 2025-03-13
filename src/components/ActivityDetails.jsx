@@ -3,15 +3,34 @@ import { useNavigate } from "react-router-dom";
 import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
-import { createOrGetChat } from "@/hooks/firebase";
-import stackedProfilePics from "../../assets/stacked-profile-pics.png";
-import ParticipantsModal from "./ParticipantsModal";
+import { useDbData } from "@/hooks/firebase";
+
+function ApprovedUserAvatar({ userId }) {
+  const [userData, error] = useDbData(`users/${userId}`);
+  // Fallback: if userData exists and has a name, use its first letter; otherwise, use userId's first letter.
+  const fallbackLetter =
+    userData && userData.name
+      ? userData.name.charAt(0).toUpperCase()
+      : userId.charAt(0).toUpperCase();
+  return (
+    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium ring-2 ring-white overflow-hidden">
+      {userData && userData.photoURL ? (
+        <img
+          src={userData.photoURL}
+          alt={userData.name || "User Avatar"}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        fallbackLetter
+      )}
+    </div>
+  );
+}
 
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
-  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
 
   const handleJoinActivity = async () => {
     setIsPending(true);
@@ -26,14 +45,6 @@ const ActivityDetails = ({ activity, onClose }) => {
   const approvedArray = activity.approved
     ? Object.values(activity.approved)
     : [];
-
-  const openParticipantsModal = () => {
-    setParticipantsModalOpen(true);
-  };
-
-  const closeParticipantsModal = () => {
-    setParticipantsModalOpen(false);
-  };
 
   return (
     <div className="z-3 relative w-full h-full text-white">
@@ -56,15 +67,9 @@ const ActivityDetails = ({ activity, onClose }) => {
               {/* Show up to 3 avatars in a stacked style */}
               <div className="flex -space-x-2">
                 {approvedArray.slice(0, 3).map(({ userId }) => (
-                  <div
-                    key={userId}
-                    className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-medium ring-2 ring-white"
-                  >
-                    {userId.charAt(0).toUpperCase()}
-                  </div>
+                  <ApprovedUserAvatar key={userId} userId={userId} />
                 ))}
               </div>
-
               {/* Text aligned to the right */}
               <span className="text-sm text-gray-800 ml-auto">
                 {approvedArray.length > 3
@@ -171,14 +176,6 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
         </div>
       </div>
-      {participantsModalOpen && (
-        <ParticipantsModal
-          participants={
-            activity.approved ? Object.values(activity.approved) : []
-          }
-          onClose={closeParticipantsModal}
-        />
-      )}
     </div>
   );
 };
