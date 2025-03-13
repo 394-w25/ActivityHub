@@ -68,7 +68,7 @@ const HomeScreen = () => {
 
   const [showFilter, setShowFilter] = useState(false);
   const [sortBy, setSortBy] = useState("Distance");
-  const [lookingFor, setLookingFor] = useState("Friend");
+  const [lookingFor, setLookingFor] = useState(null);
   const [startTime, setStartTime] = useState("00:00");
   const [endTime, setEndTime] = useState("23:59");
   const [startDate, setStartDate] = useState(getCurrentDate());
@@ -77,6 +77,7 @@ const HomeScreen = () => {
   const [maxGroupSize, setMaxGroupSize] = useState(10);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -108,6 +109,8 @@ const HomeScreen = () => {
     setMaxGroupSize,
     maxDistance,
     setMaxDistance,
+    selectedCategory,
+    setSelectedCategory,
   };
 
   const filterProps = {
@@ -120,6 +123,8 @@ const HomeScreen = () => {
     maxGroupSize,
     maxDistance,
     searchQuery,
+    category: selectedCategory,
+    userLocation: currentLocation,
   };
 
   const [user] = useAuthState();

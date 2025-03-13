@@ -18,9 +18,46 @@ const FilterPage = ({
   setMaxGroupSize,
   maxDistance,
   setMaxDistance,
+  selectedCategory,
+  setSelectedCategory,
 }) => {
+  const categories = [
+    "Photography",
+    "Shopping",
+    "Karaoke",
+    "Wellness",
+    "Cooking",
+    "Sports",
+    "Outdoor",
+    "Swimming",
+    "Art & Culture",
+    "Traveling",
+    "Adventure",
+    "Music",
+    "Food & Drink",
+    "Video Games",
+  ];
+  const [showCategories, setShowCategories] = useState(false);
+
   const toggleSortBy = (option) => setSortBy(option);
-  const toggleLookingFor = (option) => setLookingFor(option);
+  const toggleLookingFor = (option) => {
+    setLookingFor((prev) => (prev === option ? null : option));
+  };
+
+  const toggleCategoryDropdown = () => {
+    setShowCategories(!showCategories);
+  };
+
+  const selectCategory = (category) => {
+    if (selectedCategory === category) {
+      console.log("reset");
+      setSelectedCategory(null); // Deselect if clicked again
+    } else {
+      console.log(category);
+      setSelectedCategory(category);
+    }
+    setShowCategories(false); // Hide dropdown after selection
+  };
 
   const buttonStyle = (selected) =>
     `px-4 py-2 border rounded-full transition-colors text-sm md:text-base ${
@@ -59,7 +96,7 @@ const FilterPage = ({
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Looking for</h3>
         <div className="flex flex-wrap gap-2 mt-2">
-          {["Friend", "Date", "Networking"].map((option) => (
+          {["Friend", "Date", "Networking", "Other"].map((option) => (
             <button
               key={option}
               className={buttonStyle(lookingFor === option)}
@@ -68,6 +105,37 @@ const FilterPage = ({
               {option}
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold">Category</h3>
+        <div className="relative">
+          <div
+            className="border p-2 rounded w-full cursor-pointer bg-white text-black flex items-center justify-between"
+            onClick={toggleCategoryDropdown}
+          >
+            <span>{selectedCategory || "Select a category"}</span>
+            <span className="text-gray-500">▼</span>
+          </div>
+
+          {showCategories && (
+            <div className="absolute w-full bg-white border border-gray-300 rounded mt-1 shadow-lg max-h-60 overflow-y-auto z-10">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => selectCategory(category)}
+                  className={`block w-full text-left px-4 py-2 hover:bg-orange-100 ${
+                    selectedCategory === category
+                      ? "bg-orange-400 text-white"
+                      : ""
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
