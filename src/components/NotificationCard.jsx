@@ -40,6 +40,12 @@ export function NotificationCard({ notification }) {
     navigate(`/user_profile/${notification.userId}`);
   };
 
+  const [acceptBtn, setAcceptBtn] = useState(false);
+
+  const toggleAccept = () => {
+    setAcceptBtn(true);
+  };
+
   return (
     <div className="bg-white px-4 py-3 mb-3 max-w-md w-full">
       <div className="flex justify-between items-start">
@@ -67,14 +73,15 @@ export function NotificationCard({ notification }) {
       {type === "INTEREST_REQUEST" && (
         <div className="flex space-x-2 mt-2 ml-16">
           <Button
-            className="px-4 py-1 text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 shadow-none"
+            className="px-4 py-1 cursor-pointer text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 shadow-none"
             onClick={handleViewProfile}
             style={{ fontFamily: "Georgia, serif" }}
           >
             View Profile
           </Button>
           <Button
-            className="px-4 py-1 bg-[#f07b3c] text-white hover:bg-[#ed6115] border-none shadow-none"
+            disabled={acceptBtn}
+            className="px-4 py-1 bg-[#f07b3c] text-white hover:bg-[#ed6115] cursor-pointer border-none shadow-none"
             onClick={() => {
               console.log("Debugging Accept Click: ", notification);
 
@@ -96,9 +103,10 @@ export function NotificationCard({ notification }) {
                   : new Date().toISOString(),
                 notification.location ?? "MISSING_LOCATION",
               );
+              setAcceptBtn(true);
             }}
           >
-            Accept
+            {acceptBtn ? "Accepted" : "Accept"}
           </Button>
         </div>
       )}

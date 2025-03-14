@@ -14,10 +14,17 @@ import {
   CircleHelp,
   LogOut,
 } from "lucide-react";
-import { firebaseSignOut } from "@/hooks/firebase";
+import { firebaseSignOut, useAuthState, useDbData } from "@/hooks/firebase";
 
-const Sidebar = ({ isOpen, onClose, user }) => {
+const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const [user, loading] = useAuthState();
+
+  const profileUserId = user?.uid;
+
+  const [userData, error] = useDbData(
+    profileUserId ? `users/${profileUserId}` : null,
+  );
 
   const handleSignOut = async () => {
     try {
@@ -27,6 +34,18 @@ const Sidebar = ({ isOpen, onClose, user }) => {
       console.error("Error signing out:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
+  console.log("user: ", user);
+  console.log("data: ", userData);
+  // console.log(user.displayName);
 
   return (
     <>
@@ -41,19 +60,21 @@ const Sidebar = ({ isOpen, onClose, user }) => {
           <button onClick={onClose} className="p-2 mr-auto">
             <ArrowLeft size={28} />
           </button>
-          {user ? (
+          {userData ? (
             <>
               <Avatar className="w-18 h-18">
                 <AvatarImage
-                  src={user.photoURL}
-                  alt={user.displayName ?? user.name}
+                  src={userData.photoURL}
+                  alt={userData.displayName ?? userData.name}
                 />
                 <AvatarFallback>
-                  {(user.displayName ?? user.name).charAt(0).toUpperCase()}
+                  {(userData?.displayName ?? userData?.name)
+                    .charAt(0)
+                    .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <h2 className="text-2xl font-semibold">
-                {user.displayName ?? user.name}
+                {userData.displayName ?? userData.name}
               </h2>
             </>
           ) : (

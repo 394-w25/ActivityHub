@@ -62,11 +62,18 @@ const Activity = ({ activity }) => {
   const eventTimestamp =
     activity.eventStartTimestamp || activity.eventTimestamp || null;
 
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const toggleBookmark = (e) => {
+    e.stopPropagation();
+    setBookmarked((prev) => !prev);
+  };
+
   return (
     <>
       <div
         onClick={openDetails}
-        className="bg-gray-100 h-45 rounded-lg shadow p-2 w-full cursor-pointer flex flex-1 flex-col justify-between items-start"
+        className="relative bg-gray-100 h-45 rounded-lg shadow p-2 w-full cursor-pointer flex flex-1 flex-col justify-between items-start"
         style={
           activity.imageUrl
             ? {
@@ -77,10 +84,18 @@ const Activity = ({ activity }) => {
             : { backgroundColor: randColor }
         }
       >
-        <div className="p-1 bg-white bg-opacity-50 rounded-[4px]">
+        <div
+          onClick={toggleBookmark}
+          className={
+            !bookmarked
+              ? "z-11 p-1 bg-white opacity-70 hover:opacity-100 rounded-[4px]"
+              : "z-11 p-1 bg-white opacity-100 rounded-[4px]"
+          }
+        >
           <Bookmark className="text-gray-400" />
         </div>
-        <div className="p-2 text-white">
+        <div className="absolute inset-0 w-full h-full bg-black opacity-30 rounded-lg"></div>
+        <div className="p-2 text-white z-10">
           <p className="text-sm">{formatAnyTimestamp(eventTimestamp)}</p>
           <h3 className="text-md font-bold mt-1">{activity.title}</h3>
         </div>
