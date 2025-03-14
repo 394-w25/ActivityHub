@@ -47,6 +47,11 @@ const ActivityDetails = ({ activity, onClose }) => {
     ? Object.values(activity.approved)
     : [];
 
+  const eventStartTimestamp =
+    activity.eventStartTimestamp || activity.eventTimestamp || null;
+
+  const eventEndTimestamp = activity.eventEndTimestamp || null;
+
   return (
     <div className="z-3 relative w-full h-full text-white">
       <div className="flex flex-col items-center w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
@@ -110,52 +115,54 @@ const ActivityDetails = ({ activity, onClose }) => {
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
+
+            {/* Start Time */}
             <div>
               <p className="font-semibold text-md">
-                {new Date(activity.eventStartTimestamp).toLocaleString(
-                  undefined,
-                  {
-                    month: "short",
-                    day: "2-digit",
-                  },
-                )}
+                {eventStartTimestamp
+                  ? new Date(eventStartTimestamp).toLocaleString(undefined, {
+                      month: "short",
+                      day: "2-digit",
+                      year: "numeric",
+                    })
+                  : "Time not provided"}
               </p>
               <p className="text-xs">
-                {new Date(activity.eventStartTimestamp).toLocaleString(
-                  undefined,
-                  {
-                    weekday: "short",
-                    hour: "numeric",
-                    minute: "numeric",
-                  },
-                )}
+                {eventStartTimestamp
+                  ? new Date(eventStartTimestamp).toLocaleString(undefined, {
+                      weekday: "long",
+                      hour: "numeric",
+                      minute: "numeric",
+                    })
+                  : ""}
               </p>
             </div>
 
             <div>to</div>
 
+            {/* End Time */}
             <div>
               <p className="font-semibold text-md">
-                {new Date(activity.eventEndTimestamp).toLocaleString(
-                  undefined,
-                  {
-                    month: "short",
-                    day: "2-digit",
-                  },
-                )}
+                {eventEndTimestamp
+                  ? new Date(eventEndTimestamp).toLocaleString(undefined, {
+                      month: "short",
+                      day: "2-digit",
+                      year: "numeric",
+                    })
+                  : "Time not provided"}
               </p>
               <p className="text-xs">
-                {new Date(activity.eventEndTimestamp).toLocaleString(
-                  undefined,
-                  {
-                    weekday: "short",
-                    hour: "numeric",
-                    minute: "numeric",
-                  },
-                )}
+                {eventEndTimestamp
+                  ? new Date(eventEndTimestamp).toLocaleString(undefined, {
+                      weekday: "long",
+                      hour: "numeric",
+                      minute: "numeric",
+                    })
+                  : ""}
               </p>
             </div>
           </div>
+
           {/* Location */}
           <div className="flex gap-x-4 text-gray-600">
             <MapPin

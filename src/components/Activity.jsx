@@ -30,6 +30,7 @@ const Activity = ({ activity }) => {
       // It's in ISO format like "2025-02-28T18:00"
       date = new Date(timestamp);
     } else {
+      console.log(timestamp);
       // Invalid format
       return "Invalid date format";
     }
@@ -58,6 +59,9 @@ const Activity = ({ activity }) => {
 
   const randColor = getRandomColorClass();
 
+  const eventTimestamp =
+    activity.eventStartTimestamp || activity.eventTimestamp || null;
+
   return (
     <>
       <div
@@ -77,9 +81,7 @@ const Activity = ({ activity }) => {
           <Bookmark className="text-gray-400" />
         </div>
         <div className="p-2 text-white">
-          <p className="text-sm">
-            {formatAnyTimestamp(activity.eventStartTimestamp)}
-          </p>
+          <p className="text-sm">{formatAnyTimestamp(eventTimestamp)}</p>
           <h3 className="text-md font-bold mt-1">{activity.title}</h3>
         </div>
       </div>

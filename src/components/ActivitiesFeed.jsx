@@ -13,7 +13,7 @@ const ActivitiesFeed = ({
   maxGroupSize,
   maxDistance,
   searchQuery,
-  category,
+  categories,
   userLocation,
 }) => {
   const [data, error] = useDbData("/users");
@@ -95,9 +95,10 @@ const ActivitiesFeed = ({
             activity.lookingFor === lookingFor
           : true;
 
-      const matchesCategory =
-        category !== null && category !== undefined
-          ? activity.category !== undefined && activity.category === category
+      const matchesCategories =
+        categories.length > 0
+          ? Array.isArray(activity.tags) &&
+            activity.tags.some((tag) => categories.includes(tag))
           : true;
 
       const okayGroupSize =
@@ -124,7 +125,7 @@ const ActivitiesFeed = ({
 
       const passesFilters =
         matchesLooking &&
-        matchesCategory &&
+        matchesCategories &&
         okayStartTime &&
         okayEndTime &&
         okayDate &&
