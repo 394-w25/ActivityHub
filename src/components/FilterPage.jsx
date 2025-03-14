@@ -18,8 +18,8 @@ const FilterPage = ({
   setMaxGroupSize,
   maxDistance,
   setMaxDistance,
-  selectedCategory,
-  setSelectedCategory,
+  selectedCategories,
+  setSelectedCategories,
 }) => {
   const categories = [
     "Photography",
@@ -49,14 +49,12 @@ const FilterPage = ({
   };
 
   const selectCategory = (category) => {
-    if (selectedCategory === category) {
-      console.log("reset");
-      setSelectedCategory(null); // Deselect if clicked again
-    } else {
-      console.log(category);
-      setSelectedCategory(category);
-    }
-    setShowCategories(false); // Hide dropdown after selection
+    setSelectedCategories(
+      (prev) =>
+        prev.includes(category)
+          ? prev.filter((c) => c !== category) // Remove if already selected
+          : [...prev, category], // Add if not selected
+    );
   };
 
   const buttonStyle = (selected) =>
@@ -122,7 +120,12 @@ const FilterPage = ({
             className="border p-2 rounded w-full cursor-pointer bg-white text-black flex items-center justify-between"
             onClick={toggleCategoryDropdown}
           >
-            <span>{selectedCategory || "Select a category"}</span>
+            <span>
+              {selectedCategories.length > 0
+                ? selectedCategories.join(", ") // Show multiple selected categories
+                : "Select categories"}
+            </span>
+
             <span className="text-gray-500">▼</span>
           </div>
 
@@ -133,7 +136,7 @@ const FilterPage = ({
                   key={category}
                   onClick={() => selectCategory(category)}
                   className={`block w-full text-left px-4 py-2 hover:bg-orange-100 ${
-                    selectedCategory === category
+                    selectedCategories.includes(category)
                       ? "bg-orange-400 text-white"
                       : ""
                   }`}

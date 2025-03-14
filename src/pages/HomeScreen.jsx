@@ -77,7 +77,7 @@ const HomeScreen = () => {
   const [maxGroupSize, setMaxGroupSize] = useState(10);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -109,8 +109,8 @@ const HomeScreen = () => {
     setMaxGroupSize,
     maxDistance,
     setMaxDistance,
-    selectedCategory,
-    setSelectedCategory,
+    selectedCategories,
+    setSelectedCategories,
   };
 
   const filterProps = {
@@ -123,7 +123,7 @@ const HomeScreen = () => {
     maxGroupSize,
     maxDistance,
     searchQuery,
-    category: selectedCategory,
+    categories: selectedCategories,
     userLocation: currentLocation,
   };
 
