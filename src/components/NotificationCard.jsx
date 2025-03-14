@@ -88,8 +88,11 @@ export function NotificationCard({ notification }) {
                 notification.eventId ?? "MISSING_EVENT_ID",
                 notification.userId ?? "MISSING_USER_ID",
                 notification.eventTitle ?? "MISSING_TITLE",
-                notification.eventTimestamp
-                  ? new Date(notification.eventTimestamp).toISOString()
+                notification.eventStartTimestamp
+                  ? new Date(notification.eventStartTimestamp).toISOString()
+                  : new Date().toISOString(),
+                notification.eventEndTimestamp
+                  ? new Date(notification.eventEndTimestamp).toISOString()
                   : new Date().toISOString(),
                 notification.location ?? "MISSING_LOCATION",
               );

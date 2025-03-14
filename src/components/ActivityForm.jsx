@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ArrowLeft } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -14,6 +15,7 @@ import MapSearchField from "@components/MapSearchField";
 import { useAuthState, useDbUpdate } from "../hooks/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import uuid4 from "uuid4";
+import { useNavigate } from "react-router-dom";
 
 const ActivityForm = ({ onSuccess }) => {
   const [user] = useAuthState();
@@ -24,8 +26,42 @@ const ActivityForm = ({ onSuccess }) => {
   const [image, setImage] = useState(null);
   const [activityLocation, setActivityLocation] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [lookingFor, setLookingFor] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
+  const lookingForOptions = ["Friend", "Date", "Networking", "Other"];
+  const availableTags = [
+    "Photography",
+    "Shopping",
+    "Karaoke",
+    "Wellness",
+    "Cooking",
+    "Sports",
+    "Outdoor",
+    "Swimming",
+    "Art & Culture",
+    "Traveling",
+    "Adventure",
+    "Music",
+    "Food & Drink",
+    "Video Games",
+  ];
+
+  const toggleTag = (tag) => {
+    setSelectedTags(
+      (prevTags) =>
+        prevTags.includes(tag)
+          ? prevTags.filter((t) => t !== tag) // Remove if already selected
+          : [...prevTags, tag], // Add if not selected
+    );
+  };
+
+  const selectLookingFor = (option) => {
+    setLookingFor(option); // Only one option can be selected at a time
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -49,7 +85,8 @@ const ActivityForm = ({ onSuccess }) => {
     const location = activityLocation.label;
     const coords = activityLocation.coords;
     const groupSize = formData.get("groupSize");
-    const eventTimestamp = formData.get("eventTimestamp");
+    const eventStartTimestamp = formData.get("eventStartTimestamp");
+    const eventEndTimestamp = formData.get("eventEndTimestamp");
 
     let validationErrors = {};
 
@@ -69,11 +106,16 @@ const ActivityForm = ({ onSuccess }) => {
         "Enter a valid group size (must be a number greater than 0).";
     }
 
-    const selectedDate = new Date(eventTimestamp);
+    const startDate = new Date(eventStartTimestamp);
+    const endDate = new Date(eventEndTimestamp);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    if (selectedDate < today) {
-      validationErrors.eventTimestamp = "Date must be today or later.";
+    if (startDate < today) {
+      validationErrors.eventStartTimestamp = "Date must be today or later.";
+    }
+
+    if (endDate <= startDate) {
+      validationErrors.eventEndTimestamp = "End time must be after start time.";
     }
 
     if (Object.keys(validationErrors).length > 0) {
@@ -109,10 +151,13 @@ const ActivityForm = ({ onSuccess }) => {
         location,
         coords,
         groupSize: parseInt(groupSize, 10),
-        eventTimestamp,
+        eventStartTimestamp,
+        eventEndTimestamp,
         creationTimestamp: Date.now(),
         posterUid: user.uid,
         imageUrl,
+        tags: selectedTags,
+        lookingFor,
       },
     });
 
@@ -122,113 +167,191 @@ const ActivityForm = ({ onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Image Upload */}
-      <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-100">
-        {imagePreview ? (
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="w-full h-48 object-cover rounded-lg"
+    <div className="flex flex-col md:flex-row justify-start items-center gap-4 pl-2 pt-4 pb-4">
+      <ArrowLeft
+        onClick={() => navigate(-1)}
+        className="absolute top-6 left-6 w-6 h-6"
+      />
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Image Upload */}
+        <div className="relative flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-100">
+          {imagePreview ? (
+            <div className="relative">
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-full h-48 object-cover rounded-lg"
+              />
+              {/* Delete Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setImage(null);
+                  setImagePreview(null);
+                }}
+                className="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-200"
+              >
+                &#x2715;
+              </button>
+            </div>
+          ) : (
+            <label className="cursor-pointer flex flex-col items-center">
+              <span className="text-gray-500 text-sm">Upload Image</span>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
+
+        {/* Title */}
+        <div>
+          <Input
+            id="title"
+            name="title"
+            type="text"
+            placeholder="Event Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
           />
-        ) : (
-          <label className="cursor-pointer flex flex-col items-center">
-            <span className="text-gray-500 text-sm">Upload Image</span>
-            <input
-              type="file"
-              name="image"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
+          {errors.title && (
+            <p className="text-red-500 text-sm">{errors.title}</p>
+          )}
+        </div>
+
+        {/* Description */}
+        <div>
+          <Textarea
+            id="description"
+            name="description"
+            placeholder="Description"
+            required
+          />
+        </div>
+
+        {/* Looking For */}
+        <div>
+          <Label>Looking For</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {lookingForOptions.map((option) => (
+              <button
+                type="button"
+                key={option}
+                className={`px-3 py-1 border rounded-full text-sm transition ${
+                  lookingFor === option
+                    ? "bg-orange-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => selectLookingFor(option)}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tags Selection */}
+        <div>
+          <Label>Tags (Select one or more)</Label>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {availableTags.map((tag) => (
+              <button
+                type="button"
+                key={tag}
+                className={`px-3 py-1 border rounded-full text-sm transition ${
+                  selectedTags.includes(tag)
+                    ? "bg-orange-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => toggleTag(tag)}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <MapContainer
+            center={location?.coords || [42.056, -87.6755]}
+            zoom={17}
+            className="h-128"
+          >
+            <MapSearchField setActivityLocation={setActivityLocation} />
+            <TileLayer
+              attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+              url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}.png"
             />
-          </label>
-        )}
-      </div>
+          </MapContainer>
+          {errors.location && (
+            <p className="text-red-500 text-sm">{errors.location}</p>
+          )}
+        </div>
 
-      {/* Title */}
-      <div>
-        <Input
-          id="title"
-          name="title"
-          type="text"
-          placeholder="Event Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
-      </div>
-
-      {/* Description */}
-      <div>
-        <Textarea
-          id="description"
-          name="description"
-          placeholder="Description"
-          required
-        />
-      </div>
-
-      {/* Location */}
-      <div>
-        <MapContainer
-          center={location?.coords || [42.056, -87.6755]}
-          zoom={17}
-          className="h-128"
-        >
-          <MapSearchField setActivityLocation={setActivityLocation} />
-          <TileLayer
-            attribution='&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
-            url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}.png"
+        {/* Group Size + Tooltip */}
+        <div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipContent>
+                <p>Include yourself in this number.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Input
+            id="groupSize"
+            name="groupSize"
+            type="number"
+            min="1"
+            placeholder="Maximum Group Size"
+            required
           />
-        </MapContainer>
-        {errors.location && (
-          <p className="text-red-500 text-sm">{errors.location}</p>
-        )}
-      </div>
+        </div>
 
-      {/* Group Size + Tooltip */}
-      <div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipContent>
-              <p>Include yourself in this number.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        <Input
-          id="groupSize"
-          name="groupSize"
-          type="number"
-          min="1"
-          placeholder="Maximum Group Size"
-          required
-        />
-      </div>
+        {/* Event Date/Time */}
+        <div>
+          <Label htmlFor="eventStartTimestamp">Start Time</Label>
+          <Input
+            id="eventStartTimestamp"
+            name="eventStartTimestamp"
+            type="datetime-local"
+            min={new Date().toISOString().slice(0, 16)}
+            required
+          />
+          {errors.eventStartTimestamp && (
+            <p className="text-red-500 text-sm">{errors.eventStartTimestamp}</p>
+          )}
+        </div>
 
-      {/* Event Date/Time */}
-      <div>
-        <Input
-          id="eventTimestamp"
-          name="eventTimestamp"
-          type="datetime-local"
-          min={new Date().toISOString().slice(0, 16)}
-          required
-        />
-        {errors.eventTimestamp && (
-          <p className="text-red-500 text-sm">{errors.eventTimestamp}</p>
-        )}
-      </div>
+        <div>
+          <Label htmlFor="eventEndTimestamp">End Time</Label>
+          <Input
+            id="eventEndTimestamp"
+            name="eventEndTimestamp"
+            type="datetime-local"
+            min={new Date().toISOString().slice(0, 16)}
+            required
+          />
+          {errors.eventEndTimestamp && (
+            <p className="text-red-500 text-sm">{errors.eventEndTimestamp}</p>
+          )}
+        </div>
 
-      {/* Submit Button */}
-      <Button
-        type="submit"
-        className="bg-orange-400 text-white font-crimson text-xl py-5 px-8 rounded-lg hover:bg-orange-500 transition w-3/4 mx-auto flex items-center justify-center"
-        disabled={uploading}
-      >
-        Create
-      </Button>
-    </form>
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          className="bg-orange-400 text-white font-crimson text-xl py-5 px-8 rounded-lg hover:bg-orange-500 transition w-3/4 mx-auto flex items-center justify-center"
+          disabled={uploading}
+        >
+          Create
+        </Button>
+      </form>
+    </div>
   );
 };
 

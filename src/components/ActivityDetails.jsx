@@ -3,15 +3,35 @@ import { useNavigate } from "react-router-dom";
 import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
-import { createOrGetChat } from "@/hooks/firebase";
-import stackedProfilePics from "../../assets/stacked-profile-pics.png";
-import ParticipantsModal from "./ParticipantsModal";
+import { useDbData } from "@/hooks/firebase";
+import ParticipantsModal from "@/components/ParticipantsModal"; // Import your modal
+
+function ApprovedUserAvatar({ userId }) {
+  const [userData, error] = useDbData(`users/${userId}`);
+  const fallbackLetter =
+    userData && userData.name
+      ? userData.name.charAt(0).toUpperCase()
+      : userId.charAt(0).toUpperCase();
+  return (
+    <div className="w-8 h-8 rounded-full bg-gray-200 flex justify-center text-xs font-medium ring-2 ring-white overflow-hidden">
+      {userData && userData.photoURL ? (
+        <img
+          src={userData.photoURL}
+          alt={userData.name || "User Avatar"}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        fallbackLetter
+      )}
+    </div>
+  );
+}
 
 const ActivityDetails = ({ activity, onClose }) => {
   const [user] = useAuthState();
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState(false);
-  const [participantsModalOpen, setParticipantsModalOpen] = useState(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
 
   const handleJoinActivity = async () => {
     setIsPending(true);
@@ -23,13 +43,9 @@ const ActivityDetails = ({ activity, onClose }) => {
     }
   };
 
-  const openParticipantsModal = () => {
-    setParticipantsModalOpen(true);
-  };
-
-  const closeParticipantsModal = () => {
-    setParticipantsModalOpen(false);
-  };
+  const approvedArray = activity.approved
+    ? Object.values(activity.approved)
+    : [];
 
   return (
     <div className="z-3 relative w-full h-full text-white">
@@ -45,17 +61,33 @@ const ActivityDetails = ({ activity, onClose }) => {
         <div>
           <img src={activity.imageUrl} className="bg-cover bg-center w-full" />
         </div>
-        <div
-          onClick={openParticipantsModal}
-          className={
-            activity.imageUrl
-              ? "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] m-[-30px] shadow-lg"
-              : "relative flex justify-between items-center gap-10 z-99 py-4 px-6 text-orange-500 bg-white rounded-[50px] mt-[30px] mb-[-30px] shadow-lg"
-          }
-        >
-          <img src={stackedProfilePics} alt="Participants" />+ 1 Going
-        </div>
-        <div className="w-full mt-6 p-6 space-y-4">
+        <div className="p-6 space-y-4">
+          {/* Approved Users section (below top image, above the title) */}
+          {approvedArray.length > 0 ? (
+            <div
+              onClick={() => setShowParticipantsModal(true)}
+              className="bg-white rounded-full py-2 px-4 shadow-md flex gap-3 cursor-pointer"
+            >
+              {/* Show up to 3 avatars in a stacked style */}
+              <div className="flex -space-x-2">
+                {approvedArray.slice(0, 3).map(({ userId }) => (
+                  <ApprovedUserAvatar key={userId} userId={userId} />
+                ))}
+              </div>
+              {/* Text aligned to the right */}
+              <span className="text-sm text-gray-800 ml-auto">
+                {approvedArray.length > 3
+                  ? `+${approvedArray.length - 3} Going`
+                  : `${approvedArray.length} Going`}
+              </span>
+            </div>
+          ) : (
+            <div className="bg-white rounded-full py-2 px-4 shadow-md flex flex-col items-center justify-center gap-1 text-center">
+              <span className="text-sm text-gray-800">
+                Be the first to join
+              </span>
+            </div>
+          )}
           {/* Title */}
           <div>
             <h2 className="text-2xl text-orange-600 font-bold text-center">
@@ -63,30 +95,61 @@ const ActivityDetails = ({ activity, onClose }) => {
             </h2>
           </div>
           {/* Timestamps */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <Calendar
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
             />
             <div>
               <p className="font-semibold text-md">
-                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
-                  month: "short",
-                  day: "2-digit",
-                  year: "numeric",
-                })}
+                {new Date(activity.eventStartTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                  },
+                )}
               </p>
               <p className="text-xs">
-                {new Date(activity.eventTimestamp).toLocaleString(undefined, {
-                  weekday: "long",
-                  hour: "numeric",
-                  minute: "numeric",
-                })}
+                {new Date(activity.eventStartTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    weekday: "long",
+                    hour: "numeric",
+                    minute: "numeric",
+                  },
+                )}
+              </p>
+            </div>
+
+            <div>to</div>
+
+            <div>
+              <p className="font-semibold text-md">
+                {new Date(activity.eventEndTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    month: "short",
+                    day: "2-digit",
+                    year: "numeric",
+                  },
+                )}
+              </p>
+              <p className="text-xs">
+                {new Date(activity.eventEndTimestamp).toLocaleString(
+                  undefined,
+                  {
+                    weekday: "long",
+                    hour: "numeric",
+                    minute: "numeric",
+                  },
+                )}
               </p>
             </div>
           </div>
           {/* Location */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <MapPin
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
@@ -101,7 +164,7 @@ const ActivityDetails = ({ activity, onClose }) => {
             </div>
           </div>
           {/* Group Size */}
-          <div className="flex items-center gap-x-4 text-gray-600">
+          <div className="flex gap-x-4 text-gray-600">
             <User
               size={48}
               className="shrink-0 text-orange-600 bg-orange-100 rounded-lg p-2"
@@ -144,12 +207,12 @@ const ActivityDetails = ({ activity, onClose }) => {
           </div>
         </div>
       </div>
-      {participantsModalOpen && (
+      {/* Conditionally render the ParticipantsModal */}
+      {showParticipantsModal && (
         <ParticipantsModal
-          participants={
-            activity.approved ? Object.values(activity.approved) : []
-          }
-          onClose={closeParticipantsModal}
+          participants={approvedArray}
+          hostId={activity.posterUid}
+          onClose={() => setShowParticipantsModal(false)}
         />
       )}
     </div>

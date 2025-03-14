@@ -78,7 +78,7 @@ const Activity = ({ activity }) => {
         </div>
         <div className="p-2 text-white">
           <p className="text-sm">
-            {formatAnyTimestamp(activity.eventTimestamp)}
+            {formatAnyTimestamp(activity.eventStartTimestamp)}
           </p>
           <h3 className="text-md font-bold mt-1">{activity.title}</h3>
         </div>
