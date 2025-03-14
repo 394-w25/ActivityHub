@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, Calendar, MapPin, User } from "lucide-react"; // Using lucide-react for the X icon
+import { X, Calendar, MapPin, User, Bookmark } from "lucide-react"; // Using lucide-react for the X icon
 import { handleUserInterested } from "@utils/notification";
 import { useAuthState } from "@hooks/firebase";
 import { useDbData } from "@/hooks/firebase";
@@ -52,19 +52,36 @@ const ActivityDetails = ({ activity, onClose }) => {
 
   const eventEndTimestamp = activity.eventEndTimestamp || null;
 
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const toggleBookmark = (e) => {
+    e.stopPropagation();
+    setBookmarked((prev) => !prev);
+  };
+
   return (
     <div className="z-3 relative w-full h-full text-white">
       <div className="flex flex-col items-center w-full h-full bg-white text-black overflow-scroll shadow-lg relative">
         {/* Exit button */}
         <button
           onClick={onClose}
-          className="fixed top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="fixed top-2 right-6 p-2 cursor-pointer hover:bg-gray-100 rounded-full transition-colors"
         >
           <X size={24} className="text-gray-600" />
         </button>
         {/* Image */}
         <div>
-          <img src={activity.imageUrl} className="object-cover w-full" />
+          <img src={activity.imageUrl} className="object-fill w-100" />
+          <div
+            onClick={toggleBookmark}
+            className={
+              !bookmarked
+                ? "absolute top-2 left-2 p-1 bg-white opacity-70 hover:opacity-100 cursor-pointer rounded-[4px]"
+                : "absolute top-2 left-2 p-1 bg-white opacity-100 cursor-pointer rounded-[4px]"
+            }
+          >
+            <Bookmark className="text-gray-400" />
+          </div>
         </div>
         <div className="p-6 space-y-4">
           {/* Approved Users section (below top image, above the title) */}

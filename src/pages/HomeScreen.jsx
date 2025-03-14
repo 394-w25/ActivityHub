@@ -127,7 +127,7 @@ const HomeScreen = () => {
     userLocation: currentLocation,
   };
 
-  const [user] = useAuthState();
+  const [user, loading] = useAuthState();
   const navigate = useNavigate();
   const [filters, setFilters] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -170,7 +170,6 @@ const HomeScreen = () => {
               onLocationClick={() => setIsLocationModalOpen(true)}
               isSidebarOpen={isSidebarOpen}
               onSidebarClick={toggleSidebar}
-              user={user}
             />
           </div>
         </div>
