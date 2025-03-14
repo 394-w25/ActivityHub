@@ -59,14 +59,18 @@ const ActivityDetails = ({ activity, onClose }) => {
         </button>
         {/* Image */}
         <div>
-          <img src={activity.imageUrl} className="bg-cover bg-center w-full" />
+          <img src={activity.imageUrl} className="object-cover w-full" />
         </div>
         <div className="p-6 space-y-4">
           {/* Approved Users section (below top image, above the title) */}
           {approvedArray.length > 0 ? (
             <div
               onClick={() => setShowParticipantsModal(true)}
-              className="bg-white rounded-full py-2 px-4 shadow-md flex gap-3 cursor-pointer"
+              className={
+                activity.imageUrl
+                  ? "cursor-pointer relative flex justify-between items-center z-99 py-4 px-6 text-orange-500 font-semibold bg-white rounded-full mt-[-55px] shadow-lg hover:shadow-sm"
+                  : "cursor-pointer relative flex justify-between items-center z-99 py-4 px-6 text-orange-500 font-semibold bg-white rounded-full mt-[30px] shadow-lg hover:shadow-sm"
+              }
             >
               {/* Show up to 3 avatars in a stacked style */}
               <div className="flex -space-x-2">
@@ -75,17 +79,23 @@ const ActivityDetails = ({ activity, onClose }) => {
                 ))}
               </div>
               {/* Text aligned to the right */}
-              <span className="text-sm text-gray-800 ml-auto">
+              <span className="text-sm ml-auto">
                 {approvedArray.length > 3
                   ? `+${approvedArray.length - 3} Going`
                   : `${approvedArray.length} Going`}
               </span>
             </div>
           ) : (
-            <div className="bg-white rounded-full py-2 px-4 shadow-md flex flex-col items-center justify-center gap-1 text-center">
-              <span className="text-sm text-gray-800">
-                Be the first to join
-              </span>
+            <div
+              className={
+                activity.imageUrl
+                  ? "cursor-pointer relative flex justify-between items-center z-99 py-4 px-6 text-orange-500 bg-white rounded-full mt-[-50px] shadow-lg hover:shadow-sm"
+                  : "cursor-pointer relative flex justify-between items-center z-99 py-4 px-6 text-orange-500 bg-white rounded-full mt-[30px] shadow-lg hover:shadow-sm"
+              }
+            >
+              <div className="flex flex-1 justify-center text-center font-semibold text-sm">
+                Be the first to join!
+              </div>
             </div>
           )}
           {/* Title */}
@@ -107,7 +117,6 @@ const ActivityDetails = ({ activity, onClose }) => {
                   {
                     month: "short",
                     day: "2-digit",
-                    year: "numeric",
                   },
                 )}
               </p>
@@ -115,7 +124,7 @@ const ActivityDetails = ({ activity, onClose }) => {
                 {new Date(activity.eventStartTimestamp).toLocaleString(
                   undefined,
                   {
-                    weekday: "long",
+                    weekday: "short",
                     hour: "numeric",
                     minute: "numeric",
                   },
@@ -132,7 +141,6 @@ const ActivityDetails = ({ activity, onClose }) => {
                   {
                     month: "short",
                     day: "2-digit",
-                    year: "numeric",
                   },
                 )}
               </p>
@@ -140,7 +148,7 @@ const ActivityDetails = ({ activity, onClose }) => {
                 {new Date(activity.eventEndTimestamp).toLocaleString(
                   undefined,
                   {
-                    weekday: "long",
+                    weekday: "short",
                     hour: "numeric",
                     minute: "numeric",
                   },
