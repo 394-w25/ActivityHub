@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import googleIcon from "@assets/google.png";
-import { signInWithEmail, signInWithGoogle, auth } from "@/hooks/firebase";
+import { signInWithEmail, signInWithGoogle } from "@/hooks/firebase";
 
 const SignInPage = () => {
   const navigate = useNavigate();

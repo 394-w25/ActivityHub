@@ -1,7 +1,7 @@
 // MapPage.jsx
 import React from "react";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const MapPage = () => {

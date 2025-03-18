@@ -1,15 +1,9 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuthState, firebaseSignOut } from "@/hooks/firebase";
-import gymImage from "@assets/gym.jpg";
-import museumImage from "@assets/museum.jpg";
-import cookingImage from "@assets/cooking.jpg";
+import { Link } from "react-router-dom";
 import ActivitiesMap from "@components/ActivitiesMap.jsx";
 import ActivitiesFeed from "@components/ActivitiesFeed.jsx";
 import FilterPage from "@components/FilterPage.jsx";
-import { Filter, Search, X } from "lucide-react";
-import FiltersModal from "@/components/FiltersModal.jsx";
-import Sidebar from "@components/Sidebar";
+import { Search, X } from "lucide-react";
 import Header from "@components/Header";
 import { LocationContext } from "@components/LocationContext";
 import LocationModal from "@/components/LocationModal";
@@ -66,7 +60,6 @@ const HomeScreen = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const [showFilter, setShowFilter] = useState(false);
   const [sortBy, setSortBy] = useState("Distance");
   const [lookingFor, setLookingFor] = useState(null);
   const [startTime, setStartTime] = useState("00:00");
@@ -125,25 +118,6 @@ const HomeScreen = () => {
     searchQuery,
     categories: selectedCategories,
     userLocation: currentLocation,
-  };
-
-  const [user, loading] = useAuthState();
-  const navigate = useNavigate();
-  const [filters, setFilters] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleApplyFilters = (newFilters) => {
-    setFilters(newFilters);
-    setIsModalOpen(false);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await firebaseSignOut();
-      navigate("/");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
   };
 
   const handleSearchChange = (e) => {

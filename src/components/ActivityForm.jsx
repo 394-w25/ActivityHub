@@ -6,7 +6,6 @@ import { ArrowLeft } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";

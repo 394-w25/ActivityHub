@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import Activity from "@components/Activity";
 import { useDbData } from "@hooks/firebase";
 import { getHostedActivities } from "@/utils/activity";
 import { Handshake, Heart, Star } from "lucide-react";
