@@ -9,19 +9,19 @@ ActivityHub has many features to facilitate meeting others in many contexts. You
 
 Once on the app, you'll be greeted by the following homescreen:
 
-[image]
+<img width="392" alt="Homepage Screenshot" src="https://github.com/user-attachments/assets/84350372-3bae-4d5c-88b1-1436e2968896" />
 
 From this screen, you can find events around you and send your interest to the creator of said event.
 
 In the sidebar, we can see the full functionality of the app:
 
-[sidebar image]
+<img width="394" alt="Sidebar Screenshot" src="https://github.com/user-attachments/assets/a9b9d8b9-9bb9-40aa-9401-b45f58a74fb5" />
 
 As of now, "My Profile", "Notifications", "Messages", "Create Activity", and "Sign Out" are implemented. There is UI functionality for "Saved" but nothing further.
 
 On the home page, you're able to filter and sort posts by various criteria. Once you've found an activity you like, click on it to open further details. 
 
-[activity details image here]
+<img width="392" alt="Screenshot 2025-03-17 at 5 47 05 PM" src="https://github.com/user-attachments/assets/78e68a32-0254-4b8c-9f4f-f497390144c4" />
 
 From here, you can send your interest to the host, view their profile for security, and even message them to ask further questions.
 
@@ -29,7 +29,7 @@ The host can accept your interest in their notifications tab. The two of you can
 
 If you're creating an event, you can add data to help people find your event easier. We provide metadata such as tags and a specification of what you're looking for. You can add an image and address to the event, set a maximum group size, and specify a start and end time.
 
-[create event image]
+<img width="396" alt="Screenshot 2025-03-17 at 5 49 59 PM" src="https://github.com/user-attachments/assets/cef27366-96ff-47d0-bcbc-12a615fd1636" />
 
 Users specify tags they're interested in during the onboarding - this currently doesn't affect the feed.
 
@@ -50,7 +50,27 @@ This app provides great functionality for users who want to meet people in their
 - Notification of Interest
 - Host Accepts Interest in Event
 
-# Requirements
+# Usage
+
+Clone the repository onto your computer. From the root of the directory, run:
+
+```npm install```
+
+Once that process has finished, you can run
+
+```npm start```
+
+and go to the page given by the console. The website will be active and functional at that link.
+
+The website is also publicly hosted at [activityhubapp.web.app](https://activityhubapp.web.app/).
+
+## Known Bugs
+- Some pages can be non-responsive to mobile at times. While this doesn't occur often, it has occured once, and we have not been able to replicate the issue.
+- We obtain location permissions from the user, but don't do anything with the live location itself. Further functionality should be implemented here.
+- Same as above with the notifications permissions.
+- There is no way to set opacity in the tailwind within this project as it stands. All styling with opacity shows up as opaque.
+
+## Requirements
 
 Firebase.
 Node 20 or greater.
@@ -72,24 +92,6 @@ Configuration data can go inside `firebase.json`.
 Data in JSON format can be imported into Firebase's Realtime Database.
 
 An account at https://stadiamaps.com/ is required to ues the Stadia Maps OSM API.
-
-## Test
-
-Verify that the initial app works. Run
-
-```
-npm start
-```
-
-and open the URL displayed.
-
-Verify that the unit tests work with
-
-```
-npm test
-```
-
-Two tests should run and pass.
 
 ## Scripts
 
