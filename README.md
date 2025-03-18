@@ -1,10 +1,11 @@
-# React Vitest Template
+# ActivityHub/MeetQuest
+A smart social discovery app that effortlessly connects people for real-life experiences. Whether you're looking for a coffee buddy, a workout partner, or someone to explore a new city with, this app helps you find the right people at the right time, based on shared interests and availability.
 
-A starter template for building React apps with Vite. Includes Vitest for unit testing and
-a hefty .gitignore file.
+This application supports multiple sign-up options, matching and discovery, in-app communication, and safety and trust features.
 
 # Requirements
 
+Firebase.
 Node 20 or greater.
 
 ## Usage
@@ -18,6 +19,12 @@ npm install
 
 If the third step hangs after printing `> cloned criesbeck/react-vitest#HEAD`,
 just control-C to exit then run `npm install`.
+
+Create a Firebase account at https://firebase.google.com/.
+Configuration data can go inside `firebase.json`.
+Data in JSON format can be imported into Firebase's Realtime Database.
+
+An account at https://stadiamaps.com/ is required to ues the Stadia Maps OSM API.
 
 ## Test
 
@@ -49,31 +56,6 @@ Two tests should run and pass.
 | npm run serve    | Serves the production build from the `dist` folder. |
 | npm test         | Starts a Jest-like test loop                        |
 | npm run coverage | Runs the tests, displays code coverage results      |
-
-## Git
-
-If everything is working, set up [your local and remote repositories](https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-locally-hosted-code-to-github#adding-a-local-repository-to-github-using-git).
-
-## Folder Structure
-
-```
-your-app-name
-├── node_modules
-├── public
-│   ├── favicon.svg
-│   └── robots.txt
-└── src
-    ├── App.css
-    ├── App.jsx
-    ├── index.css
-    ├── index.jsx
-    └── logo.svg
-├── .gitignore
-├── index.html
-├── package.json
-├── README.md
-├── vite.config.js
-```
 
 ## Credits
 
