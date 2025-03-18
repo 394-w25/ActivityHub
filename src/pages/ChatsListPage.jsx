@@ -1,4 +1,3 @@
-import { useUserChats } from "@/hooks/firebase";
 import { useAuthState } from "@/hooks/firebase";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -9,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const ChatsListPage = () => {
   const [user, loading] = useAuthState();
   const navigate = useNavigate();
-  const userChats = useUserChats(user?.uid);
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
@@ -23,7 +21,7 @@ const ChatsListPage = () => {
         const chatData = snapshot.val();
         const userChatList = await Promise.all(
           Object.entries(chatData)
-            .filter(([chatId, chat]) => chat.users?.[user.uid])
+            .filter(([_, chat]) => chat.users?.[user.uid])
             .map(async ([chatId, chat]) => {
               const participantId = Object.keys(chat.users).find(
                 (uid) => uid !== user.uid,

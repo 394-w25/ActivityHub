@@ -9,7 +9,6 @@ import ChatsListPage from "@/pages/ChatsListPage";
 import SignInPage from "@/pages/SignInPage";
 import SignUpPage from "@/pages/SignUpPage";
 import PhoneSignUpPage from "@/pages/PhoneSignUpPage";
-// import OnboardingPage from "@/pages/OnboardingPage";
 import LandingPage from "@/pages/LandingPage";
 import MapPage from "@/pages/MapPage";
 

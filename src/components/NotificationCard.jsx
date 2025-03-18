@@ -7,16 +7,7 @@ import React, { useState } from "react";
 
 export function NotificationCard({ notification }) {
   const navigate = useNavigate();
-  const {
-    senderId,
-    senderName,
-    senderPhotoURL,
-    eventTitle,
-    createdAt,
-    type,
-    message,
-  } = notification;
-  const [profilePic, setProfilePic] = useState(null);
+  const { type, message } = notification;
 
   let timeAgo = "Just now";
   if (notification.timestamp) {
@@ -41,10 +32,6 @@ export function NotificationCard({ notification }) {
   };
 
   const [acceptBtn, setAcceptBtn] = useState(false);
-
-  const toggleAccept = () => {
-    setAcceptBtn(true);
-  };
 
   return (
     <div className="bg-white px-4 py-3 mb-3 max-w-md w-full">

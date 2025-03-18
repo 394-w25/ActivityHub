@@ -15,7 +15,6 @@ import {
   getDatabase,
   ref,
   get,
-  set,
   update,
   onValue,
   remove,
@@ -23,7 +22,6 @@ import {
 } from "firebase/database";
 import { useState, useEffect, useCallback } from "react";
 import { getFirestore } from "firebase/firestore";
-import { PhoneOutgoing } from "lucide-react";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {

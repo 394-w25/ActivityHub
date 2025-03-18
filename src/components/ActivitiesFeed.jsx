@@ -1,4 +1,3 @@
-import { startAfter } from "firebase/database";
 import { useDbData } from "../hooks/firebase.js";
 import { getHostedActivities } from "../utils/activity.js";
 import Activity from "./Activity.jsx";

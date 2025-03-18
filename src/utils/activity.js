@@ -14,7 +14,7 @@
  * - Interested UIDs: String[]
  */
 
-import { useDbData, useDbUpdate, useDbRemove } from "@hooks/firebase";
+import { useDbUpdate, useDbRemove } from "@hooks/firebase";
 
 export const getHostedActivities = (
   userData,
