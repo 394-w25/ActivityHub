@@ -68,7 +68,6 @@ The website is also publicly hosted at [activityhubapp.web.app](https://activity
 - Some pages can be non-responsive to mobile at times. While this doesn't occur often, it has occured once, and we have not been able to replicate the issue.
 - We obtain location permissions from the user, but don't do anything with the live location itself. Further functionality should be implemented here.
 - Same as above with the notifications permissions.
-- There is no way to set opacity in the tailwind within this project as it stands. All styling with opacity shows up as opaque.
 
 ## Requirements
 
